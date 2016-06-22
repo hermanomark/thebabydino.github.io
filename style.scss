@@ -3,7 +3,7 @@ $c: lightskyblue;
 html {
 	background: #000;
 	color: #fff;
-	font: 100%/1.5 trebuchet ms, verdana, sans-serif;
+	font: 125%/1.5 trebuchet ms, verdana, sans-serif;
 }
 
 a {
@@ -48,7 +48,7 @@ nav {
 			transform: translate(-100%);
 		}
 		
-		&:hover, &:focus {
+		&:hover, &:focus, &.current {
 			&:before, &:after, :before, :after {
 				transform: none;
 			}
