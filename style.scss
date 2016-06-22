@@ -11,8 +11,9 @@ a {
 }
 
 header {
+	font-variant: small-caps;
 	text-align: center;
-	text-transform: uppercase;
+	text-transform: capitalize;
 }
 
 nav {	
@@ -76,6 +77,11 @@ nav {
 			transform: translateY(100%);
 		}
 	}
+}
+
+main {
+	margin: 0 auto;
+	max-width: 50em;
 }
 
 .button--twitter {
