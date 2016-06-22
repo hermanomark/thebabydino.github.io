@@ -3,16 +3,19 @@ $c: lightskyblue;
 html {
 	background: #000;
 	color: #fff;
-	font: 125%/1.5 trebuchet ms, verdana, sans-serif;
+	font: 100%/1.5 trebuchet ms, verdana, sans-serif;
 }
 
 a {
 	color: $c;
 }
 
-nav {
+header {
 	text-align: center;
-	
+	text-transform: uppercase;
+}
+
+nav {	
 	* {
 		box-sizing: border-box;
 		display: inline-block;
