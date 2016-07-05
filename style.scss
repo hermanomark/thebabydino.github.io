@@ -27,7 +27,7 @@ a {
 	color: $c;
 	text-decoration: none;
 
-	:not(header) & {
+	main &, footer &:not([class*='button']) {
 		&:hover, &:focus {
 			background: #eee;
 			color: navy;
