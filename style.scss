@@ -27,9 +27,11 @@ a {
 	color: $c;
 	text-decoration: none;
 
-	&:hover, &:focus {
-		background: #eee;
-		color: navy;
+	:not(nav) & {
+		&:hover, &:focus {
+			background: #eee;
+			color: navy;
+		}
 	}
 }
 
