@@ -27,7 +27,7 @@ a {
 	color: $c;
 	text-decoration: none;
 
-	:not(nav) & {
+	:not(header) & {
 		&:hover, &:focus {
 			background: #eee;
 			color: navy;
