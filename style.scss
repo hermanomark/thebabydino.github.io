@@ -17,12 +17,21 @@ body {
 	font: 100%/1.5 trebuchet ms, verdana, sans-serif;
 }
 
+header, footer { background: #111; }
+
+p {
+	margin: .5em 0;
+}
+
 a {
 	color: $c;
 	text-decoration: none;
-}
 
-header, footer { background: #111; }
+	&:hover, &:focus {
+		background: #eee;
+		color: navy;
+	}
+}
 
 
 /* header */
