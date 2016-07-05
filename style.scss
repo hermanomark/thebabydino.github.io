@@ -1,12 +1,17 @@
 $c: lightskyblue;
 
+
+/* general */
 *, :before, :after {
 	box-sizing: inherit;
 	margin: 0;
 	padding: 0;
 }
 
-html {
+body {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
 	background: #000;
 	color: #fff;
 	font: 100%/1.5 trebuchet ms, verdana, sans-serif;
@@ -19,6 +24,8 @@ a {
 
 header, footer { background: #111; }
 
+
+/* header */
 header {
 	font-variant: small-caps;
 	text-align: center;
@@ -88,11 +95,15 @@ nav {
 	}
 }
 
+/* main */
 main {
+	flex: 1;
 	margin: 0 auto;
 	max-width: 50em;
 }
 
+
+/* footer */
 .button--twitter {
 	border: solid 0 #0C7ABF;
 	border-width: .125em .5em;
