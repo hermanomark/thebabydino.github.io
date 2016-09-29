@@ -18,6 +18,9 @@ header, footer {
 p {
   margin: 1em; }
 
+li {
+  list-style: inside; }
+
 a {
   color: lightskyblue;
   text-decoration: none; }
