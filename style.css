@@ -19,6 +19,7 @@ main > p, ul {
   margin: 1em; }
 
 li {
+  margin: .125em 0;
   list-style: none; }
 
 a {
