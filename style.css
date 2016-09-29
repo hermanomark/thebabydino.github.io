@@ -10,7 +10,7 @@ body {
   min-height: 100vh;
   background: #000;
   color: #fff;
-  font: 125%/1.5 trebuchet ms, verdana, sans-serif; }
+  font: 112.5%/1.5 trebuchet ms, verdana, sans-serif; }
 
 header, footer {
   background: #111; }
@@ -86,7 +86,7 @@ main {
 .item:before {
   display: inline-block;
   margin-left: .25em;
-  width: 1em;
+  width: 2em;
   text-align: center; }
 .item--article:before {
   content: '\1F5BA'; }
