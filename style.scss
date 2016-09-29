@@ -118,6 +118,22 @@ main {
 	max-width: 50em;
 }
 
+.item {
+	&__date {
+		&:before { content: '📅'; }
+	}
+
+	&__tags {
+		span {
+			display: inline-block;
+			border-radius: 3px;
+			background: $c;
+			color: #000;
+			vertical-align: middle;
+		}
+	}
+}
+
 
 /* footer */
 .button--twitter {

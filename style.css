@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /* general */
 *, :before, :after {
   box-sizing: inherit;
@@ -80,6 +81,15 @@ main {
   flex: 1;
   margin: 0 auto;
   max-width: 50em; }
+
+.item__date:before {
+  content: '≡ƒôà'; }
+.item__tags span {
+  display: inline-block;
+  border-radius: 3px;
+  background: lightskyblue;
+  color: #000;
+  vertical-align: middle; }
 
 /* footer */
 .button--twitter {
