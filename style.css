@@ -15,7 +15,7 @@ body {
 header, footer {
   background: #111; }
 
-p, ul {
+main > p, ul {
   margin: 1em; }
 
 li {
