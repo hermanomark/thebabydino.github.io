@@ -19,10 +19,7 @@ main > p, ul {
   margin: 1em; }
 
 li {
-  padding: .25em .25em .25em .5em;
-  list-style: circle inside; }
-  li li {
-    list-style: disc inside; }
+  list-style: none; }
 
 a {
   color: lightskyblue;
@@ -84,8 +81,12 @@ main {
   margin: 0 auto;
   max-width: 50em; }
 
+.item--article:before {
+  content: '\1F5BA'; }
+.item--talk:before {
+  content: '\1F4BB'; }
 .item--podcast:before {
-  content: '\266B'; }
+  content: '\1F50A'; }
 .item__date:before {
   display: inline-block;
   margin-right: .25em;

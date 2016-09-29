@@ -23,10 +23,7 @@ header, footer { background: #111; }
 main > p, ul { margin: 1em; }
 
 li {
-	padding: .25em .25em .25em .5em;
-	list-style: circle inside;
-
-	li { list-style: disc inside; }
+	list-style: none;
 }
 
 a {
@@ -123,15 +120,15 @@ main {
 
 .item {
 	&--article {
-
+		&:before { content: '\1F5BA'; }
 	}
 
 	&--talk {
-
+		&:before { content: '\1F4BB'; }
 	}
 
 	&--podcast {
-		&:before { content: '\266B'; }
+		&:before { content: '\1F50A'; }
 	}
 
 	&__date {
