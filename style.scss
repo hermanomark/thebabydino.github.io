@@ -122,6 +122,18 @@ main {
 }
 
 .item {
+	&--article {
+
+	}
+
+	&--talk {
+
+	}
+
+	&--podcast {
+		&:before { content: '\266B'; }
+	}
+
 	&__date {
 		&:before {
 			display: inline-block;
