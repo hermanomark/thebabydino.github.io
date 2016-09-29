@@ -22,6 +22,7 @@ header, footer { background: #111; }
 p, ul { margin: 1em; }
 
 li {
+	padding: .25em .25em .25em .5em;
 	list-style: circle inside;
 
 	li { list-style: disc inside; }
