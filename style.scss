@@ -162,6 +162,11 @@ main {
 			color: #000;
 		}
 	}
+
+	&__translation {
+		&--ru:before { content: '\1F1F7\1F1FA'; }
+		&--fr:before { content: '\1F1EB\1F1F7'; }
+	}
 }
 
 

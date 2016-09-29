@@ -107,6 +107,10 @@ main {
   border-radius: 3px;
   background: lightskyblue;
   color: #000; }
+.item__translation--ru:before {
+  content: '\1F1F7\1F1FA'; }
+.item__translation--fr:before {
+  content: '\1F1EB\1F1F7'; }
 
 /* footer */
 .button--twitter {
