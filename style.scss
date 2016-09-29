@@ -119,6 +119,10 @@ main {
 }
 
 .item {
+	&:before {
+		display: inline-block;
+	}
+
 	&--article {
 		&:before { content: '\1F5BA'; }
 	}
@@ -130,6 +134,8 @@ main {
 	&--podcast {
 		&:before { content: '\1F50A'; }
 	}
+
+	&__original { display: inline-block; }
 
 	&__date {
 		&:before {
