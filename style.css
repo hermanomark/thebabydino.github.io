@@ -82,7 +82,10 @@ main {
   max-width: 50em; }
 
 .item:before {
-  display: inline-block; }
+  display: inline-block;
+  margin-left: .25em;
+  width: 1em;
+  text-align: center; }
 .item--article:before {
   content: '\1F5BA'; }
 .item--talk:before {

@@ -121,6 +121,9 @@ main {
 .item {
 	&:before {
 		display: inline-block;
+		margin-left: .25em;
+		width: 1em;
+		text-align: center;
 	}
 
 	&--article {
