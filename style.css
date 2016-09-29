@@ -10,7 +10,7 @@ body {
   min-height: 100vh;
   background: #000;
   color: #fff;
-  font: 100%/1.5 trebuchet ms, verdana, sans-serif; }
+  font: 125%/1.5 trebuchet ms, verdana, sans-serif; }
 
 header, footer {
   background: #111; }
@@ -19,7 +19,7 @@ main > p, ul {
   margin: 1em; }
 
 li {
-  margin: .125em 0;
+  margin: .1875em 0;
   list-style: none; }
 
 a {
