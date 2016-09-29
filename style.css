@@ -32,6 +32,9 @@ a {
     background: #eee;
     color: navy; }
 
+code {
+  font-size: 1.125em; }
+
 /* header */
 header {
   font-variant: small-caps;
