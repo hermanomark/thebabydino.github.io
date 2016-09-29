@@ -1,4 +1,5 @@
 @charset 'UTF-8';
+
 $c: lightskyblue;
 
 /* general */
@@ -126,10 +127,11 @@ main {
 	&__tags {
 		span {
 			display: inline-block;
+			margin: 0 .5em;
+			padding: 0 .5em;
 			border-radius: 3px;
 			background: $c;
 			color: #000;
-			vertical-align: middle;
 		}
 	}
 }
