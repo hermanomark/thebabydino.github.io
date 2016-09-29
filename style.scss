@@ -41,7 +41,7 @@ a {
 	}
 }
 
-code { font-size: 1.125em; }
+code { font-size: 1.25em; }
 
 
 /* header */
@@ -123,13 +123,17 @@ main {
 
 .item {
 	&__date {
-		&:before { content: '\1F4C5'; }
+		&:before {
+			display: inline-block;
+			margin-right: .25em;
+			content: '\1F4C5';
+		}
 	}
 
 	&__tags {
 		span {
 			display: inline-block;
-			margin: 0 .25em;
+			margin: 0 .125em;
 			padding: 0 .5em;
 			border-radius: 3px;
 			background: $c;
