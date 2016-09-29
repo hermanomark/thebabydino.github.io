@@ -123,7 +123,7 @@ main {
 
 .item {
 	&__date {
-		&:before { content: '📅'; }
+		&:before { content: '\1F4C5'; }
 	}
 
 	&__tags {
