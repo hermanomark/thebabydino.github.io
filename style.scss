@@ -134,6 +134,10 @@ main {
 		&:before { content: '\1F5BA'; }
 	}
 
+	&--psa {
+		&:before { content: '\1F5B9'; }
+	}
+
 	&--talk {
 		&:before { content: '\1F4BB'; }
 	}

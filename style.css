@@ -90,6 +90,8 @@ main {
   text-align: center; }
 .item--article:before {
   content: '\1F5BA'; }
+.item--psa:before {
+  content: '\1F5B9'; }
 .item--talk:before {
   content: '\1F4BB'; }
 .item--podcast:before {
