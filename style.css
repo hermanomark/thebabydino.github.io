@@ -116,6 +116,7 @@ main {
 
 /* footer */
 .button--twitter {
+  display: inline-block;
   margin: .25em;
   border: solid 0 #0C7ABF;
   border-width: .125em .5em;
