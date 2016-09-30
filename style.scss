@@ -18,7 +18,10 @@ body {
 	font: 112.5%/1.5 trebuchet ms, verdana, sans-serif;
 }
 
-header, footer { background: #111; }
+header, footer {
+	background: #222;
+	text-align: center;
+}
 
 main > p, ul { margin: 1em; }
 
@@ -48,7 +51,6 @@ code {
 /* header */
 header {
 	font-variant: small-caps;
-	text-align: center;
 	text-transform: capitalize;
 }
 
@@ -176,6 +178,8 @@ main {
 
 /* footer */
 .button--twitter {
+	//display: inline-block;
+	margin: .25em;
 	border: solid 0 #0C7ABF;
 	border-width: .125em .5em;
 	padding-left: 1.5em;
