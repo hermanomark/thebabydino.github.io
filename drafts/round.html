@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+	<head>
+		<meta charset='UTF-8' />
+		<link rel='stylesheet' href='style.css' />
+		<title>SVG polygons with rounded corners</title>
+	</head>
+
+	<body>
+		<h1>SVG polygons with rounded corners</h1>
+
+		<p>I've recently felt frustrated at the lack of an option to round the corners of a <code>&lt;polygon&gt;</code> element by simply specifying a rounding radius (<code>r</code>) attribute. After all, the <code>&lt;rect&gt;</code> element gives us the option of specifying rounding radii along the <code><var>x</var></code> and <code><var>y</var></code> axes via the <a href='https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/rx'><code>rx</code></a> and <a href='https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/ry'><code>ry</code></a>    attributes.</p>
+
+		<p>I've learned that it's been proposed and got asked if I could draft an algorithm for getting the equivalent <code>&lt;path&gt;</code> data (<code>d</code>) attribute from the <code>points</code> and <code>r</code> attribute specified for the initial <code>&lt;polygon&gt;</code>. I've never done this before, had no idea how to do this, what to begin with, so I'd thought I'd have a more clear idea once I've coded some kind of JavaScript polyfill for this. This article is going to walk you through the thought process behind the JavaScript code.</p>
+
+		<p>For testing our code, we use a <code>&lt;polygon&gt;</code> element with the minimum number of coordinate pairs needed to create a shape (three), so we make it easy for ourselves to check computations.</p>
+
+		<pre>&lt;svg viewbox='-50 -50 100 100'>
+	&lt;polygon points='50,0 -25,43.3 -25,-43.3' r='10'/>
+&lt;/svg></pre>
+
+		<p>This is an equilateral triangle. Three vertices, three sets of coordinates, all edges equal, equal angles, all three <code>60°</code> ones. Furthermore, the first vertex (the one at <code>50,0</code>) is on the <code><var>x</var></code> axis, so its <code><var>y</var></code> coordinate is <code>0</code>. All chosen this way just to make our life easier when checking whether our code works correctly or not.</p>
+
+		<figure>
+			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_test_ini.svg' />
+			<figcaption>our initial test polygon</figcaption>
+		</figure>
+
+		<p>For this <code>&lt;polygon&gt;</code>, we've also set an <code>r</code> attribute - this is the rounding radius. The value is completely arbitrary, we took it to be <code>10</code> here because it's a nice round number (it's easier to multiply or divide by <code>10</code> than it is by, let's say, <code>7.8</code>) and it's also big enough relative to the size of the triangle for the rounding it produces to be noticeable.</p>
+
+		<p>Now let's go to the JavaScript part. We start with creating a <code>roundPoly(_poly)</code> function, which we call for every <code>&lt;polygon&gt;</code> element that has an <code>r</code> attribute:</p>
+
+		<pre>function roundPoly(_poly) {};
+
+let _p = document.querySelectorAll('polygon[r]'), 
+	n = _p.length;
+
+for(let i = 0; i &lt; n; i++)
+	roundPoly(_p[i]);</pre>
+
+		<p>Our function doesn't yet do anything, so let's start working on that. We first need to <a href='https://codepen.io/thebabydino/pen/aec5026c4030e2b7db303d1931e99dc0?editors=1011'>check</a> the value we get from the <code>r</code> attribute is a positive (<code>&gt; 0</code>) finite (not <code>Infinity</code>) number (its type is <code>'number'</code> and it's not <code>NaN</code>). Otherwise, we exit the function.</p>
+
+		<pre>let r = 1*_poly.getAttribute('r');
+
+if(!(typeof r === 'number' && 
+	r > 0 && r !== Infinity && 
+	!Number.isNaN(r))) return;</pre>
+
+		<p>Note that we need to check both that its type is <code>'number'</code> and that it's not <code>NaN</code> since <code>typeof NaN</code> also gives us <code>'number'</code>.</p>
+
+		<p>Next, we extract the vertex coordinates from the <code>points</code> attribute, checking that they're at least <code>3</code> sets of coordinates, the minimum number to create a polygon (because a polygon has at least 3 vertices, in which case it's a triangle). Now the <code>points</code> attribute looks nice and clean for our test above, easy to split into sets of coordinates. However, differently formatted and messier versions work just as well. All of the following also result in the exact same triangle (note the different comma and space placement and the fact that one even has an extra number at the end):</p>
+
+		<pre>'50,0 -25,43.3 -25,-43.3'
+'50 0 -25 43.3 -25 -43.3'
+'50 0,-25 43.3,-25 -43.3'
+'50 0 -25,43.3 -25 -43.3'
+'50 0,-25 43.3 -25,-43.3'
+'50 0,-25 43.3 -25,-43.3 17'
+'50, 0 -25, 43.3 -25, -43.3'
+'50,0 
+-25,43.3 
+-25,-43.3' 
+'50 ,   0 -25 , 43.3        -25 , -43.3'</pre>
+
+		<p>So, after reading the value of the <code>points</code> attribute, we need to make sure we catch all these possibilities with the regular expression we use to <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split'><code>split()</code></a> the string we get and then, since all the coordinate values are still strings at this point, we convert them to numbers:</p>
+
+		<pre>let v = _poly.getAttribute('points')
+	.split(/\s*,\s*|\s+/g)
+	.map(c => 1*c);</pre>
+
+		<p>This makes sure we get the same array if we have the same coordinates, no matter how the <code>points</code> attribute may have been formatted, as it can be seen in <a href='https://codepen.io/thebabydino/pen/3dce8589ec24aab3ae874737fedb13cd?editors=1011'>this Pen</a> (we get something like <code>[x<sub>0</sub>, y<sub>0</sub>, x<sub>1</sub>, y<sub>1</sub>, ...]</code>).</p>
+
+		<p>Now we check if we have the minimum number of coordinates needed to form a polygon. If not, we exit the function.</p>
+
+		<pre>let n = v.length;
+
+if(.5*n &lt; 3) return;</pre>
+
+		<p>After that, we check that all useful coordinates are finite numbers. If not, we exit the function, otherwise we compact the 1D array of coordinates into a 2D array of <code>x,y</code> pairs of coordinates (so basically, we go from something like <code>[x<sub>0</sub>, y<sub>0</sub>, x<sub>1</sub>, y<sub>1</sub>, ...]</code> to something like <code>[[x<sub>0</sub>, y<sub>0</sub>], [x<sub>1</sub>, y<sub>1</sub>], ...]</code>) using <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce'><code>reduce()</code></a>.</p>
+
+		<pre>for(let i = 0; i &lt; n - n%2; i++) {
+	if(typeof v[i] !== 'number' || Number.isNaN(v[i]) || 
+		Math.abs(v[i]) === Infinity) return;
+}
+
+// a, c, i = accumulator, current item, current index
+v = v.reduce((a, c, i) => i%2 ? a.concat([[v[i - 1], c]]) : a, []);
+
+n = v.length;</pre>
+
+		<p>How the above code works can be seen in <a href='https://codepen.io/thebabydino/pen/f5599d6885b2d0f084c8b34e3a9524da?editors=0011'>this Pen</a>.</p>
+
+		<p>We need one more check here and that's to see that no three consecutive points are <a href='http://mathworld.wolfram.com/Collinear.html'>collinear</a>. If that happens to be the case, we need to remove the one in the middle (the second of the three). If removing a vertex leaves us with less than <code>3</code> vertices, then we exit the function.</p>
+
+		<pre>for(let i = 0; i &lt; n; i++) {
+	let c = v[i] /* current vertex coords */, 
+		prv = v[(i + n - 1)%n] /* previous */, 
+		nxt = v[(i + 1)%n] /* next */;
+
+	/*
+	 * are previous, current and next 
+	 * vertices collinear?
+	 */
+	if((c[1] - prv[1])*(nxt[0] - c[0]) ===
+		(c[0] - prv[0])*(nxt[1] - c[1])) {
+		/* remove current vertex */
+		v.splice(i--, 1);
+		/* do we still have enough vertices? */
+		if(--n &lt; 3) return;
+	}
+}</pre>
+
+		<p><a href='https://codepen.io/thebabydino/pen/0fcb73e0cdceb3f11828a73632f1cacd?editors=0011'>Test</a>.</p>
+
+		<p>So far, so good. Let's see what we know so far:</p>
+
+		<ul>
+			<li>the rounding radius <code>r</code>, which we've extracted from the <code>r</code> attribute of our initial <code>&lt;polygon&gt;</code> element</li>
+			<li>the vertex coordinates (the <code>v</code> array) of the initial polygon, which we've extracted from the <code>points</code> attribute</li>
+			<li>the number (<code>n</code>) of vertices we need to round</li>
+		</ul>
+
+		<p>A polygon with rounded corners is equivalent to a path made up of arcs (one at each proper vertex of the initial polygon) and straight line segments (one along each proper edge of the initial polygon).</p>
+
+		<figure>
+			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_arcs_segs_min.svg' />
+			<figcaption>rounding the corners of a polygon means replacing it with a path made up of arcs (one replacing each of the polygon's proper vertices) and straight line gegments (one along each proper edge of the initial polygon); note that the dashed lines denote the possibility of more vertices being in between those they connect</figcaption>
+		</figure>
+
+		<p>This <code>&lt;path&gt;</code> element's data (<code>d</code>) attribute is made up of:</p>
+
+		<ul>
+			<li>a 'move to' (<code>M</code>) command followed by the coordinates of the point where our path starts; we take this to be the start point of the first arc (<code><var>S<sub>0</sub></var></code>), whose coordinates are <code><var>xs<sub>0</var></sub>,<var>ys<sub>0</var></sub></code>;</li>
+			<li>an 'arc to' (<code>A</code>) command for every <code>i</code>-th arc; this draws the arc between its start point (<code><var>S<sub>i</sub></var></code>) and its end point <code><var>E<sub>i</sub></var></code>);</li>
+			<li>a 'line to' (<code>L</code>) command for every <code>i</code>-th edge but the last one, followed by the coordinates point where this line segment ends, which is the start point of the next arc (<code><var>S<sub>i+1</sub></var></code>), whose coordinates are <code><var>xs<sub>i+1</var></sub>,<var>ys<sub>i+1</var></sub></code>; this line segment starts from the end point of the arc we've just drawn (<code><var>E<sub>i</sub></var></code>, of coordinates <code><var>xe<sub>i</var></sub>,<var>ye<sub>i</var></sub></code>);</li>
+			<li>a 'close path' (<code>z</code>) command at the end which connects the end point of the last arc (<code><var>E<sub>n-1</sub></var></code> of coordinates <code><var>xe<sub>n-1</var></sub>,<var>ye<sub>n-1</var></sub></code>) to the start point of our path (also the start point of the first arc <code><var>S<sub>0</sub></var></code>);</li>
+		</ul>
+
+		<p><em>Note that by <code>i + 1</code> we actually mean <code>(i + 1)%n</code> and by <code>i - 1</code> we actually mean <code>(i + n - 1)%n</code>. That's what we're going to use in the JavaScript code, but we're lazy so, for now, we just want to write less.</em></p>
+
+		<figure>
+			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_arcs_segs_an_min.svg' />
+			<figcaption>equivalent path for polygon with rounded corners with the start and end points for each arc marked on it: <code><var>S<sub>0</sub></var>,<var>E<sub>0</sub></var>, ... <var>S<sub>i-1</sub></var>,<var>E<sub>i-1</sub></var>, <var>S<sub>i</sub></var>,<var>E<sub>i</sub></var>, <var>S<sub>i+1</sub></var>,<var>E<sub>i+1</sub></var>, .... <var>S<sub>n-1</sub></var>,<var>E<sub>n-1</sub></var></code></figcaption>
+		</figure>
+
+		<p>Let's take a closer look at the components of an 'arc to' command. We have the following:</p>
+
+		<ul>
+			<li>the radius of this arc along the <code><var>x</var></code> axis of its system of coordinates - this is equal to the rounding radius <code>r</code></li>
+			<li>the radius of this arc along the <code><var>y</var></code> axis of its system of coordinates - this is also equal to the rounding radius <code>r</code></li>
+			<li>the rotation of its system of coordinates - this doesn't matter in our case since the radii along the two 2D dimensions (<code>x</code> and <code>y</code>) are equal, so we take it to be <code>0</code> to keep things as simple as possible</li>
+			<li>the large arc flag - this is <code>0</code> in our case since we always take the small arc (the one inside the small angle, the one under <code>180°</code>, whether this is inside or outside the polygon - for example, in the illustration above, note how most arcs are inside the polygon, but one is outside)</li>
+			<li>the sweep flag <code><var>f<sub>i</sub></var></code> - this is <code>1</code> if the arc goes clockwise between its start and its end point and <code>0</code> otherwise; it's something we need to compute for each arc</li>
+			<li>the <code><var>x</var></code> coordinate of the arc's end point - this is <code><var>xe<sub>i</sub></var></code> for the generic <code>i</code>-th arc</li>
+			<li>the <code><var>y</var></code> coordinate of the arc's end point - this is <code><var>ye<sub>i</sub></var></code> for the generic <code>i</code>-th arc</li>
+		</ul>
+
+		<p>Knowing all this, our path data is going to look something like this:</p>
+
+		<pre>M <var>xs<sub>0</sub></var>, <var>ys<sub>0</sub></var>
+A r, r, 0, 0, <var>f<sub>0</sub></var>, <var>xe<sub>0</sub></var>, <var>ye<sub>0</sub></var>
+L <var>xs<sub>1</sub></var>, <var>ys<sub>1</sub></var>
+A r, r, 0, 0, <var>f<sub>1</sub></var>, <var>xe<sub>1</sub></var>, <var>ye<sub>1</sub></var>
+...
+L <var>xs<sub>i</sub></var>, <var>ys<sub>i</sub></var>
+A r, r, 0, 0, <var>f<sub>i</sub></var>, <var>xe<sub>i</sub></var>, <var>ye<sub>i</sub></var>
+...
+L <var>xs<sub>n-1</sub></var>, <var>ys<sub>n-1</sub></var>
+A r, r, 0, 0, <var>f<sub>n-1</sub></var>, <var>xe<sub>n-1</sub></var>, <var>ye<sub>n-1</sub></var>
+z</pre>
+
+		<p>So we need to compute the following for each arc:</p>
+
+		<ul>
+			<li>the coordinates <code><var>xs</var>,<var>ys</var></code> of its start point <code><var>S</var></code></li>
+			<li>the coordinates <code><var>xe</var>,<var>ye</var></code> of its end point <code><var>E</var></code></li>
+			<li>whether it goes clockwise or not, which determines the value (<code>1</code> or <code>0</code>) for its sweep flag <code><var>f</var></code></li>
+		</ul>
+		
+		<p>Let's first get the sweep flag out of the way. For the <code>i</code>-th arc, the value of the <code><var>f<sub>i</sub></var></code> flag is determined by whether the arc goes clockwise (in which case it's <code><var>1</var></code>) or not (in which case it's <code><var>0</var></code>). We can get the direction of the arc by <a href='https://en.wikipedia.org/wiki/Curve_orientation#Orientation_of_a_simple_polygon'>computing the following sum</a>:</p>
+		
+		<pre><var>Σ<sub>i</sub></var> = 
+(x<sub>i-1</sub>y<sub>i</sub> + x<sub>i</sub>y<sub>i+1</sub> + x<sub>i+1</sub>y<sub>i-1</sub>) - 
+(y<sub>i-1</sub>x<sub>i</sub> + y<sub>i</sub>x<sub>i+1</sub> + y<sub>i+1</sub>x<sub>i-1</sub>)</pre>
+		
+		<p>If this sum is positive, then the arc goes in the clockwise direction and the <code><var>f<sub>i</sub></var></code> flag is <code>1</code>. If it's negative, then the arc goes counterclockwise and the <code><var>f<sub>i</sub></var></code> flag is <code>0</code>. But what if it's exactly <code>0</code>? Well, that cannot happen, as it would mean the three points are collinear and we've already taken care of that situation.</p>
+
+		<p>If the sum is positive, then the sign of the <code>Σ<sub>i</sub></code> sum is <code>1</code> and <code><var>f<sub>i</sub></var></code> is <code>1</code>. If the sum is negative, then the sign of the <code>Σ<sub>i</sub></code> sum is <code>-1</code> and <code><var>f<sub>i</sub></var></code> is <code>0</code>. This helps us extract a formula for <code><var>f<sub>i</sub></var></code>:</p>
+
+		<pre><var>f<sub>i</sub></var> = .5*(sgn(Σ<sub>i</sub>) + 1)</pre>
+
+		<p>We can check that this works for both positive <code>Σ<sub>i</sub></code> (<code>.5*(1 + 1) = .5*2 = 1</code>) and for negative <code>Σ<sub>i</sub></code> (<code>.5*(-1 + 1) = .5*0 = 0</code>).</p>
+
+		<p>Good, now let's code this! What we need to do here is <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map'><code>map()</code></a> the 2D array of vertex coordinates to a 1D array of flags:</p>
+		
+		<pre>/* map(current item, current index, input array) */
+let f = v.map((c, i, a) => {
+	let prv = a[(i + n - 1)%n] /* prev vertex coords */, 
+		nxt = a[(i + 1)%n] /* next vertex coords */,
+		Σ /* sum */;
+	
+	Σ = prv[0]*c[1] + c[0]*nxt[1] + nxt[0]*prv[1]
+		- prv[1]*c[0] - c[1]*nxt[0] - nxt[1]*prv[0];
+	
+	return .5*(Math.sign(Σ) + 1);
+});</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/0e2b2d5b3dde0c0152541bd5f018ff21?editors=0011'>Test</a>.</p>
+
+		<p>Moving on, how can we compute the coordinates of the start and end points? Well, let' first see how we can get the coordinates of a random point <code><var>P</var></code> in a plane. We can consider this point to be on a circle of radius <code>r</code>. Its <code><var>xp</var>,<var>yp</var></code>    coordinates depend on the radius of this circle and on where it is on this circle. The measure of where it is on this circle is the angle <code>θ</code> between the radial line <code><var>OP</var></code> and the horizontal (the <code><var>Ox</var></code>    axis). The following interactive demo illustrates this:</p>
+
+		<p data-height='620' data-theme-id='0' data-slug-hash='652c910e53df2d8222a062f132594960' data-default-tab='result' data-user='thebabydino' data-embed-version='2' data-pen-title='position of point in a plane' class='codepen'>See the Pen <a href='https://codepen.io/thebabydino/pen/652c910e53df2d8222a062f132594960/'>position of point in a plane</a> by Ana Tudor (<a href='http://codepen.io/thebabydino'>@thebabydino</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+		<script async src='https://production-assets.codepen.io/assets/embed/ei.js'></script>
+
+		<p>Consider the following particular case:</p>
+
+		<figure>
+			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_point_coords_pcase.svg'/>
+			<figcaption>particular case of a point in a plane</figcaption>
+		</figure>
+
+		<p>The <code><var>Q</var></code> and <code><var>R</var></code> points are the projections of our point <code><var>P</var></code> onto the axes of our system of coordinates. This means that <code><var>PQ</var></code> and <code><var>PR</var></code> are perpendicular onto the axes (the <code>∠<var>PQO</var></code> and <code>∠<var>PRO</var></code> angles are <code>90°</code> angles). It also means that the <code><var>OQ</var></code> and <code><var>PR</var></code> segments are equal to <code><var>xp</var></code> (which is the value of <code><var>P</var></code>'s <code><var>x</var></code> coordinate) and that the <code><var>OR</var></code> and <code><var>PQ</var></code> segments are equal to <code><var>yp</var></code> (which is the value of <code><var>P</var></code>'s <code><var>y</var></code> coordinate).</p>
+
+		<p><code><var>PQO</var></code> is a right triangle (since the <code>∠<var>PQO</var></code> angle is a <code>90°</code> angle) where we know the hypotenuse <code><var>OP</var></code> (it's <code>r</code>, the radius of the circle <code><var>P</var></code>    is on) and the <code>∠<var>QOP</var></code> angle (it's <code>θ</code>).</p>
+
+		<p>The cosine of the <code>∠<var>QOP</var></code> angle (<code>θ</code>) is the ratio between the adjacent side <code><var>OQ</var></code> (<code><var>xp</var></code>) and the hypotenuse <code><var>OP</var></code> (<code>r</code>). This means we have <code>cos(θ) = <var>xp</var>/r</code> and, from here, we get that <code><var>xp</var> = r*cos(θ)</code>.</p>
+
+		<p>Similarly, the sine of the same <code>∠<var>QOP</var></code> angle (<code>θ</code>) is the ratio between the opposing side <code><var>PQ</var></code> (<code><var>yp</var></code>) and the hypotenuse <code><var>OP</var></code> (<code>r</code>). This means we have <code>sin(θ) = <var>yp</var>/r</code> and, from here, we get that <code><var>yp</var> = r*sin(θ)</code>.</p>
+
+		<p>So the <code><var>xp</var>,<var>yp</var></code> coordinates of any point <code><var>P</var></code> on a circle around the origin are:</p>
+
+		<pre><var>xp</var> = r*cos(θ)
+<var>yp</var> = r*sin(θ)</pre>
+
+		<p>Here, <code>r</code> is the radius of the circle and <code>θ</code> is the angle of the radial line connecting the origin to our point <code><var>P</var></code> with respect to the horizontal (both are known).</p>
+
+		<p>But what about the case when this circle's central point doesn't coincide with the <code>0,0</code> point of the coordinate system? Because that's the case for the circles our rounding arcs are a part of.</p>
+
+		<figure>
+			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_arcs_segs_circ_an_min.svg' />
+			<figcaption>equivalent path for polygon with rounded corners: the circles the rounding arcs are a part of</figcaption>
+		</figure>
+
+		<p>Well, in this case, we need to add the <code><var>xo</var>,<var>yo</var></code> coordinates of the circle's central point:</p>
+
+		<pre><var>xp</var> = <var>xo</var> + r*cos(θ)
+<var>yp</var> = <var>yo</var> + r*sin(θ)</pre>
+
+		<p>So for the <code>i</code>-th arc, the coordinates of its start and end points can be computed from the <code><var>xo<sub>i</sub></var>,<var>yo<sub>i</sub></var></code> coordinates of <code><var>O<sub>i</sub></var></code> (the central point of the circle the arc is a part of), the radius <code>r</code> of this circle (same as the rounding radius, which is known) and the angles of the radial segments <code><var>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>O<sub>i</sub>E<sub>i</sub></var></code> with respect to the horizontal.</p>
+
+		<pre><var>xs<sub>i</sub></var> = <var>xo<sub>i</sub></var> + r*cos(<var>φ<sub>i</sub></var>)
+<var>ys<sub>i</sub></var> = <var>yo<sub>i</sub></var> + r*sin(<var>φ<sub>i</sub></var>)
+
+<var>xe<sub>i</sub></var> = <var>xo<sub>i</sub></var> + r*cos(<var>ψ<sub>i</sub></var>)
+<var>ye<sub>i</sub></var> = <var>yo<sub>i</sub></var> + r*sin(<var>ψ<sub>i</sub></var>)</pre>
+
+		<p>Wait, what?! We don't know the <code><var>xo<sub>i</sub></var>,<var>yo<sub>i</sub></var></code> coordinates of the circle's central point <code><var>O<sub>i</sub></var></code> or the <var>φ<sub>i</sub></var> and <var>ψ<sub>i</sub></var> angles of the radial segments <code><var>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>O<sub>i</sub>E<sub>i</sub></var></code> with respect to the horizontal!</p>
+
+		<p>That's true. We don't know these things. Yet! But we can compute them, so let's see how.</p>
+		
+		<p>We can consider the <code><var>O<sub>i</sub></var></code> points as being on circles whose central points lie at the <code><var>A<sub>i</sub></var></code> points. This means that the coordinates of the <code><var>O<sub>i</sub></var></code> points depend on those of the <code><var>A<sub>i</sub></var></code> points (<code>x<sub>i</sub>,y<sub>i</sub></code>), on the <code><var>A<sub>i</sub>O<sub>i</sub></var></code> radii of these circles (<code><var>ρ<sub>i</sub></var></code>) and on the angles (<code><var>γ<sub>i</sub></var></code>) of these radii with respect to the horizontal.</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_vx_bisector_radii_angles.svg' alt='' />
+			<figcaption><code><var>O<sub>i</sub></var></code> coordinates are determined by <code><var>A<sub>i</sub></var></code> coordinates, <code><var>A<sub>i</sub>O<sub>i</sub></var></code> radius and its angle with respect to the horizontal</figcaption>
+		</figure>
+		
+		<pre><var>xo<sub>i</sub></var> = x<sub>i</sub> + <var>ρ<sub>i</sub></var>*cos(<var>γ<sub>i</sub></var>)
+<var>yo<sub>i</sub></var> = y<sub>i</sub> + <var>ρ<sub>i</sub></var>*sin(<var>γ<sub>i</sub></var>)</pre>
+		
+		<p>We already know the coordinates of the <code><var>A<sub>i</sub></var></code> vertices, so what we still need to get here are the <code><var>A<sub>i</sub>O<sub>i</sub></var></code> segments and their angles with respect to the horizontal.</p>
+
+		<p>The start and end points of an arc are the points where the two consecutive edges of our initial polygon that form the angle we want to replace with an arc <em>touch</em> the circle of radius <code>r</code> (placed inside the angle) that the rounding arc belongs to. This means that these edges are <a href='https://en.wikipedia.org/wiki/Tangent_lines_to_circles'>tangent</a> to this circle at the start and end point of the arc. A radial segment to the point where a tangent line touches the circle is perpendicular onto that tangent line.</p>
+
+		<figure>
+			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_arc_tan.svg' />
+			<figcaption>at the <code>i</code>-th vertex of the initial polygon: the edges meeting there are tangent to the arc that replaces it</figcaption>
+		</figure>
+
+		<p>This means that the <code><var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code> triangles are right triangles. Furthermore, they have the same hypotenuse (<code><var>A<sub>i</sub>O<sub>i</sub></var></code>) and their <code><var>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>O<sub>i</sub>E<sub>i</sub></var></code> catheti are equal (as they're both radial segments - <code>r</code>). This makes these two right triangles <a href='https://en.wikipedia.org/wiki/Congruence_(geometry)#Congruence_of_triangles'>congruent</a>, meaning that their <code><var>A<sub>i</sub>S<sub>i</sub></var></code> and <code><var>A<sub>i</sub>E<sub>i</sub></var></code> edges are also equal and that the acute angles <code>∠<var>O<sub>i</sub>A<sub>i</sub>S<sub>i</sub></var></code> and <code>∠<var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code> are equal to the <code>∠<var>O<sub>i</sub>A<sub>i</sub>E<sub>i</sub></var></code> and <code>∠<var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code> angles respectively.</p>
+
+		<figure>
+			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_right_tri_congruent.svg' />
+			<figcaption>at the <code>i</code>-th vertex of the initial polygon: the <code><var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code> triangles are congruent right triangles with a common hypotenuse</figcaption>
+		</figure>
+
+		<p>This is really useful.</p>
+
+		<p>First of all, it means that the <code><var>A<sub>i</sub>O<sub>i</sub></var></code> line is the <a href='https://en.wikipedia.org/wiki/Bisection#Angle_bisector'>angle bisector</a> of the <code>∠<var>A<sub>i-1</sub>A<sub>i</sub>A<sub>i+1</sub></var></code> angle, which we we can compute from the coordinates of the <code><var>A<sub>i-1</sub></var></code>, <code><var>A<sub>i</sub></var></code> and <code><var>A<sub>i+1</sub></var></code> points (all three of them are vertices of our initial polygon, so we know their coordinates!) as the absolute value of the difference between the angles of the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> and <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segments with respect to the horizontal.</p>
+
+		<p>Let's see how that works.</p>
+
+		<p>The angle <code><var>α<sub>i</sub></var></code> is the angle between the horizontal and the <code>i</code>-th edge, which is the edge between the <code><var>A<sub>i</sub></var></code> and <code><var>A<sub>i+1</sub></var></code> vertices.</p>
+
+		<figure>
+			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_edge_angle.svg' />
+			<figcaption><code><var>α<sub>i</sub></var></code> is the angle between the horizontal and the <code>i</code>-th edge</figcaption>
+		</figure>
+
+		<p>If we draw a perpendicular from <code><var>A<sub>i+1</sub></var></code> onto the horizontal line that passes through <code><var>A<sub>i</sub></var></code>, then this perpendicular is a vertical line and we've created a right triangle where we know the coordinates of all three vertices.</p>
+
+		<figure>
+			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_right_tri_angle_edge.svg' />
+			<figcaption><code><var>A<sub>i</sub>T<sub>i</sub>A<sub>i+1</sub></var></code> is a right triangle where we know the coordinates of all three vertices</figcaption>
+		</figure>
+
+		<p>In the right triangle <code><var>A<sub>i</sub>T<sub>i</sub>A<sub>i+1</sub></var></code>, the <code><var>T<sub>i</sub></var></code> vertex has the same <code><var>x</var></code> coordinate as <code><var>A<sub>i</sub></var></code> (<code>x<sub>i</sub></code>) and the same <code><var>y</var></code> coordinate as <code><var>A<sub>i+1</sub></var></code> (<code>y<sub>i+1</sur></code>). The <code><var>A<sub>i</sub>T<sub>i</sub></var></code> segment is a horizontal one, so its length is the difference between the <code><var>x</var></code> coordinates of the two points: <code><var>dx<sub>i</sub></var> = x<sub>i+1</sub> - x<sub>i</sub></code>. Similarly, the <code><var>T<sub>i</sub>A<sub>i+1</sub></var></code> segment is a vertical one, so its length is the difference between the <code><var>y</var></code> coordinates of the two points: <code><var>dy<sub>i</sub></var> = y<sub>i+1</sub> - y<sub>i</sub></code>.</p>
+
+		<p>These coordinate differences will turn out to be useful for more than one thing, so let's compute and store them into another array <code>d</code>. We start from the 2D array of vertex coordinates <code>v</code>, which we <code>map()</code> to another 2D array of differences <code>d</code>:</p>
+		
+		<pre>let d = v.map((c, i, a) => {
+	let nxt = a[(i + 1)%n]; /* next vertex coords */
+	return [
+		nxt[0] - c[0] /* x difference */, 
+		nxt[1] - c[1] /* y difference */
+	];
+});</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/7b29e78716a3a799de2afb83b7c409b2?editors=0011'>This Pen</a> checks that it all went fine for the simple equilateral triangle we said we'd use as a test polygon.</p>
+	
+		<p>Moving further, in the same right triangle <code><var>A<sub>i</sub>T<sub>i</sub>A<sub>i+1</sub></var></code>, the tangent of the <code>∠<var>T<sub>i</sub>A<sub>i</sub>A<sub>i+1</sub></var></code> angle (<code><var>α<sub>i</sub></var></code>) is the ratio between the opposing cathetus <code><var>T<sub>i</sub>A<sub>i+1</sub></var></code> (<code>dy<sub>i</sub></code>) and the adjacent cathetus <code><var>A<sub>i</sub>T<sub>i</sub></var></code> (<code>dx<sub>i</sub></code>).</p>
+		
+		<pre><var>α<sub>i</sub></var> = tan(dy<sub>i</sub>/dx<sub>i</sub>)</pre>
+		
+		<p>This means that we can get this angle <code><var>α<sub>i</sub></var></code> (which is also the angle of the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> edge) from the values of the <code>dx<sub>i</sub></code> and <code>dy<sub>i</sub></code> differences that we now know (the <code>d</code> array):</p>
+		
+		<pre>let α = d.map(c => Math.atan2(...c.reverse()));</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/5f25292013701031b2ebd791a47cd9dc?editors=0011'>Test</a>.</p>
+		
+		<p>Good, now we have the angles of the <code><var>A<sub>0</sub>A<sub>1</sub></var></code>, <code><var>A<sub>1</sub>A<sub>2</sub></var></code>, ... <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code>, ... <code><var>A<sub>n-1</sub>A<sub>0</sub></var></code> edges with respect to the horizontal all stored into the <code>α</code> array.</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_edge_angles_comp.svg' alt=''/>
+			<figcaption>the angle between the horizontal and the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> edge is <code>α<sub>i</sub></code></figcaption>
+		</figure>
+		
+		<p>This means we can now compute the <code>∠<var>A<sub>n-1</sub>A<sub>0</sub>A<sub>1</sub></var></code>, <code>∠<var>A<sub>0</sub>A<sub>1</sub>A<sub>2</sub></var></code>, ... <code>∠<var>A<sub>i-1</sub>A<sub>i</sub>A<sub>i+1</sub></var></code>, ... angles.</p>
+		
+		<p>For the <code>i</code>-th vertex, this means computing the absolute value of difference between the angles of the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> and <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> edges with respect to the horizontal. Note that we don't have the angle between the horizontal and the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment. We have <code>α<sub>i-1</sub></code>, which is the angle between the horizontal and <code><var>A<sub>i-1</sub>A<sub>i</sub></var></code>. The angle of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> edge with respect to the horizontal is <code>180°</code> away from <code>α<sub>i-1</sub></code>. Does that mean we need to add or subtract <code>180°</code>? Well, it depends. The <code>atan2()</code> function returns values in the <code>(-180°, 180°]</code> interval, so that's where all our <code>α</code> angles are. We want to keep the angle of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment with respect to the horizontal within the same interval as well. So, if <code>α<sub>i-1</sub></code> is positive, then we subtract <code>180°</code>, otherwise (if it's negative or <code>0</code>), we add <code>180°</code>. This means that the angle between the horizontal and the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment is <code>α<sub>i-1</sub> - (sgn(α<sub>i-1</sub>) || -1)*180°</code>.</p>
+		
+		<p>So the absolute value of the difference we want is	<code><var>da<sub>i</sub></var> = |α<sub>i</sub> - α<sub>i-1</sub> + (sgn(α<sub>i-1</sub>) || -1)*180°|</code>. This is the measure of the <code>∠<var>A<sub>i-1</sub>A<sub>i</sub>A<sub>i+1</sub></var></code> angle. Sort of. It's not always the correct result due to the cyclicity of angles around the circle.</p>
+		
+		<p>In order to understand how that works, let's consider the example of the equilateral triangle we use to test everything is fine. We take the first vertex, the one at <code>50,0</code>.</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_vertex_angle_setup_ex.svg' alt=''/>
+			<figcaption>the angles of the edges determining the first angle of our equilateral triangle (restricted to the <code>(-180°, 180°]</code> interval)</figcaption>
+		</figure>
+		
+		<p>The angles we need to subtract the angles between the horizontal and the <code><var>A<sub>0</sub>A<sub>1</sub></var></code> and <code><var>A<sub>0</sub>A<sub>2</sub></var></code> edges. The angle of <code><var>A<sub>0</sub>A<sub>1</sub></var></code> with respect to the horizontal is <code>150°</code>. The angle of <code><var>A<sub>2</sub>A<sub>0</sub></var></code> with respect to the horizontal is <code>30</code> and that of <code><var>A<sub>0</sub>A<sub>2</sub></var></code> is <code>180°</code> away and stilll in the <code>(-180°, 180°]</code> interval, which puts it at <code>-150°</code>. So the result we get is <code>|150° - (-150°)| = |150° + 150°| = |300°| = 300°</code>... which is not the correct result here! All angles of this polygon should be <code>60°</code> angles because it's an equilateral triangle.</p>
+		
+		<p>If we were to limit all angles to the <code>[0°, 360°)</code> interval, then the angles we need to subtract would be <code>150°</code> and <code>210°</code>.</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_vertex_angle_setup_ex_1.svg' alt=''/>
+			<figcaption>the angles of the edges determining the first angle of our equilateral triangle (restricted to the <code>[0°, 360°)</code> interval)</figcaption>
+		</figure>
+		
+		<p>Replacing in the formula, we get <code>|150° - 210°| = |-60°| = 60°</code>. So is that it? We simply need to shift the interval? Sadly, no and let's see why. Let's now consider the situation when the triangle is flipped horizontally.</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_vertex_angle_setup_ex_2.svg' alt=''/>
+			<figcaption>the angles of the edges determining the first angle of our equilateral triangle flippled (restricted to the <code>[0°, 360°)</code> interval)</figcaption>
+		</figure>
+		
+		<p>In this case, the angles we need to subtract are <code>30°</code> and <code>330°</code> and, replacing in our formula, we get <code>|30 - 330| = |-300| = 300</code>, which, again, isn't the correct result. Just like in the case of the initial triangle when considering all angles in the <code>(-180°, 180°]</code> interval, we got the big angle, the one that's over <code>180°</code>. But we always want the small one, the one that's under <code>180°</code>.</p>
+		
+		<p>So what we really need to do here, irrespective of which of the two intervals we use (we'll be sticking to the same old <code>(-180°, 180°]</code> because it's not worth bothering with switching), is to check whether our difference in absolute value <code>da<sub>i</sub></code> is greater than <code>180°</code> and, if it is, then the angle of the polygon isn't this <code>da<sub>i</sub></code>, but <code>360° - da<sub>i</sub></code>.</p>
+		
+		<p><em>What about the case when <code>da<sub>i</sub></code> happens to be exactly <code>180°</code>? Well, that just cannot happen because it would mean that the three vertices that describe the angle are collinear and we've already elliminated that possibility.</em></p>
+		
+		<p>The check whether <code>da<sub>i</sub></code> is greater than <code>180°</code> is pretty simple:</p>
+		
+		<pre><var>m<sub>i</sub></var> = floor(da<sub>i</sub>/180°)</pre>
+		
+		<p>Then, based on this, we can get a generic formula for the <code>i</code>-th polygon angle:</p>
+		
+		<pre>m<sub>i</sub>*360° + pow(-1, m<sub>i</sub>)*da<sub>i</sub></pre>
+		
+		<p>What we want however, is half this angle because that's what we're going to need in computations later:</p>
+		
+		<pre><var>β<sub>i</sub></var> = .5*(m<sub>i</sub>*360° + pow(-1, m<sub>i</sub>)*da<sub>i</sub>)</pre>
+		
+		<p>So let's code all this:</p>
+		
+		<pre>const FC = 2*Math.PI; /* full circle */
+
+let da = α.map((c, i, a) => {
+	let prv = a[(i + n - 1)%n]; /* prev edge angle */
+	return Math.abs(c - prv + (Math.sign(prv) || -1)*Math.PI)
+});
+
+let m = da.map(c => Math.floor(c/Math.PI));
+
+let β = da.map((c, i) => .5*(m[i]*FC + Math.pow(-1, m[i])*c));</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/b700489d8f34f0810e8a158b905073e7?editors=0011'>This Pen</a> checks that the code above works as it should.</p>
+		
+		<p>Now let's get back to the two congruent right triangles formed by the vertex of the initial polygon, the central point of the circle the rounding arc is a part of and the start and end points of this arc.</p>
+		
+		<figure>
+			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_right_tri_congruent.svg' />
+			<figcaption>at the <code>i</code>-th vertex of the initial polygon: the <code><var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code> triangles are congruent right triangles with a common hypotenuse</figcaption>
+		</figure>
+		
+		<p>Here, we can compute the angles <code>∠<var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code> and <code>∠<var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code> as being <code><var>δ<sub>i</sub></var> = 90° - β<sub>i</sub></code> (since the sum of the angles in a triangle is <code>180°</code> and we have an angle of <code>90°</code> in a right one, it results that the sum of the other two is <code>90°</code> in this case).</p>
+		
+		<pre>let δ = β.map(c => .5*Math.PI - c);</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/4f154b4c60b5e980eee0892ceceb716e?editors=0011'>Test</a>.</p>
+		
+		<p>We can also compute the hypotenuse <code><var>A<sub>i</sub>O<sub>i</sub></var></code> from either of these triangles. Take the triangle <code><var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code> - the sine of the <code>∠O<sub>i</sub><var>A<sub>i</sub>S<sub>i</sub></var></code> angle (already known, it's <code>β<sub>i</sub></code>) is the ratio between the opposing cathetus <code><var>O<sub>i</sub>S<sub>i</sub></var></code> (which we know, it's <code>r</code>) and the hypotenuse <code><var>A<sub>i</sub>O<sub>i</sub></var></code>. From here, we get that the hypotenuse <code><var>A<sub>i</sub>O<sub>i</sub></var></code> is <code>r/sin(β<sub>i</sub>)</code>.</p>
+		
+		<p>As mentioned before, <code><var>A<sub>i</sub>O<sub>i</sub></var></code> is the angle bisector of the <code>∠S<sub>i</sub><var>A<sub>i</sub>E<sub>i</sub></var></code> angle. So we can compute its angle with respect to the horizontal as the average between the angles of the segments <code><var>A<sub>i</sub>S<sub>i</sub></var></code> and <code><var>A<sub>i</sub>E<sub>i</sub></var></code> with respect to the horizontal.</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_vx_bisector_angle.svg' alt=''/>
+			<figcaption>the angle of the angle bisector with respect to the horizontal is the average between the angles of the edges from that vertex with respect to the horizontal</figcaption>
+		</figure>
+		
+		<p>Since the segments <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> and <code><var>A<sub>i</sub>S<sub>i</sub></var></code> are on the same line, they both have the same angle with respect to the horizontal. We've previously determined this to be <code>α<sub>i-1</sub> - (sgn(α<sub>i-1</sub>) || -1)*180°</code>. Similarly, <code><var>A<sub>i</sub>E<sub>i</sub></var></code> and <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> are on the same line so they have the same angle with respect to the horizontal, which is <code>α<sub>i</sub></code>.</p>
+		
+		<p>This means that the angle between the horizontal and <code><var>A<sub>i</sub>O<sub>i</sub></var></code> is:</p>
+		
+		<pre><var>γ<sub>i</sub></var> = .5*(α<sub>i-1</sub> - (sgn(α<sub>i-1</sub>) || -1)*180° + α<sub>i</sub>)</pre>
+		
+		<p>This seems fine at first sight, but let's consider the example of the first angle of our test triangle:</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_bisect_angle_setup_ex.svg' alt=''/>
+			<figcaption>the angles of the edges determining the bisector of the first angle of our equilateral triangle (restricted to the <code>(-180°, 180°]</code> interval)</figcaption>
+		</figure>
+		
+		<p>The angles we need to average are <code>-150°</code> and <code>150°</code>. This gives us <code>0°</code> for the bisector line (<code>.5*(-150° + 150°) = .5*0° = 0°</code>), but the correct result is <code>180°</code>! Our bisector line goes to the left, not to the right.</p>
+		
+		<p>Shifting the interval of the angles from <code>(-180°, 180°]</code> to <code>[0°, 360°)</code> appears to solve the problem: <code>.5*(210° + 150°) = .5*360° = 180°</code>.</p>
+		
+		ILLUSTRATION
+		
+		<p>However, let's also consider the case of the flipped triangle when using the <code>[0°, 360°)</code> interval.</p>
+		
+		ILLUSTRATION
+		
+		<p>Now we get that the angle of the bisector line is <code>.5*(30° + 330°) = .5*360° = 180°</code>, which is incorrect here. It should be <code>0°</code>, as, in this case, the bisector line goes to the right, not to the left.</p>
+		
+		<p>Just like when we computed the initial polygon angles, the problem arises when the absolute value of the difference between the angles of the edges with respect to the horizontal is greater than <code>180°</code> because then we get the bisector of the large (greater than <code>180°</code>) angle. This is on the same line, but goes in the other direction. In this situation, we need the angle that's <code>180°</code> away (we subtract <code>180°</code> if the result we have so far is positive, otherwise we add <code>180°</code>).</p>
+		
+		<pre>let γ = α.map((c, i, a) => {
+	let prv = a[(i + n - 1)%n] /* prev edge angle */, 
+		avg = .5*(prv - (Math.sign(prv) || -1)*Math.PI + c);
+	
+	return avg - m[i]*((Math.sign(avg) || -1)*Math.PI);
+});</pre>
+		
+		<p>This <a href='https://codepen.io/thebabydino/pen/32a0fc006010ba85e42d52f9f4706550?editors=0011'>works as it should</a>. However, we're computing the angles of each of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segments (<code>prv - (Math.sign(prv) || -1)*Math.PI</code>) twice, both when getting the <code>da</code> array and when getting the <code>γ</code> array:</p>
+		
+		<pre>let α = d.map(c => Math.atan2(...c.reverse()));
+
+let da = α.map((c, i, a) => {
+	let prv = a[(i + n - 1)%n]; /* prev */
+	return Math.abs(c - prv + (Math.sign(prv) || -1)*Math.PI);
+});
+
+let m = da.map(c => Math.floor(c/Math.PI));
+
+let β = da.map((c, i) => .5*(m[i]*FC + Math.pow(-1, m[i])*c));
+
+let γ = α.map((c, i, a) => {
+	let prv = a[(i + n - 1)%n] /* prev */, 
+		avg = .5*(prv - (Math.sign(prv) || -1)*Math.PI + c);
+
+	return avg - m[i]*((Math.sign(avg) || -1)*Math.PI);
+});</pre>
+		
+		<p>We can avoid this by storing both the angles of the <code><var>A<sub>i-1</sub>A<sub>i</sub></var></code> segments and those of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segments with respect to the horizontal in the <code>α</code> array:</p>
+		
+		<pre>let α = d.map(c => {
+	let a = Math.atan2(...c.reverse());
+	return [a, a - (Math.sign(a) || -1)*Math.PI];
+});
+
+let da = α.map((c, i, a) => {
+	let prv = a[(i + n - 1)%n]; /* prev */
+	return Math.abs(c[0] - prv[1]);
+});
+
+let m = da.map(c => Math.floor(c/Math.PI));
+
+let β = da.map((c, i) => .5*(m[i]*FC + Math.pow(-1, m[i])*c));</pre>
+		
+		<p>Also, it would be useful if we did the same for the <code>γ</code> array (store in it both the angles of the <code><var>A<sub>i</sub>O<sub>i</sub></var></code> segments and those of the <code><var>O<sub>i</sub>A<sub>i</sub></var></code> segments with respect to the horizontal):</p>
+		
+		<pre>let γ = α.map((c, i, a) => {
+	let prv = a[(i + n - 1)%n] /* prev */, 
+		avg = .5*(prv[1] + c[0]), 
+		res = [avg, avg - (Math.sign(avg) || -1)*Math.PI];
+
+	return m[i] ? res.reverse() : res;
+});</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/9a560bc31ba057ea60b28c90c0ff5186?editors=0011'>Test</a>.</p>
+		
+		<p>The next step is to compute the coordinates of the <code><var>O<sub>i</sub></var></code> points from the coordinates of the <code><var>A<sub>i</sub></var></code> points (<code>x<sub>i</sub>,y<sub>i</sub></code>), the <code><var>A<sub>i</sub>O<sub>i</sub></var></code> segments (<code>r/sin(β<sub>i</sub>)</code>) and the angles of these segments with respect to the horizontal (<code>γ<sub>i</sub></code>):</p>
+		
+		<pre>const FN = ['cos', 'sin'];
+
+let o = v.map((c, i) => {
+	let ρ = r/Math.sin(β[i]), 
+		a = γ[i][0];
+	
+	return c.map((c, i) => c + ρ*Math[FN[i]](a));
+});</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/859ac01424b6fc6f5e27131c5d83c746?editors=0011'>Test</a>.</p>
+		
+		<p>Now all we still need are the angles of the <code><var>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>O<sub>i</sub>E<sub>i</sub></var></code> segments with respect to the horizontal and then we'll have everything that's required to compute the coordinates of the start <code><var>S<sub>i</sub></var></code> and end <code><var>E<sub>i</sub></var></code> points of the arcs.</p>
+		
+		<p>The angles between the horizontal and the radial segments <code><var>O<sub>i</sub>S<sub>i</sub></var></code>/ <code><var>O<sub>i</sub>E<sub>i</sub></var></code> can be computed as the angle of <code><var>O<sub>i</sub>A<sub>i</sub></var></code> with respect to the horizontal (<code>180°</code> away from the angle of <code><var>A<sub>i</sub>O<sub>i</sub></var></code> with respect to the horizontal <code>γ<sub>i</sub></code>, which makes it <code>γ<sub>i</sub> - (sign(γ<sub>i</sub>) || -1)*180°</code>) plus/ minus the <code>∠<var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code>/ <code>∠<var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code> (both angles equal to <code>δ<sub>i</sub></code>).</p>
+		
+		ILLUSTRATION
+		
+		<p>For a clockwise arc, we have that the angles between the horizontal and the radial segments connecting the central point to the start and end points of the <code>i</code>-th arc are:</p>
+		
+		<pre><var>φ<sub>i</sub></var> = γ<sub>i</sub> - (sign(γ<sub>i</sub>) || -1)*180° - δ<sub>i</sub>
+<var>ψ<sub>i</sub></var> = γ<sub>i</sub> - (sign(γ<sub>i</sub>) || -1)*180° + δ<sub>i</sub></pre>
+		
+		<p>If the arc goes in the other direction, then we have:</p>
+		
+		<pre><var>φ<sub>i</sub></var> = γ<sub>i</sub> - (sign(γ<sub>i</sub>) || -1)*180° + δ<sub>i</sub>
+<var>ψ<sub>i</sub></var> = γ<sub>i</sub> - (sign(γ<sub>i</sub>) || -1)*180° - δ<sub>i</sub></pre>
+		
+		<p>Using the sweep flag <code>f<sub>i</sub></code> which is <code>1</code> if the arc goes clockwise from its start to its end point and <code>0</code> otherwise, our two sets of formulas can be compacted into one:</p>
+		
+		<pre><var>φ<sub>i</sub></var> = γ<sub>i</sub> - (sign(γ<sub>i</sub>) || -1)*180° + pow(-1, f<sub>i</sub>)*δ<sub>i</sub>
+<var>ψ<sub>i</sub></var> = γ<sub>i</sub> - (sign(γ<sub>i</sub>) || -1)*180° - pow(-1, f<sub>i</sub>)*δ<sub>i</sub></pre>
+		
+		<p>Good! Now let's turn all of this into JavaScript code that computes the coordinates of the start points (the <code>s</code> array) and those of the end points (the <code>e</code> array):</p>
+		
+		<pre>let s = o.map((c, i) => {
+	let φ = γ[i][1] + Math.pow(-1, f[i])*δ[i];
+	
+	return c.map((c, i) => c + r*Math[FN[i]](φ));
+});
+
+let e = o.map((c, i) => {
+	let ψ = γ[i][1] - Math.pow(-1, f[i])*δ[i];
+	
+	return c.map((c, i) => c + r*Math[FN[i]](ψ));
+});</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/336d136eb1dfc36c0434b0ff3766e605?editors=0011'>Test</a>.</p>
+		
+		<p>Now we have everything we need for building the path data:</p>
+		
+		<pre>let pd = s.reduce((a, c, i) => a + 
+	((i ? 'L' : 'M') + c + 'A' + 
+	[r, r, 0, 0, f[i], e[i]]), '') + 'z';</pre>
+		
+		<p>Since we got the path data, we can now create the <code>&lt;path&gt;</code> element, set its <code>d</code> attribute to <code>pd</code>, and insert this new element in the document:</p>
+		
+		<pre>const NS_URI = 'http://www.w3.org/2000/svg';
+
+let _path = document.createElementNS(NS_URI, 'path');
+_path.setAttribute('d', pd + 'z');
+	
+let _up = _poly.parentNode;
+_up.insertBefore(_path, _poly);</pre>
+		
+		<p>The initial <code>&lt;polygon&gt;</code> element and this <code>&lt;path&gt;</code> element are one on top of each other, so we tweak the <code>opacity</code> of the <code>polygon</code> in the CSS to check that everything looks right:</p>
+		
+		<pre>polygon { opacity: .35; }</pre>
+		
+		<p>Looks like we're almost done!</p>
+		
+		<p data-height="400" data-theme-id="0" data-slug-hash="482b1a8de33997cdbe5ca8c1ac44f506" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="polyfill for polygon with rounded corners, step 14" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/482b1a8de33997cdbe5ca8c1ac44f506/">polyfill for polygon with rounded corners, step 14</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+		
+		<p>What we actually want is just a polygon with rounded corners, so let's remove the initial <code>&lt;polygon&gt;</code> element:</p>
+		
+		<pre>_up.removeChild(_poly);</pre>
+		
+		<p>We also get rid of the earlier <code>opacity</code> tweak and we got just what we wanted:</p>
+		
+		<p data-height="400" data-theme-id="0" data-slug-hash="0c348eb95c82024f2eacc211ea119c8c" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="polyfill for polygon with rounded corners, step 15" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/0c348eb95c82024f2eacc211ea119c8c/">polyfill for polygon with rounded corners, step 14</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+		
+		<p>But can we be sure this works in all situations?</p>
+		
+		<p>It works for random plain convex polygons, it works for concave polygons, it works for self intersecting polygons, but there is one situation when the code we have so far fails. Let's consider the original SVG code we had for our first test polygon (the equilateral triangle) and let's increase the rounding radius (<code>r</code> attribute) to something like <code>35</code> or <code>53</code>. Now the result doesn't look right anymore and the same happens for other polygons when we increase their rounding radii beyond a certain value. We're also not removing the initial polygon anymore to make things a lot more clear.</p>
+		
+		<p data-height="400" data-theme-id="0" data-slug-hash="e770b71f27d8e1996419a618dfe96504" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="round polygon corners, step 16" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/e770b71f27d8e1996419a618dfe96504/">round polygon corners, step 16</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+		
+		<p>The problem here is the rounding radius being too big for at least one edge. Consider the <code>i</code>-th edge being too short. This makes the end point (<code><var>E<sub>i</sub></var></code>) of the arc replacing the vertex our too short edge starts from (<code><var>A<sub>i</sub></var></code>) end up after the start point (<code><var>S<sub>i+1</sub></var></code>) of the arc replacing the vertex the same edge ends at (<code><var>A<sub>i+1</sub></var></code>).</p>
+		
+		ILLUSTRATION
+		
+		<p>So if the <code>i</code>-th edge (<code><var>A<sub>i</sub>A<sub>i+1</sub></var></code>) is too short, then in going from the end point of the <code>i</code>-th arc (<code><var>E<sub>i</sub></var></code>) to the start point of arc <code>i+1</code> (<code><var>S<sub>i+1</sub></var></code>), we actually go backwards on this edge, towards its start point (<code><var>A<sub>i</sub></var></code>), not towards its end point (<code><var>A<sub>i</sub></var></code>) as we should.</p>
+		
+		<p>The fix here is to decrease the radii of the arcs replacing the vertices this edge connects until <code><var>S<sub>i+1</sub></var></code> isn't behind <code><var>E<sub>i</sub></var></code> anymore. This happens when <code><var>S<sub>i+1</sub></var></code> and <code><var>E<sub>i</sub></var></code> overlap, which means stopping when the sum of the <code><var>A<sub>i</sub>E<sub>i</sub></var></code> and <code><var>S<sub>i+1</sub>A<sub>i+1</sub></var></code> segments equals <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code>.</p>
+		
+		DEMO
+		
+		<p>Note that in doing this, no angles change. The only things changing are the actual dimensions of the <code><var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code> triangles - it's like they get scaled down with respect to the <code><var>A<sub>i</sub></var></code> points.</p>
+		
+		ILLUSTRATION - scaled down
+		
+		<p>In the right triangle <code><var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code>, the tangent of the <code>δ<sub>i</sub></code> angle is the opposing cathetus <code><var>A<sub>i</sub>E<sub>i</sub></var></code> over the adjacent cathetus <code><var>O<sub>i</sub>E<sub>i</sub></var></code> (of actual radius <code><var>ra<sub>i</sub></var></code> after scaling down). This means that <code><var>A<sub>i</sub>E<sub>i</sub></var></code> is <code><var>ra<sub>i</sub></var>*tan(δ<sub>i</sub>)</code>.</p>
+		
+		<p>At the same time, in the right triangle <code><var>A<sub>i+1</sub>O<sub>i+1</sub>S<sub>i+1</sub></var></code>, the tangent of the <code>δ<sub>i+1</sub></code> angle is the opposing cathetus <code><var>A<sub>i+1</sub>S<sub>i+1</sub></var></code> over the adjacent cathetus <code><var>O<sub>i+1</sub>S<sub>i+1</sub></var></code> (of actual radius <code><var>ra<sub>i+1</sub></var></code> after scaling down). This means that <code><var>A<sub>i+1</sub>E<sub>i+1</sub></var></code> is <code><var>ra<sub>i+1</sub></var>*tan(δ<sub>i+1</sub>)</code>.</p>
+		
+		<p>Since we keep all proportions, we scale both arc radii the same, so <code><var>ra<sub>i</sub></var> = <var>ra<sub>i+1</sub></var></code>.</p>
+		
+		<p>This gives us that the sum of the <code><var>A<sub>i</sub>E<sub>i</sub></var></code> and <code><var>A<sub>i+1</sub>S<sub>i+1</sub></var></code> (or <code><var>S<sub>i+1</sub>A<sub>i+1</sub></var></code>, orientation doesn't matter in this case) segments is <code><var>ra<sub>i</sub></var>*(tan(δ<sub>i</sub>) + tan(δ<sub>i+1</sub>))</code>.</p>
+		
+		<p>So this all means that, at the point when we stop scaling down the radius, the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> segment (<code><var>l<sub>i</sub></var></code>) is <code><var>ra<sub>i</sub></var>*(tan(δ<sub>i</sub>) + tan(δ<sub>i+1</sub>))</code> and, from here, we can extract the new (actual) radius used for rounding <code><var>ra<sub>i</sub></var></code>.</p>
+		
+		<pre><var>l<sub>i</sub></var> = <var>ra<sub>i</sub></var>*(tan(δ<sub>i</sub>) + tan(δ<sub>i+1</sub>))
+
+<var>ra<sub>i</sub></var> = <var>l<sub>i</sub></var>/(tan(δ<sub>i</sub>) + tan(δ<sub>i+1</sub>)</pre>
+		
+		<p>Alright, but we don't yet know the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> segment. We still need to compute it and we do that using the right triangle <code><var>A<sub>i</sub>A<sub>i+1</sub>T<sub>i+1</sub></var></code>.</p>
+		
+		ILLUSTRATION
+		
+		<p>In this triangle, <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> (<code><var>l<sub>i</sub></var></code>) is the hypotenuse, so we can compute it using the Pythagorean theorem:</p>
+		
+		<pre><var>l<sub>i</sub></var> = √(dx<sub>i</sub><sup>2</sup> + dy<sub>i</sub><sup>2</sup>)</pre>
+		
+		<p>In our JS code, this would be:</p>
+		
+		<pre>let l = d.map(c => Math.hypot(...c));</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/cd0e2a19e6d1ffa109f9cac96b6a7c17?editors=0011'>Test</a>.</p>
+		
+		<p>The next thing we want to do is store all the <code>tan(δ<sub>i</sub>)</code> values into an array <code>q</code> so we don't have to compute them more than once:</p>
+		
+		<pre>let q = δ.map(c => Math.tan(c));</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/00eb997afa5fbcf9ff8b2a22c30d09dc?editors=0011'>Test</a>.</p>
+		
+		<p>Then we do the same for the <code>l<sub>i</sub>/(tan(δ<sub>i</sub>) + tan(δ<sub>i+1</sub>)</code> values (the minimum radius needed to avoid issues for each edge) - we store them in a <code>rm</code> array:</p>
+		
+		<pre>let rm = l.map((c, i) => c/(q[i] + q[(i + 1)%n]));</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/40f1af1989e59e3c2dbe0c791843b777?editors=0011'>Test</a>.</p>
+		
+		<p>The last computation is to get the actual radius for each arc as the minimum between the given rounding radius (<code>r</code>) and the minimal radii (<code>rm<sub>i-1</sub></code> and <code>rm<sub>i</sub></code>) needed to avoid issues for the two edges forming the vertex that the current (<code>i</code>-th) arc replaces:</p>
+		
+		<pre>let ra = rm.map((c, i, a) => Math.min(r, rm[(i + n - 1)%n], c));</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/ec0d57da3875add719870c4c1a7fe563?editors=0011'>Test</a>.</p>
+		
+		<p>Alright, we got the radii, but this doesn't change anything yet. What we still need to do is replace <code>r</code> with the appropriate actual radius when computing the coordinates of the arcs' central (<code>o</code>), start (<code>s</code>) and end (<code>e</code>) points and also when creating the path data <code>pd</code>:</p>
+		
+		<pre>o = v.map((c, i) => {
+	let ρ = ra[i]/Math.sin(β[i]), 
+		a = γ[i][0];
+
+	return c.map((c, j) => c + ρ*Math[FN[j]](a));
+});
+
+s = o.map((c, i) => {
+	let φ = γ[i][1] + Math.pow(-1, f[i])*δ[i];
+
+	return c.map((c, j) => c + ra[i]*Math[FN[j]](φ));
+});
+
+e = o.map((c, i) => {
+	let ψ = γ[i][1] - Math.pow(-1, f[i])*δ[i];
+
+	return c.map((c, j) => c + ra[i]*Math[FN[j]](ψ));
+});
+
+pd = s.reduce((a, c, i) => a + 
+	((i ? 'L' : 'M') + c + 'A' + 
+	[ra[i], ra[i], 0, 0, f[i], e[i]]), '') + 'z';</pre>
+		
+		<p data-height="400" data-theme-id="0" data-slug-hash="fdf05ed43aee14aaf28c802850923d11" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="round polygon corners, step 21" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/fdf05ed43aee14aaf28c802850923d11/">round polygon corners, step 21</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+		
+		<p>An interesting thing to notice here is that, for regular polygons, if the radius is too large, then the "polygon with rounded corners" that we get is actually its <a href='http://mathworld.wolfram.com/Incircle.html'>incircle</a>:</p>
+		
+		<p data-height="400" data-theme-id="0" data-slug-hash="MbxQmJ" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="round regular poly corners" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/MbxQmJ/">round regular poly corners</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+	</body>
+
+</html>
