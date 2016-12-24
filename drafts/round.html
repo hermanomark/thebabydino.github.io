@@ -259,19 +259,19 @@ let f = v.map((c, i, a) => {
 
 		<p>That's true. We don't know these things. Yet! But we can compute them, so let's see how.</p>
 		
-		<p>We can consider the <code><var>O<sub>i</sub></var></code> points as being on circles whose central points lie at the <code><var>A<sub>i</sub></var></code> points. This means that the coordinates of the <code><var>O<sub>i</sub></var></code> points depend on those of the <code><var>A<sub>i</sub></var></code> points (<code>x<sub>i</sub>,y<sub>i</sub></code>), on the <code><var>A<sub>i</sub>O<sub>i</sub></var></code> radii of these circles (<code><var>ρ<sub>i</sub></var></code>) and on the angles (<code><var>γ<sub>i</sub></var></code>) of these radii with respect to the horizontal.</p>
+		<p>We can consider the <code><var>O<sub>i</sub></var></code> points as being on circles whose central points lie at the vertices of the initial polygon (the <code><var>A<sub>i</sub></var></code> points). This means that the coordinates of the <code><var>O<sub>i</sub></var></code> points depend on those of the <code><var>A<sub>i</sub></var></code> points (<code>x<sub>i</sub>,y<sub>i</sub></code>), on the <code><var>A<sub>i</sub>O<sub>i</sub></var></code> radii of these circles (<code><var>ρ<sub>i</sub></var></code>) and on the angles (<code><var>γ<sub>i</sub></var></code>) of these radii with respect to the horizontal.</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_vx_bisector_radii_angles.svg' alt='' />
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_vx_bisector_radii_angles_min.svg' alt='' />
 			<figcaption><code><var>O<sub>i</sub></var></code> coordinates are determined by <code><var>A<sub>i</sub></var></code> coordinates, <code><var>A<sub>i</sub>O<sub>i</sub></var></code> radius and its angle with respect to the horizontal</figcaption>
 		</figure>
 		
 		<pre><var>xo<sub>i</sub></var> = x<sub>i</sub> + <var>ρ<sub>i</sub></var>*cos(<var>γ<sub>i</sub></var>)
 <var>yo<sub>i</sub></var> = y<sub>i</sub> + <var>ρ<sub>i</sub></var>*sin(<var>γ<sub>i</sub></var>)</pre>
 		
-		<p>We already know the coordinates of the <code><var>A<sub>i</sub></var></code> vertices, so what we still need to get here are the <code><var>A<sub>i</sub>O<sub>i</sub></var></code> segments and their angles with respect to the horizontal.</p>
+		<p>We already know the <code>x<sub>i</sub>,y<sub>i</sub></code> coordinates of the <code><var>A<sub>i</sub></var></code> vertices, so what we still need to get here are the <code><var>A<sub>i</sub>O<sub>i</sub></var></code> segments and their angles with respect to the horizontal.</p>
 
-		<p>The start and end points of an arc are the points where the two consecutive edges of our initial polygon that form the angle we want to replace with an arc <em>touch</em> the circle of radius <code>r</code> (placed inside the angle) that the rounding arc belongs to. This means that these edges are <a href='https://en.wikipedia.org/wiki/Tangent_lines_to_circles'>tangent</a> to this circle at the start and end point of the arc. A radial segment to the point where a tangent line touches the circle is perpendicular onto that tangent line.</p>
+		<p>The start and end points of an arc are the points where the two consecutive edges of our initial polygon that form the angle we want to replace with this arc <em>touch</em> the circle of radius <code>r</code> (placed inside the angle) that the rounding arc belongs to. This means that these edges are <a href='https://en.wikipedia.org/wiki/Tangent_lines_to_circles'>tangent</a> to this circle at the start and end point of the arc. A radial segment to the point where a tangent line touches the circle is perpendicular onto that tangent line.</p>
 
 		<figure>
 			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_arc_tan.svg' />
@@ -298,14 +298,14 @@ let f = v.map((c, i, a) => {
 			<figcaption><code><var>α<sub>i</sub></var></code> is the angle between the horizontal and the <code>i</code>-th edge</figcaption>
 		</figure>
 
-		<p>If we draw a perpendicular from <code><var>A<sub>i+1</sub></var></code> onto the horizontal line that passes through <code><var>A<sub>i</sub></var></code>, then this perpendicular is a vertical line and we've created a right triangle where we know the coordinates of all three vertices.</p>
+		<p>If we project <code><var>A<sub>i+1</sub></var></code> (draw a perpendicular from <code><var>A<sub>i+1</sub></var></code>) onto the horizontal line that passes through <code><var>A<sub>i</sub></var></code>, then this perpendicular is a vertical line and we've created a right triangle where we know the coordinates of all three vertices.</p>
 
 		<figure>
-			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_right_tri_angle_edge.svg' />
-			<figcaption><code><var>A<sub>i</sub>T<sub>i</sub>A<sub>i+1</sub></var></code> is a right triangle where we know the coordinates of all three vertices</figcaption>
+			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_right_tri_angle_edge_min.svg' />
+			<figcaption><code><var>A<sub>i</sub>T<sub>i+1</sub>A<sub>i+1</sub></var></code> is a right triangle where we know the coordinates of all three vertices</figcaption>
 		</figure>
 
-		<p>In the right triangle <code><var>A<sub>i</sub>T<sub>i</sub>A<sub>i+1</sub></var></code>, the <code><var>T<sub>i</sub></var></code> vertex has the same <code><var>x</var></code> coordinate as <code><var>A<sub>i</sub></var></code> (<code>x<sub>i</sub></code>) and the same <code><var>y</var></code> coordinate as <code><var>A<sub>i+1</sub></var></code> (<code>y<sub>i+1</sur></code>). The <code><var>A<sub>i</sub>T<sub>i</sub></var></code> segment is a horizontal one, so its length is the difference between the <code><var>x</var></code> coordinates of the two points: <code><var>dx<sub>i</sub></var> = x<sub>i+1</sub> - x<sub>i</sub></code>. Similarly, the <code><var>T<sub>i</sub>A<sub>i+1</sub></var></code> segment is a vertical one, so its length is the difference between the <code><var>y</var></code> coordinates of the two points: <code><var>dy<sub>i</sub></var> = y<sub>i+1</sub> - y<sub>i</sub></code>.</p>
+		<p>In the right triangle <code><var>A<sub>i</sub>T<sub>i+1</sub>A<sub>i+1</sub></var></code>, the <code><var>T<sub>i+1</sub></var></code> vertex has the same <code><var>x</var></code> coordinate as <code><var>A<sub>i</sub></var></code> (<code>x<sub>i</sub></code>) and the same <code><var>y</var></code> coordinate as <code><var>A<sub>i+1</sub></var></code> (<code>y<sub>i+1</sur></code>). The <code><var>A<sub>i</sub>T<sub>i+1</sub></var></code> segment is a horizontal one, so its length is the difference between the <code><var>x</var></code> coordinates of the two points: <code><var>dx<sub>i</sub></var> = x<sub>i+1</sub> - x<sub>i</sub></code>. Similarly, the <code><var>T<sub>i+1</sub>A<sub>i+1</sub></var></code> segment is a vertical one, so its length is the difference between the <code><var>y</var></code> coordinates of the two points: <code><var>dy<sub>i</sub></var> = y<sub>i+1</sub> - y<sub>i</sub></code>.</p>
 
 		<p>These coordinate differences will turn out to be useful for more than one thing, so let's compute and store them into another array <code>d</code>. We start from the 2D array of vertex coordinates <code>v</code>, which we <code>map()</code> to another 2D array of differences <code>d</code>:</p>
 		
@@ -319,7 +319,7 @@ let f = v.map((c, i, a) => {
 		
 		<p><a href='https://codepen.io/thebabydino/pen/7b29e78716a3a799de2afb83b7c409b2?editors=0011'>This Pen</a> checks that it all went fine for the simple equilateral triangle we said we'd use as a test polygon.</p>
 	
-		<p>Moving further, in the same right triangle <code><var>A<sub>i</sub>T<sub>i</sub>A<sub>i+1</sub></var></code>, the tangent of the <code>∠<var>T<sub>i</sub>A<sub>i</sub>A<sub>i+1</sub></var></code> angle (<code><var>α<sub>i</sub></var></code>) is the ratio between the opposing cathetus <code><var>T<sub>i</sub>A<sub>i+1</sub></var></code> (<code>dy<sub>i</sub></code>) and the adjacent cathetus <code><var>A<sub>i</sub>T<sub>i</sub></var></code> (<code>dx<sub>i</sub></code>).</p>
+		<p>Moving further, in the same right triangle <code><var>A<sub>i</sub>T<sub>i+1</sub>A<sub>i+1</sub></var></code>, the tangent of the <code>∠<var>T<sub>i+1</sub>A<sub>i</sub>A<sub>i+1</sub></var></code> angle (<code><var>α<sub>i</sub></var></code>) is the ratio between the opposing cathetus <code><var>T<sub>i+1</sub>A<sub>i+1</sub></var></code> (<code>dy<sub>i</sub></code>) and the adjacent cathetus <code><var>A<sub>i</sub>T<sub>i+1</sub></var></code> (<code>dx<sub>i</sub></code>).</p>
 		
 		<pre><var>α<sub>i</sub></var> = tan(dy<sub>i</sub>/dx<sub>i</sub>)</pre>
 		
@@ -332,13 +332,15 @@ let f = v.map((c, i, a) => {
 		<p>Good, now we have the angles of the <code><var>A<sub>0</sub>A<sub>1</sub></var></code>, <code><var>A<sub>1</sub>A<sub>2</sub></var></code>, ... <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code>, ... <code><var>A<sub>n-1</sub>A<sub>0</sub></var></code> edges with respect to the horizontal all stored into the <code>α</code> array.</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_edge_angles_comp.svg' alt=''/>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_edge_angles_comp_min.svg' alt=''/>
 			<figcaption>the angle between the horizontal and the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> edge is <code>α<sub>i</sub></code></figcaption>
 		</figure>
 		
 		<p>This means we can now compute the <code>∠<var>A<sub>n-1</sub>A<sub>0</sub>A<sub>1</sub></var></code>, <code>∠<var>A<sub>0</sub>A<sub>1</sub>A<sub>2</sub></var></code>, ... <code>∠<var>A<sub>i-1</sub>A<sub>i</sub>A<sub>i+1</sub></var></code>, ... angles.</p>
 		
-		<p>For the <code>i</code>-th vertex, this means computing the absolute value of difference between the angles of the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> and <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> edges with respect to the horizontal. Note that we don't have the angle between the horizontal and the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment. We have <code>α<sub>i-1</sub></code>, which is the angle between the horizontal and <code><var>A<sub>i-1</sub>A<sub>i</sub></var></code>. The angle of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> edge with respect to the horizontal is <code>180°</code> away from <code>α<sub>i-1</sub></code>. Does that mean we need to add or subtract <code>180°</code>? Well, it depends. The <code>atan2()</code> function returns values in the <code>(-180°, 180°]</code> interval, so that's where all our <code>α</code> angles are. We want to keep the angle of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment with respect to the horizontal within the same interval as well. So, if <code>α<sub>i-1</sub></code> is positive, then we subtract <code>180°</code>, otherwise (if it's negative or <code>0</code>), we add <code>180°</code>. This means that the angle between the horizontal and the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment is <code>α<sub>i-1</sub> - (sgn(α<sub>i-1</sub>) || -1)*180°</code>.</p>
+		<p>For the <code>i</code>-th vertex, this means computing the absolute value of the difference between the angles of the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> and <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> edges with respect to the horizontal. Note that we don't have the angle between the horizontal and the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment. We have <code>α<sub>i-1</sub></code>, which is the angle between the horizontal and <code><var>A<sub>i-1</sub>A<sub>i</sub></var></code>. The angle of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> edge with respect to the horizontal is <code>180°</code> away from <code>α<sub>i-1</sub></code>. Does that mean we need to add or subtract <code>180°</code>? Well, it depends. The <code>atan2()</code> function returns values in the <code>(-180°, 180°]</code> interval, so that's where all our <code>α</code> angles are. We want to keep the angle of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment with respect to the horizontal within the same interval as well. So, if <code>α<sub>i-1</sub></code> is positive, then we subtract <code>180°</code>, otherwise (if it's negative or <code>0</code>), we add <code>180°</code>. This means that the angle between the horizontal and the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment is <code>α<sub>i-1</sub> - (sgn(α<sub>i-1</sub>) || -1)*180°</code>.</p>
+		
+		INTERACTIVE DEMO - finish https://codepen.io/thebabydino/pen/dc34e87b102a2901816af78563b09105?editors=1000
 		
 		<p>So the absolute value of the difference we want is	<code><var>da<sub>i</sub></var> = |α<sub>i</sub> - α<sub>i-1</sub> + (sgn(α<sub>i-1</sub>) || -1)*180°|</code>. This is the measure of the <code>∠<var>A<sub>i-1</sub>A<sub>i</sub>A<sub>i+1</sub></var></code> angle. Sort of. It's not always the correct result due to the cyclicity of angles around the circle.</p>
 		
