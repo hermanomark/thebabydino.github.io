@@ -178,7 +178,7 @@ z</pre>
 			<li>whether it goes clockwise or not, which determines the value (<code>1</code> or <code>0</code>) for its sweep flag <code><var>f</var></code></li>
 		</ul>
 		
-		<p>Let's first get the sweep flag out of the way. For the <code>i</code>-th arc, the value of the <code><var>f<sub>i</sub></var></code> flag is determined by whether the arc goes clockwise (in which case it's <code><var>1</var></code>) or not (in which case it's <code><var>0</var></code>). We can get the direction of the arc by <a href='https://en.wikipedia.org/wiki/Curve_orientation#Orientation_of_a_simple_polygon'>computing the following sum</a>:</p>
+		<p>Let's first get the sweep flag out of the way. For the <code>i</code>-th arc, the value of the <code><var>f<sub>i</sub></var></code> flag is determined by whether the arc goes clockwise (in which case it's <code>1</code>) or not (in which case it's <code>0</code>). We can get the direction of the arc by <a href='https://en.wikipedia.org/wiki/Curve_orientation#Orientation_of_a_simple_polygon'>computing the following sum</a>:</p>
 		
 		<pre><var>Σ<sub>i</sub></var> = 
 (x<sub>i-1</sub>y<sub>i</sub> + x<sub>i</sub>y<sub>i+1</sub> + x<sub>i+1</sub>y<sub>i-1</sub>) - 
@@ -186,7 +186,7 @@ z</pre>
 		
 		<p>If this sum is positive, then the arc goes in the clockwise direction and the <code><var>f<sub>i</sub></var></code> flag is <code>1</code>. If it's negative, then the arc goes counterclockwise and the <code><var>f<sub>i</sub></var></code> flag is <code>0</code>. But what if it's exactly <code>0</code>? Well, that cannot happen, as it would mean the three points are collinear and we've already taken care of that situation.</p>
 
-		<p>If the sum is positive, then the sign of the <code>Σ<sub>i</sub></code> sum is <code>1</code> and <code><var>f<sub>i</sub></var></code> is <code>1</code>. If the sum is negative, then the sign of the <code>Σ<sub>i</sub></code> sum is <code>-1</code> and <code><var>f<sub>i</sub></var></code> is <code>0</code>. This helps us extract a formula for <code><var>f<sub>i</sub></var></code>:</p>
+		<p>If the sum is positive, then the sign of the <code>Σ<sub>i</sub></code> sum is <code>+</code> (the function checking the sign returns <code>1</code>) and <code><var>f<sub>i</sub></var></code> is <code>1</code>. If the sum is negative, then the sign of the <code>Σ<sub>i</sub></code> sum is <code>-</code> (the function checking the sign returns <code>-1</code>) and <code><var>f<sub>i</sub></var></code> is <code>0</code>. This helps us extract a formula for <code><var>f<sub>i</sub></var></code>:</p>
 
 		<pre><var>f<sub>i</sub></var> = .5*(sgn(Σ<sub>i</sub>) + 1)</pre>
 
@@ -542,7 +542,7 @@ let o = v.map((c, i) => {
 		
 		<p>Now all we still need are the angles of the <code><var>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>O<sub>i</sub>E<sub>i</sub></var></code> segments with respect to the horizontal and then we'll have everything that's required to compute the coordinates of the start <code><var>S<sub>i</sub></var></code> and end <code><var>E<sub>i</sub></var></code> points of the arcs.</p>
 		
-		<p>The angles between the horizontal and the radial segments <code><var>O<sub>i</sub>S<sub>i</sub></var></code>/ <code><var>O<sub>i</sub>E<sub>i</sub></var></code> can be computed as the angle of <code><var>O<sub>i</sub>A<sub>i</sub></var></code> with respect to the horizontal (<code>180°</code> away from the angle of <code><var>A<sub>i</sub>O<sub>i</sub></var></code> with respect to the horizontal <code>γ<sub>i</sub></code>, which makes it <code>γ<sub>i</sub> - (sign(γ<sub>i</sub>) || -1)*180°</code>) plus/ minus the <code>∠<var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code>/ <code>∠<var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code> (both angles equal to <code>δ<sub>i</sub></code>).</p>
+		<p>The angles between the horizontal and the radial segments <code><var>O<sub>i</sub>S<sub>i</sub></var></code>/ <code><var>O<sub>i</sub>E<sub>i</sub></var></code> can be computed as the angle of <code><var>O<sub>i</sub>A<sub>i</sub></var></code> with respect to the horizontal (<code>180°</code> away from the angle of <code><var>A<sub>i</sub>O<sub>i</sub></var></code> with respect to the horizontal <code>γ<sub>i</sub></code>, which makes it <code>γ<sub>i</sub> - (sgn(γ<sub>i</sub>) || -1)*180°</code>) plus/ minus the <code>∠<var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code>/ <code>∠<var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code> (both angles equal to <code>δ<sub>i</sub></code>).</p>
 		
 		ILLUSTRATION
 		
