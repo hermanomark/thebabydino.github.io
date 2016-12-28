@@ -620,7 +620,10 @@ _up.insertBefore(_path, _poly);</pre>
 		
 		<p>The problem here is the rounding radius being too big for at least one edge. Consider the <code>i</code>-th edge being too short. This makes the end point (<code><var>E<sub>i</sub></var></code>) of the arc replacing the vertex our too short edge starts from (<code><var>A<sub>i</sub></var></code>) end up after the start point (<code><var>S<sub>i+1</sub></var></code>) of the arc replacing the vertex the same edge ends at (<code><var>A<sub>i+1</sub></var></code>).</p>
 		
-		ILLUSTRATION
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_rad_ok_vs_big_min.svg' alt='' />
+			<figcaption>a rounding radius small enough such that the <code><var>A<sub>i</sub></var></code>, <code><var>E<sub>i</sub></var></code>, <code><var>S<sub>i+1</sub></var></code> and <code><var>A<sub>i+1</sub></var></code> are in this order on the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> edge (left) vs. a rounding radius too big for the <code>i</code>-th edge, which puts <code><var>E<sub>i</sub></var></code> after <code><var>S<sub>i+1</sub></var></code> in going from <code><var>A<sub>i</sub></var></code> to <code><var>A<sub>i+1</sub></var></code> (right)</figcaption>
+		</figure>
 		
 		<p>So if the <code>i</code>-th edge (<code><var>A<sub>i</sub>A<sub>i+1</sub></var></code>) is too short, then in going from the end point of the <code>i</code>-th arc (<code><var>E<sub>i</sub></var></code>) to the start point of arc <code>i+1</code> (<code><var>S<sub>i+1</sub></var></code>), we actually go backwards on this edge, towards its start point (<code><var>A<sub>i</sub></var></code>), not towards its end point (<code><var>A<sub>i+1</sub></var></code>) as we should.</p>
 		
@@ -648,7 +651,10 @@ _up.insertBefore(_path, _poly);</pre>
 		
 		<p>Alright, but we don't yet know the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> segment. We still need to compute it and we do that using the right triangle <code><var>A<sub>i</sub>A<sub>i+1</sub>T<sub>i+1</sub></var></code>.</p>
 		
-		ILLUSTRATION
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_right_tri_angle_edge_len_min.svg' alt=''/>
+			<figcaption>the right triangle <code><var>A<sub>i</sub>A<sub>i+1</sub>T<sub>i+1</sub></var></code></figcaption>
+		</figure>
 		
 		<p>In this triangle, <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> (<code><var>l<sub>i</sub></var></code>) is the hypotenuse, so we can compute it using the Pythagorean theorem:</p>
 		
@@ -709,6 +715,16 @@ pd = s.reduce((a, c, i) => a +
 		<p>An interesting thing to notice here is that, for regular polygons, if the radius is too large, then the "polygon with rounded corners" that we get is actually its <a href='http://mathworld.wolfram.com/Incircle.html'>incircle</a>:</p>
 		
 		<p data-height="400" data-theme-id="0" data-slug-hash="MbxQmJ" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="round regular poly corners" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/MbxQmJ/">round regular poly corners</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+		
+		text
+		
+		<p data-height="500" data-theme-id="0" data-slug-hash="a392fea26df55d270cee1abece998654" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="round polygon corners, step 22" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/a392fea26df55d270cee1abece998654/">round polygon corners, step 22</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+		
+		more text
+		
+		<p data-height="500" data-theme-id="0" data-slug-hash="9f31eb22229aaeb48fd3f18b8b6450c7" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="round polygon corners, step 23" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/9f31eb22229aaeb48fd3f18b8b6450c7/">round polygon corners, step 23</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
 		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
 	</body>
 
