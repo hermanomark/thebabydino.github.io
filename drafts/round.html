@@ -305,7 +305,7 @@ let f = v.map((c, i, a) => {
 			<figcaption><code><var>A<sub>i</sub>T<sub>i+1</sub>A<sub>i+1</sub></var></code> is a right triangle where we know the coordinates of all three vertices</figcaption>
 		</figure>
 
-		<p>In the right triangle <code><var>A<sub>i</sub>T<sub>i+1</sub>A<sub>i+1</sub></var></code>, the <code><var>T<sub>i+1</sub></var></code> vertex has the same <code><var>x</var></code> coordinate as <code><var>A<sub>i</sub></var></code> (<code>x<sub>i</sub></code>) and the same <code><var>y</var></code> coordinate as <code><var>A<sub>i+1</sub></var></code> (<code>y<sub>i+1</sur></code>). The <code><var>A<sub>i</sub>T<sub>i+1</sub></var></code> segment is a horizontal one, so its length is the difference between the <code><var>x</var></code> coordinates of the two points: <code><var>dx<sub>i</sub></var> = x<sub>i+1</sub> - x<sub>i</sub></code>. Similarly, the <code><var>T<sub>i+1</sub>A<sub>i+1</sub></var></code> segment is a vertical one, so its length is the difference between the <code><var>y</var></code> coordinates of the two points: <code><var>dy<sub>i</sub></var> = y<sub>i+1</sub> - y<sub>i</sub></code>.</p>
+		<p>In the right triangle <code><var>A<sub>i</sub>T<sub>i+1</sub>A<sub>i+1</sub></var></code>, the <code><var>T<sub>i+1</sub></var></code> vertex is on the same horizontal line as <code><var>A<sub>i</sub></var></code>, so it has the same <code><var>y</var></code> coordinate (<code>y<sub>i</sub></code>). It's also on the same vertical line as <code><var>A<sub>i+1</sub></var></code>, so it has the same <code><var>x</var></code> coordinate (<code>x<sub>i+1</sur></code>). Since the <code><var>A<sub>i</sub>T<sub>i+1</sub></var></code> segment is a horizontal one, its length is the difference between the <code><var>x</var></code> coordinates of the two points: <code><var>dx<sub>i</sub></var> = x<sub>i+1</sub> - x<sub>i</sub></code>. Similarly, since the <code><var>T<sub>i+1</sub>A<sub>i+1</sub></var></code> segment is a vertical one, its length is the difference between the <code><var>y</var></code> coordinates of the two points: <code><var>dy<sub>i</sub></var> = y<sub>i+1</sub> - y<sub>i</sub></code>.</p>
 
 		<p>These coordinate differences will turn out to be useful for more than one thing, so let's compute and store them into another array <code>d</code>. We start from the 2D array of vertex coordinates <code>v</code>, which we <code>map()</code> to another 2D array of differences <code>d</code>:</p>
 		
@@ -338,9 +338,15 @@ let f = v.map((c, i, a) => {
 		
 		<p>This means we can now compute the <code>∠<var>A<sub>n-1</sub>A<sub>0</sub>A<sub>1</sub></var></code>, <code>∠<var>A<sub>0</sub>A<sub>1</sub>A<sub>2</sub></var></code>, ... <code>∠<var>A<sub>i-1</sub>A<sub>i</sub>A<sub>i+1</sub></var></code>, ... angles.</p>
 		
-		<p>For the <code>i</code>-th vertex, this means computing the absolute value of the difference between the angles of the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> and <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> edges with respect to the horizontal. Note that we don't have the angle between the horizontal and the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment. We have <code>α<sub>i-1</sub></code>, which is the angle between the horizontal and <code><var>A<sub>i-1</sub>A<sub>i</sub></var></code>. The angle of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> edge with respect to the horizontal is <code>180°</code> away from <code>α<sub>i-1</sub></code>. Does that mean we need to add or subtract <code>180°</code>? Well, it depends. The <code>atan2()</code> function returns values in the <code>(-180°, 180°]</code> interval, so that's where all our <code>α</code> angles are. We want to keep the angle of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment with respect to the horizontal within the same interval as well. So, if <code>α<sub>i-1</sub></code> is positive, then we subtract <code>180°</code>, otherwise (if it's negative or <code>0</code>), we add <code>180°</code>. This means that the angle between the horizontal and the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment is <code>α<sub>i-1</sub> - (sgn(α<sub>i-1</sub>) || -1)*180°</code>.</p>
+		<p>For the <code>i</code>-th vertex, this means computing the absolute value of the difference between the angles of the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> and <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> edges with respect to the horizontal.</p>
 		
-		<p data-height="540" data-theme-id="0" data-slug-hash="eBaRVV" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="angles of a segment w.r.t. the horizontal (SVG + JS)" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/eBaRVV/">angles of a segment w.r.t. the horizontal (SVG + JS)</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+		<p><em>Note that we don't have the angle between the horizontal and the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment. We have <code>α<sub>i-1</sub></code>, which is the angle between the horizontal and <code><var>A<sub>i-1</sub>A<sub>i</sub></var></code>. The angle of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> edge with respect to the horizontal is <code>180°</code> away from <code>α<sub>i-1</sub></code></em>.</p>
+		
+		<p>Does that mean we need to add or subtract <code>180°</code>? Well, it depends. The <code>atan2()</code> function returns values in the <code>(-180°, 180°]</code> interval, so that's where all our <code>α</code> angles are. We want to keep the angle of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment with respect to the horizontal within the same interval as well. So, if <code>α<sub>i-1</sub></code> is positive, then we subtract <code>180°</code>, otherwise (if it's negative or <code>0</code>), we add <code>180°</code>. This means that the angle between the horizontal and the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment is <code>α<sub>i-1</sub> - (sgn(α<sub>i-1</sub>) || -1)*180°</code>.</p>
+		
+		<p>The interactive demo below illustrates this. Drag the <code><var>A<sub>i-1</sub>A<sub>i</sub></var></code> segment to see how its angle with respect the horizontal (<code>α<sub>i-1</sub></code>, marked with green) changes and how that influences the angle of <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> with respect to the horizontal (marked with dark blue).</p>
+		
+		<p data-height="570" data-theme-id="0" data-slug-hash="eBaRVV" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="angles of a segment w.r.t. the horizontal (SVG + JS)" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/eBaRVV/">angles of a segment w.r.t. the horizontal (SVG + JS)</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
 		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
 		
 		<p>So the absolute value of the difference we want is	<code><var>da<sub>i</sub></var> = |α<sub>i</sub> - α<sub>i-1</sub> + (sgn(α<sub>i-1</sub>) || -1)*180°|</code>. This is the measure of the <code>∠<var>A<sub>i-1</sub>A<sub>i</sub>A<sub>i+1</sub></var></code> angle. Sort of. It's not always the correct result due to the cyclicity of angles around the circle.</p>
@@ -348,23 +354,23 @@ let f = v.map((c, i, a) => {
 		<p>In order to understand how that works, let's consider the example of the equilateral triangle we use to test everything is fine. We take the first vertex, the one at <code>50,0</code>.</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_vertex_angle_setup_ex.svg' alt=''/>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_vx_angle_setup_ex_0_min.svg' alt=''/>
 			<figcaption>the angles of the edges determining the first angle of our equilateral triangle (restricted to the <code>(-180°, 180°]</code> interval)</figcaption>
 		</figure>
 		
-		<p>The angles we need to subtract the angles between the horizontal and the <code><var>A<sub>0</sub>A<sub>1</sub></var></code> and <code><var>A<sub>0</sub>A<sub>2</sub></var></code> edges. The angle of <code><var>A<sub>0</sub>A<sub>1</sub></var></code> with respect to the horizontal is <code>150°</code>. The angle of <code><var>A<sub>2</sub>A<sub>0</sub></var></code> with respect to the horizontal is <code>30</code> and that of <code><var>A<sub>0</sub>A<sub>2</sub></var></code> is <code>180°</code> away and stilll in the <code>(-180°, 180°]</code> interval, which puts it at <code>-150°</code>. So the result we get is <code>|150° - (-150°)| = |150° + 150°| = |300°| = 300°</code>... which is not the correct result here! All angles of this polygon should be <code>60°</code> angles because it's an equilateral triangle.</p>
+		<p>The angles we need to subtract are the angles between the horizontal and the <code><var>A<sub>0</sub>A<sub>1</sub></var></code> and <code><var>A<sub>0</sub>A<sub>2</sub></var></code> edges. The angle of <code><var>A<sub>0</sub>A<sub>1</sub></var></code> with respect to the horizontal is <code>150°</code>. The angle of <code><var>A<sub>2</sub>A<sub>0</sub></var></code> with respect to the horizontal is <code>30°</code> and that of <code><var>A<sub>0</sub>A<sub>2</sub></var></code> is <code>180°</code> away and stilll in the <code>(-180°, 180°]</code> interval, which puts it at <code>-150°</code> (see illustration above). So the result we get is <code>|150° - (-150°)| = |150° + 150°| = |300°| = 300°</code>... which is not the correct result here! All angles of this polygon should be <code>60°</code> angles because it's an equilateral triangle.</p>
 		
-		<p>If we were to limit all angles to the <code>[0°, 360°)</code> interval, then the angles we need to subtract would be <code>150°</code> and <code>210°</code>.</p>
+		<p>If we were to limit all angles to the <code>[0°, 360°)</code> interval, then the angles we need to subtract would be <code>150°</code> and <code>210°</code> (as seen below).</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_vertex_angle_setup_ex_1.svg' alt=''/>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_vx_angle_setup_ex_1_min.svg' alt=''/>
 			<figcaption>the angles of the edges determining the first angle of our equilateral triangle (restricted to the <code>[0°, 360°)</code> interval)</figcaption>
 		</figure>
 		
 		<p>Replacing in the formula, we get <code>|150° - 210°| = |-60°| = 60°</code>. So is that it? We simply need to shift the interval? Sadly, no and let's see why. Let's now consider the situation when the triangle is flipped horizontally.</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_vertex_angle_setup_ex_2.svg' alt=''/>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_vx_angle_setup_ex_2_min.svg' alt=''/>
 			<figcaption>the angles of the edges determining the first angle of our equilateral triangle flippled (restricted to the <code>[0°, 360°)</code> interval)</figcaption>
 		</figure>
 		
@@ -374,13 +380,23 @@ let f = v.map((c, i, a) => {
 		
 		<p><em>What about the case when <code>da<sub>i</sub></code> happens to be exactly <code>180°</code>? Well, that just cannot happen because it would mean that the three vertices that describe the angle are collinear and we've already elliminated that possibility.</em></p>
 		
-		<p>The check whether <code>da<sub>i</sub></code> is greater than <code>180°</code> is pretty simple:</p>
+		<p>The check whether <code>da<sub>i</sub></code> is smaller or greater than <code>180°</code> is pretty simple:</p>
 		
 		<pre><var>m<sub>i</sub></var> = floor(da<sub>i</sub>/180°)</pre>
+		
+		<p><em>Since the two angles we subtract are limited to the <code>(-180°, 180°]</code> interval, their difference in absolute value (<code>da<sub>i</sub></code>) is limited to the <code>[0°, 360°)</code> interval, so the only two possible values for <code>floor(da<sub>i</sub>/180°)</code> are <code>0</code> (when <code>da<sub>i</sub></code> is smaller than <code>180°</code>) or <code>1</code> (when it isn't).</em></p>
 		
 		<p>Then, based on this, we can get a generic formula for the <code>i</code>-th polygon angle:</p>
 		
 		<pre>m<sub>i</sub>*360° + pow(-1, m<sub>i</sub>)*da<sub>i</sub></pre>
+		
+		<p>If <code>da<sub>i</sub></code> is smaller than <code>180°</code>, then <code>m<sub>i</sub></code> is <code>0</code> and, replacing in the above formula, we get:</p>
+		
+		<pre>0*360° + pow(-1, 0)*da<sub>i</sub> = da<sub>i</sub></pre>
+		
+		<p>If <code>da<sub>i</sub></code> is greater than <code>180°</code>, then <code>m<sub>i</sub></code> is <code>1</code> and, replacing in the above formula, we get:</p>
+		
+		<pre>1*360° + pow(-1, 1)*da<sub>i</sub> = 360° - da<sub>i</sub></pre>
 		
 		<p>What we want however, is half this angle because that's what we're going to need in computations later:</p>
 		
@@ -401,7 +417,7 @@ let β = da.map((c, i) => .5*(m[i]*FC + Math.pow(-1, m[i])*c));</pre>
 		
 		<p><a href='https://codepen.io/thebabydino/pen/b700489d8f34f0810e8a158b905073e7?editors=0011'>This Pen</a> checks that the code above works as it should.</p>
 		
-		<p>Now let's get back to the two congruent right triangles formed by the vertex of the initial polygon, the central point of the circle the rounding arc is a part of and the start and end points of this arc.</p>
+		<p>Now let's get back to the two congruent right triangles formed by the vertex of the initial polygon, the central point of the circle that the rounding arc is a part of and the start and end points of the same arc.</p>
 		
 		<figure>
 			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_right_tri_congruent.svg' />
@@ -414,7 +430,7 @@ let β = da.map((c, i) => .5*(m[i]*FC + Math.pow(-1, m[i])*c));</pre>
 		
 		<p><a href='https://codepen.io/thebabydino/pen/4f154b4c60b5e980eee0892ceceb716e?editors=0011'>Test</a>.</p>
 		
-		<p>We can also compute the hypotenuse <code><var>A<sub>i</sub>O<sub>i</sub></var></code> from either of these triangles. Take the triangle <code><var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code> - the sine of the <code>∠O<sub>i</sub><var>A<sub>i</sub>S<sub>i</sub></var></code> angle (already known, it's <code>β<sub>i</sub></code>) is the ratio between the opposing cathetus <code><var>O<sub>i</sub>S<sub>i</sub></var></code> (which we know, it's <code>r</code>) and the hypotenuse <code><var>A<sub>i</sub>O<sub>i</sub></var></code>. From here, we get that the hypotenuse <code><var>A<sub>i</sub>O<sub>i</sub></var></code> is <code>r/sin(β<sub>i</sub>)</code>.</p>
+		<p>We can also compute the hypotenuse <code><var>A<sub>i</sub>O<sub>i</sub></var></code> from either of these triangles. Take the triangle <code><var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code> - the sine of the <code>∠<var>O<sub>i</sub></var><var>A<sub>i</sub>S<sub>i</sub></var></code> angle (already known, it's <code>β<sub>i</sub></code>) is the ratio between the opposing cathetus <code><var>O<sub>i</sub>S<sub>i</sub></var></code> (which we know, it's <code>r</code>) and the hypotenuse <code><var>A<sub>i</sub>O<sub>i</sub></var></code>. From here, we get that the hypotenuse <code><var>A<sub>i</sub>O<sub>i</sub></var></code> is <code>r/sin(β<sub>i</sub>)</code>.</p>
 		
 		<p>As mentioned before, <code><var>A<sub>i</sub>O<sub>i</sub></var></code> is the angle bisector of the <code>∠S<sub>i</sub><var>A<sub>i</sub>E<sub>i</sub></var></code> angle. So we can compute its angle with respect to the horizontal as the average between the angles of the segments <code><var>A<sub>i</sub>S<sub>i</sub></var></code> and <code><var>A<sub>i</sub>E<sub>i</sub></var></code> with respect to the horizontal.</p>
 		
@@ -432,7 +448,7 @@ let β = da.map((c, i) => .5*(m[i]*FC + Math.pow(-1, m[i])*c));</pre>
 		<p>This seems fine at first sight, but let's consider the example of the first angle of our test triangle:</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_bisect_angle_setup_ex.svg' alt=''/>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_vx_bisector_angle_setup_ex_0_min.svg' alt=''/>
 			<figcaption>the angles of the edges determining the bisector of the first angle of our equilateral triangle (restricted to the <code>(-180°, 180°]</code> interval)</figcaption>
 		</figure>
 		
@@ -440,11 +456,17 @@ let β = da.map((c, i) => .5*(m[i]*FC + Math.pow(-1, m[i])*c));</pre>
 		
 		<p>Shifting the interval of the angles from <code>(-180°, 180°]</code> to <code>[0°, 360°)</code> appears to solve the problem: <code>.5*(210° + 150°) = .5*360° = 180°</code>.</p>
 		
-		ILLUSTRATION
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_vx_bisector_angle_setup_ex_1_min.svg' alt=''/>
+			<figcaption>the angles of the edges determining the bisector of the first angle of our equilateral triangle (restricted to the <code>[0°, 360°)</code> interval)</figcaption>
+		</figure>
 		
 		<p>However, let's also consider the case of the flipped triangle when using the <code>[0°, 360°)</code> interval.</p>
 		
-		ILLUSTRATION
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_vx_bisector_angle_setup_ex_2_min.svg' alt=''/>
+			<figcaption>the angles of the edges determining the bisector of the first angle of our equilateral triangle flipped horizontally (restricted to the <code>(-180°, 180°]</code> interval)</figcaption>
+		</figure>
 		
 		<p>Now we get that the angle of the bisector line is <code>.5*(30° + 330°) = .5*360° = 180°</code>, which is incorrect here. It should be <code>0°</code>, as, in this case, the bisector line goes to the right, not to the left.</p>
 		
@@ -505,7 +527,7 @@ let β = da.map((c, i) => .5*(m[i]*FC + Math.pow(-1, m[i])*c));</pre>
 		
 		<p><a href='https://codepen.io/thebabydino/pen/9a560bc31ba057ea60b28c90c0ff5186?editors=0011'>Test</a>.</p>
 		
-		<p>The next step is to compute the coordinates of the <code><var>O<sub>i</sub></var></code> points from the coordinates of the <code><var>A<sub>i</sub></var></code> points (<code>x<sub>i</sub>,y<sub>i</sub></code>), the <code><var>A<sub>i</sub>O<sub>i</sub></var></code> segments (<code>r/sin(β<sub>i</sub>)</code>) and the angles of these segments with respect to the horizontal (<code>γ<sub>i</sub></code>):</p>
+		<p>The next step is to compute the coordinates of the <code><var>O<sub>i</sub></var></code> points from the coordinates of the <code><var>A<sub>i</sub></var></code> points (<code>x<sub>i</sub>,y<sub>i</sub></code>), the bisector segments <code><var>A<sub>i</sub>O<sub>i</sub></var></code> (which we have previously computed to be <code>r/sin(β<sub>i</sub>)</code>) and the angles of these segments with respect to the horizontal:</p>
 		
 		<pre>const FN = ['cos', 'sin'];
 
@@ -600,7 +622,7 @@ _up.insertBefore(_path, _poly);</pre>
 		
 		ILLUSTRATION
 		
-		<p>So if the <code>i</code>-th edge (<code><var>A<sub>i</sub>A<sub>i+1</sub></var></code>) is too short, then in going from the end point of the <code>i</code>-th arc (<code><var>E<sub>i</sub></var></code>) to the start point of arc <code>i+1</code> (<code><var>S<sub>i+1</sub></var></code>), we actually go backwards on this edge, towards its start point (<code><var>A<sub>i</sub></var></code>), not towards its end point (<code><var>A<sub>i</sub></var></code>) as we should.</p>
+		<p>So if the <code>i</code>-th edge (<code><var>A<sub>i</sub>A<sub>i+1</sub></var></code>) is too short, then in going from the end point of the <code>i</code>-th arc (<code><var>E<sub>i</sub></var></code>) to the start point of arc <code>i+1</code> (<code><var>S<sub>i+1</sub></var></code>), we actually go backwards on this edge, towards its start point (<code><var>A<sub>i</sub></var></code>), not towards its end point (<code><var>A<sub>i+1</sub></var></code>) as we should.</p>
 		
 		<p>The fix here is to decrease the radii of the arcs replacing the vertices this edge connects until <code><var>S<sub>i+1</sub></var></code> isn't behind <code><var>E<sub>i</sub></var></code> anymore. This happens when <code><var>S<sub>i+1</sub></var></code> and <code><var>E<sub>i</sub></var></code> overlap, which means stopping when the sum of the <code><var>A<sub>i</sub>E<sub>i</sub></var></code> and <code><var>S<sub>i+1</sub>A<sub>i+1</sub></var></code> segments equals <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code>.</p>
 		
@@ -644,13 +666,13 @@ _up.insertBefore(_path, _poly);</pre>
 		
 		<p><a href='https://codepen.io/thebabydino/pen/00eb997afa5fbcf9ff8b2a22c30d09dc?editors=0011'>Test</a>.</p>
 		
-		<p>Then we do the same for the <code>l<sub>i</sub>/(tan(δ<sub>i</sub>) + tan(δ<sub>i+1</sub>)</code> values (the minimum radius needed to avoid issues for each edge) - we store them in a <code>rm</code> array:</p>
+		<p>Then we do the same for the <code>l<sub>i</sub>/(tan(δ<sub>i</sub>) + tan(δ<sub>i+1</sub>)</code> values (the limit radii needed to avoid issues for each edge) - we store them in a <code>rm</code> array:</p>
 		
 		<pre>let rm = l.map((c, i) => c/(q[i] + q[(i + 1)%n]));</pre>
 		
 		<p><a href='https://codepen.io/thebabydino/pen/40f1af1989e59e3c2dbe0c791843b777?editors=0011'>Test</a>.</p>
 		
-		<p>The last computation is to get the actual radius for each arc as the minimum between the given rounding radius (<code>r</code>) and the minimal radii (<code>rm<sub>i-1</sub></code> and <code>rm<sub>i</sub></code>) needed to avoid issues for the two edges forming the vertex that the current (<code>i</code>-th) arc replaces:</p>
+		<p>The last computation is to get the actual radius for each arc as the minimum between the given rounding radius (<code>r</code>) and the limit radii (<code>rm<sub>i-1</sub></code> and <code>rm<sub>i</sub></code>) needed to avoid issues for the two edges forming the vertex that the current (<code>i</code>-th) arc replaces:</p>
 		
 		<pre>let ra = rm.map((c, i, a) => Math.min(r, rm[(i + n - 1)%n], c));</pre>
 		
