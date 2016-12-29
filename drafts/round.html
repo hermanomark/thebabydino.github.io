@@ -12,7 +12,7 @@
 
 		<p>I've recently felt frustrated at the lack of an option to round the corners of a <code>&lt;polygon&gt;</code> element by simply specifying a rounding radius (<code>r</code>) attribute. After all, the <code>&lt;rect&gt;</code> element gives us the option of specifying rounding radii along the <code><var>x</var></code> and <code><var>y</var></code> axes via the <a href='https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/rx'><code>rx</code></a> and <a href='https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/ry'><code>ry</code></a>    attributes.</p>
 
-		<p>I've learned that it's been proposed and got asked if I could draft an algorithm for getting the equivalent <code>&lt;path&gt;</code> data (<code>d</code>) attribute from the <code>points</code> and <code>r</code> attribute specified for the initial <code>&lt;polygon&gt;</code>. I've never done this before, had no idea how to do this, what to begin with, so I'd thought I'd have a more clear idea once I've coded some kind of JavaScript polyfill for this. This article is going to walk you through the thought process behind the JavaScript code.</p>
+		<p>I've learned that it's been proposed and got asked if I could draft an algorithm for getting the equivalent <code>&lt;path&gt;</code> data (<code>d</code>) attribute from the <code>points</code> and <code>r</code> attribute specified for the initial <code>&lt;polygon&gt;</code>. I've never done this before, had no idea how to do it, what to begin with, so I'd thought I'd have a more clear idea once I've coded some kind of JavaScript polyfill. This article is going to walk you through the thought process behind the JavaScript code.</p>
 
 		<p>For testing our code, we use a <code>&lt;polygon&gt;</code> element with the minimum number of coordinate pairs needed to create a shape (three), so we make it easy for ourselves to check computations.</p>
 
@@ -23,7 +23,7 @@
 		<p>This is an equilateral triangle. Three vertices, three sets of coordinates, all edges equal, equal angles, all three <code>60°</code> ones. Furthermore, the first vertex (the one at <code>50,0</code>) is on the <code><var>x</var></code> axis, so its <code><var>y</var></code> coordinate is <code>0</code>. All chosen this way just to make our life easier when checking whether our code works correctly or not.</p>
 
 		<figure>
-			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_test_ini.svg' />
+			<img alt='our initial test polygon' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_test_ini.svg' />
 			<figcaption>our initial test polygon</figcaption>
 		</figure>
 
@@ -39,15 +39,11 @@ let _p = document.querySelectorAll('polygon[r]'),
 for(let i = 0; i &lt; n; i++)
 	roundPoly(_p[i]);</pre>
 
-		<p>Our function doesn't yet do anything, so let's start working on that. We first need to <a href='https://codepen.io/thebabydino/pen/aec5026c4030e2b7db303d1931e99dc0?editors=1011'>check</a> the value we get from the <code>r</code> attribute is a positive (<code>&gt; 0</code>) finite (not <code>Infinity</code>) number (its type is <code>'number'</code> and it's not <code>NaN</code>). Otherwise, we exit the function.</p>
+		<p>Our function doesn't yet do anything, so let's start working on that. We first need to <a href='https://codepen.io/thebabydino/pen/aec5026c4030e2b7db303d1931e99dc0?editors=1011'>check</a> that the value we get from the <code>r</code> attribute is a finite, positive (<code>&gt; 0</code>) number. Otherwise, we exit the function.</p>
 
-		<pre>let r = 1*_poly.getAttribute('r');
+		<pre>let r = +_poly.getAttribute('r');
 
-if(!(typeof r === 'number' && 
-	r > 0 && r !== Infinity && 
-	!Number.isNaN(r))) return;</pre>
-
-		<p>Note that we need to check both that its type is <code>'number'</code> and that it's not <code>NaN</code> since <code>typeof NaN</code> also gives us <code>'number'</code>.</p>
+if(!isFinite(r) || r &lt;= 0) return;</pre>
 
 		<p>Next, we extract the vertex coordinates from the <code>points</code> attribute, checking that they're at least <code>3</code> sets of coordinates, the minimum number to create a polygon (because a polygon has at least 3 vertices, in which case it's a triangle). Now the <code>points</code> attribute looks nice and clean for our test above, easy to split into sets of coordinates. However, differently formatted and messier versions work just as well. All of the following also result in the exact same triangle (note the different comma and space placement and the fact that one even has an extra number at the end):</p>
 
@@ -63,26 +59,24 @@ if(!(typeof r === 'number' &&
 -25,-43.3' 
 '50 ,   0 -25 , 43.3        -25 , -43.3'</pre>
 
-		<p>So, after reading the value of the <code>points</code> attribute, we need to make sure we catch all these possibilities with the regular expression we use to <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split'><code>split()</code></a> the string we get and then, since all the coordinate values are still strings at this point, we convert them to numbers:</p>
+		<p>So, after reading the value of the <code>points</code> attribute, we need to make sure we catch all these possibilities with the regular expression we use to <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split'><code>split()</code></a> the string we get and then, since all the coordinate values are still strings at this point, we convert them to numbers by multiplying each one of them with <code>1</code>:</p>
 
 		<pre>let v = _poly.getAttribute('points')
 	.split(/\s*,\s*|\s+/g)
-	.map(c => 1*c);</pre>
+	.map(c => +c);</pre>
 
 		<p>This makes sure we get the same array if we have the same coordinates, no matter how the <code>points</code> attribute may have been formatted, as it can be seen in <a href='https://codepen.io/thebabydino/pen/3dce8589ec24aab3ae874737fedb13cd?editors=1011'>this Pen</a> (we get something like <code>[x<sub>0</sub>, y<sub>0</sub>, x<sub>1</sub>, y<sub>1</sub>, ...]</code>).</p>
 
 		<p>Now we check if we have the minimum number of coordinates needed to form a polygon. If not, we exit the function.</p>
 
 		<pre>let n = v.length;
-
-if(.5*n &lt; 3) return;</pre>
+if(.5*n &lt; 3) return;
+n -= n%2;</pre>
 
 		<p>After that, we check that all useful coordinates are finite numbers. If not, we exit the function, otherwise we compact the 1D array of coordinates into a 2D array of <code>x,y</code> pairs of coordinates (so basically, we go from something like <code>[x<sub>0</sub>, y<sub>0</sub>, x<sub>1</sub>, y<sub>1</sub>, ...]</code> to something like <code>[[x<sub>0</sub>, y<sub>0</sub>], [x<sub>1</sub>, y<sub>1</sub>], ...]</code>) using <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce'><code>reduce()</code></a>.</p>
 
-		<pre>for(let i = 0; i &lt; n - n%2; i++) {
-	if(typeof v[i] !== 'number' || Number.isNaN(v[i]) || 
-		Math.abs(v[i]) === Infinity) return;
-}
+		<pre>for(let i = 0; i &lt; n; i++)
+	if(!isFinite(v[i])) return;
 
 // a, c, i = accumulator, current item, current index
 v = v.reduce((a, c, i) => i%2 ? a.concat([[v[i - 1], c]]) : a, []);
@@ -125,19 +119,19 @@ n = v.length;</pre>
 
 		<figure>
 			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_arcs_segs_min.svg' />
-			<figcaption>rounding the corners of a polygon means replacing it with a path made up of arcs (one replacing each of the polygon's proper vertices) and straight line gegments (one along each proper edge of the initial polygon); note that the dashed lines denote the possibility of more vertices being in between those they connect</figcaption>
+			<figcaption>rounding the corners of a polygon means replacing it with a path made up of arcs (one replacing each of the polygon's proper vertices) and straight line segments (one along each proper edge of the initial polygon); note that the dashed lines denote the possibility of more vertices being in between those they connect</figcaption>
 		</figure>
 
 		<p>This <code>&lt;path&gt;</code> element's data (<code>d</code>) attribute is made up of:</p>
 
 		<ul>
 			<li>a 'move to' (<code>M</code>) command followed by the coordinates of the point where our path starts; we take this to be the start point of the first arc (<code><var>S<sub>0</sub></var></code>), whose coordinates are <code><var>xs<sub>0</var></sub>,<var>ys<sub>0</var></sub></code>;</li>
-			<li>an 'arc to' (<code>A</code>) command for every <code>i</code>-th arc; this draws the arc between its start point (<code><var>S<sub>i</sub></var></code>) and its end point <code><var>E<sub>i</sub></var></code>);</li>
+			<li>an 'arc to' (<code>A</code>) command for every <code>i</code>-th arc (where <code>i</code> can be <code>0</code>, <code>1</code>, ... <code>n-1</code>); this draws the arc between its start point (<code><var>S<sub>i</sub></var></code>) and its end point <code><var>E<sub>i</sub></var></code>);</li>
 			<li>a 'line to' (<code>L</code>) command for every <code>i</code>-th edge but the last one, followed by the coordinates point where this line segment ends, which is the start point of the next arc (<code><var>S<sub>i+1</sub></var></code>), whose coordinates are <code><var>xs<sub>i+1</var></sub>,<var>ys<sub>i+1</var></sub></code>; this line segment starts from the end point of the arc we've just drawn (<code><var>E<sub>i</sub></var></code>, of coordinates <code><var>xe<sub>i</var></sub>,<var>ye<sub>i</var></sub></code>);</li>
 			<li>a 'close path' (<code>z</code>) command at the end which connects the end point of the last arc (<code><var>E<sub>n-1</sub></var></code> of coordinates <code><var>xe<sub>n-1</var></sub>,<var>ye<sub>n-1</var></sub></code>) to the start point of our path (also the start point of the first arc <code><var>S<sub>0</sub></var></code>);</li>
 		</ul>
 
-		<p><em>Note that by <code>i + 1</code> we actually mean <code>(i + 1)%n</code> and by <code>i - 1</code> we actually mean <code>(i + n - 1)%n</code>. That's what we're going to use in the JavaScript code, but we're lazy so, for now, we just want to write less.</em></p>
+		<p class='note'>Note that by <code>i + 1</code> we actually mean <code>(i + 1)%n</code> and by <code>i - 1</code> we actually mean <code>(i + n - 1)%n</code>. That's what we're going to use in the JavaScript code, but we're lazy so, for now, we just want to write less.</p>
 
 		<figure>
 			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_arcs_segs_an_min.svg' />
@@ -186,7 +180,7 @@ z</pre>
 		
 		<p>If this sum is positive, then the arc goes in the clockwise direction and the <code><var>f<sub>i</sub></var></code> flag is <code>1</code>. If it's negative, then the arc goes counterclockwise and the <code><var>f<sub>i</sub></var></code> flag is <code>0</code>. But what if it's exactly <code>0</code>? Well, that cannot happen, as it would mean the three points are collinear and we've already taken care of that situation.</p>
 
-		<p>If the sum is positive, then the sign of the <code>Σ<sub>i</sub></code> sum is <code>+</code> (the function checking the sign returns <code>1</code>) and <code><var>f<sub>i</sub></var></code> is <code>1</code>. If the sum is negative, then the sign of the <code>Σ<sub>i</sub></code> sum is <code>-</code> (the function checking the sign returns <code>-1</code>) and <code><var>f<sub>i</sub></var></code> is <code>0</code>. This helps us extract a formula for <code><var>f<sub>i</sub></var></code>:</p>
+		<p>If the sum is positive, then the sign of the <code>Σ<sub>i</sub></code> sum is <code>+</code> (the value of the <a href='https://en.wikipedia.org/wiki/Sign_function'>sign function</a> is <code>1</code>) and <code><var>f<sub>i</sub></var></code> is <code>1</code>. If the sum is negative, then the sign of the <code>Σ<sub>i</sub></code> sum is <code>-</code> (the value of the sign function is <code>-1</code>) and <code><var>f<sub>i</sub></var></code> is <code>0</code>. This helps us extract a formula for <code><var>f<sub>i</sub></var></code>:</p>
 
 		<pre><var>f<sub>i</sub></var> = .5*(sgn(Σ<sub>i</sub>) + 1)</pre>
 
@@ -224,9 +218,9 @@ let f = v.map((c, i, a) => {
 
 		<p><code><var>PQO</var></code> is a right triangle (since the <code>∠<var>PQO</var></code> angle is a <code>90°</code> angle) where we know the hypotenuse <code><var>OP</var></code> (it's <code>r</code>, the radius of the circle <code><var>P</var></code>    is on) and the <code>∠<var>QOP</var></code> angle (it's <code>θ</code>).</p>
 
-		<p>The cosine of the <code>∠<var>QOP</var></code> angle (<code>θ</code>) is the ratio between the adjacent side <code><var>OQ</var></code> (<code><var>xp</var></code>) and the hypotenuse <code><var>OP</var></code> (<code>r</code>). This means we have <code>cos(θ) = <var>xp</var>/r</code> and, from here, we get that <code><var>xp</var> = r*cos(θ)</code>.</p>
+		<p>The cosine of the <code>∠<var>QOP</var></code> angle (<code>θ</code>) is the ratio between the adjacent <a href='https://en.wikipedia.org/wiki/Cathetus'>cathetus</a> <code><var>OQ</var></code> (<code><var>xp</var></code>) and the hypotenuse <code><var>OP</var></code> (<code>r</code>). This means we have <code>cos(θ) = <var>xp</var>/r</code> and, from here, we get that <code><var>xp</var> = r*cos(θ)</code>.</p>
 
-		<p>Similarly, the sine of the same <code>∠<var>QOP</var></code> angle (<code>θ</code>) is the ratio between the opposing side <code><var>PQ</var></code> (<code><var>yp</var></code>) and the hypotenuse <code><var>OP</var></code> (<code>r</code>). This means we have <code>sin(θ) = <var>yp</var>/r</code> and, from here, we get that <code><var>yp</var> = r*sin(θ)</code>.</p>
+		<p>Similarly, the sine of the same <code>∠<var>QOP</var></code> angle (<code>θ</code>) is the ratio between the opposing cathetus <code><var>PQ</var></code> (<code><var>yp</var></code>) and the hypotenuse <code><var>OP</var></code> (<code>r</code>). This means we have <code>sin(θ) = <var>yp</var>/r</code> and, from here, we get that <code><var>yp</var> = r*sin(θ)</code>.</p>
 
 		<p>So the <code><var>xp</var>,<var>yp</var></code> coordinates of any point <code><var>P</var></code> on a circle around the origin are:</p>
 
@@ -274,7 +268,7 @@ let f = v.map((c, i, a) => {
 		<p>The start and end points of an arc are the points where the two consecutive edges of our initial polygon that form the angle we want to replace with this arc <em>touch</em> the circle of radius <code>r</code> (placed inside the angle) that the rounding arc belongs to. This means that these edges are <a href='https://en.wikipedia.org/wiki/Tangent_lines_to_circles'>tangent</a> to this circle at the start and end point of the arc. A radial segment to the point where a tangent line touches the circle is perpendicular onto that tangent line.</p>
 
 		<figure>
-			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_arc_tan.svg' />
+			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_arc_tan_min.svg' />
 			<figcaption>at the <code>i</code>-th vertex of the initial polygon: the edges meeting there are tangent to the arc that replaces it</figcaption>
 		</figure>
 
@@ -323,11 +317,13 @@ let f = v.map((c, i, a) => {
 		
 		<pre><var>α<sub>i</sub></var> = tan(dy<sub>i</sub>/dx<sub>i</sub>)</pre>
 		
-		<p>This means that we can get this angle <code><var>α<sub>i</sub></var></code> (which is also the angle of the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> edge) from the values of the <code>dx<sub>i</sub></code> and <code>dy<sub>i</sub></code> differences that we now know (the <code>d</code> array):</p>
+		<p>This means that we can get this angle <code><var>α<sub>i</sub></var></code> (which is also the angle of the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> edge) from the values of the <code>dx<sub>i</sub></code> and <code>dy<sub>i</sub></code> differences that we now know (the <code>d</code> array) using <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/atan2'><code>Math.atan2()</code></a>:</p>
 		
 		<pre>let α = d.map(c => Math.atan2(...c.reverse()));</pre>
 		
 		<p><a href='https://codepen.io/thebabydino/pen/5f25292013701031b2ebd791a47cd9dc?editors=0011'>Test</a>.</p>
+		
+		<p class='note'>Note that since every item in <code>d</code> array is a <code>dx,dy</code> pair, while the first argument of <code>Math.atan2()</code> is the <var>y</var> value and the second one the <var>x</var> value, we need to reverse each pair before <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment'>destructuring</a>.</p>
 		
 		<p>Good, now we have the angles of the <code><var>A<sub>0</sub>A<sub>1</sub></var></code>, <code><var>A<sub>1</sub>A<sub>2</sub></var></code>, ... <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code>, ... <code><var>A<sub>n-1</sub>A<sub>0</sub></var></code> edges with respect to the horizontal all stored into the <code>α</code> array.</p>
 		
@@ -340,7 +336,7 @@ let f = v.map((c, i, a) => {
 		
 		<p>For the <code>i</code>-th vertex, this means computing the absolute value of the difference between the angles of the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> and <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> edges with respect to the horizontal.</p>
 		
-		<p><em>Note that we don't have the angle between the horizontal and the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment. We have <code>α<sub>i-1</sub></code>, which is the angle between the horizontal and <code><var>A<sub>i-1</sub>A<sub>i</sub></var></code>. The angle of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> edge with respect to the horizontal is <code>180°</code> away from <code>α<sub>i-1</sub></code></em>.</p>
+		<p class='note'>Note that we don't have the angle between the horizontal and the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment. We have <code>α<sub>i-1</sub></code>, which is the angle between the horizontal and <code><var>A<sub>i-1</sub>A<sub>i</sub></var></code> - not the same thing! The angle of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> edge with respect to the horizontal is <code>180°</code> away from <code>α<sub>i-1</sub></code>.</p>
 		
 		<p>Does that mean we need to add or subtract <code>180°</code>? Well, it depends. The <code>atan2()</code> function returns values in the <code>(-180°, 180°]</code> interval, so that's where all our <code>α</code> angles are. We want to keep the angle of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment with respect to the horizontal within the same interval as well. So, if <code>α<sub>i-1</sub></code> is positive, then we subtract <code>180°</code>, otherwise (if it's negative or <code>0</code>), we add <code>180°</code>. This means that the angle between the horizontal and the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment is <code>α<sub>i-1</sub> - (sgn(α<sub>i-1</sub>) || -1)*180°</code>.</p>
 		
@@ -378,13 +374,13 @@ let f = v.map((c, i, a) => {
 		
 		<p>So what we really need to do here, irrespective of which of the two intervals we use (we'll be sticking to the same old <code>(-180°, 180°]</code> because it's not worth bothering with switching), is to check whether our difference in absolute value <code>da<sub>i</sub></code> is greater than <code>180°</code> and, if it is, then the angle of the polygon isn't this <code>da<sub>i</sub></code>, but <code>360° - da<sub>i</sub></code>.</p>
 		
-		<p><em>What about the case when <code>da<sub>i</sub></code> happens to be exactly <code>180°</code>? Well, that just cannot happen because it would mean that the three vertices that describe the angle are collinear and we've already elliminated that possibility.</em></p>
+		<p>What about the case when <code>da<sub>i</sub></code> happens to be exactly <code>180°</code>? Well, that just cannot happen because it would mean that the three vertices that describe the angle are collinear and we've already elliminated that possibility.</p>
 		
 		<p>The check whether <code>da<sub>i</sub></code> is smaller or greater than <code>180°</code> is pretty simple:</p>
 		
 		<pre><var>m<sub>i</sub></var> = floor(da<sub>i</sub>/180°)</pre>
 		
-		<p><em>Since the two angles we subtract are limited to the <code>(-180°, 180°]</code> interval, their difference in absolute value (<code>da<sub>i</sub></code>) is limited to the <code>[0°, 360°)</code> interval, so the only two possible values for <code>floor(da<sub>i</sub>/180°)</code> are <code>0</code> (when <code>da<sub>i</sub></code> is smaller than <code>180°</code>) or <code>1</code> (when it isn't).</em></p>
+		<p class='note'>Since the two angles we subtract are limited to the <code>(-180°, 180°]</code> interval, their difference in absolute value (<code>da<sub>i</sub></code>) is limited to the <code>[0°, 360°)</code> interval, so the only two possible values for <code>floor(da<sub>i</sub>/180°)</code> are <code>0</code> (when <code>da<sub>i</sub></code> is smaller than <code>180°</code>) or <code>1</code> (when it isn't).</p>
 		
 		<p>Then, based on this, we can get a generic formula for the <code>i</code>-th polygon angle:</p>
 		
@@ -404,16 +400,14 @@ let f = v.map((c, i, a) => {
 		
 		<p>So let's code all this:</p>
 		
-		<pre>const FC = 2*Math.PI; /* full circle */
-
-let da = α.map((c, i, a) => {
+		<pre>let da = α.map((c, i, a) => {
 	let prv = a[(i + n - 1)%n]; /* prev edge angle */
 	return Math.abs(c - prv + (Math.sign(prv) || -1)*Math.PI)
 });
 
 let m = da.map(c => Math.floor(c/Math.PI));
 
-let β = da.map((c, i) => .5*(m[i]*FC + Math.pow(-1, m[i])*c));</pre>
+let β = da.map((c, i) => .5*(m[i]*2*Math.PI + Math.pow(-1, m[i])*c));</pre>
 		
 		<p><a href='https://codepen.io/thebabydino/pen/b700489d8f34f0810e8a158b905073e7?editors=0011'>This Pen</a> checks that the code above works as it should.</p>
 		
@@ -424,7 +418,7 @@ let β = da.map((c, i) => .5*(m[i]*FC + Math.pow(-1, m[i])*c));</pre>
 			<figcaption>at the <code>i</code>-th vertex of the initial polygon: the <code><var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code> triangles are congruent right triangles with a common hypotenuse</figcaption>
 		</figure>
 		
-		<p>Here, we can compute the angles <code>∠<var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code> and <code>∠<var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code> as being <code><var>δ<sub>i</sub></var> = 90° - β<sub>i</sub></code> (since the sum of the angles in a triangle is <code>180°</code> and we have an angle of <code>90°</code> in a right one, it results that the sum of the other two is <code>90°</code> in this case).</p>
+		<p>Here, we can compute the angles <code>∠<var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code> and <code>∠<var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code> as being <code><var>δ<sub>i</sub></var> = 90° - β<sub>i</sub></code> (since the sum of the angles in a triangle is <code>180°</code> and we have an angle of <code>90°</code> in any right triangle, it results that the sum of the other two is <code>90°</code> in this case).</p>
 		
 		<pre>let δ = β.map(c => .5*Math.PI - c);</pre>
 		
@@ -479,7 +473,7 @@ let β = da.map((c, i) => .5*(m[i]*FC + Math.pow(-1, m[i])*c));</pre>
 	return avg - m[i]*((Math.sign(avg) || -1)*Math.PI);
 });</pre>
 		
-		<p>This <a href='https://codepen.io/thebabydino/pen/32a0fc006010ba85e42d52f9f4706550?editors=0011'>works as it should</a>. However, we're computing the angles of each of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segments (<code>prv - (Math.sign(prv) || -1)*Math.PI</code>) twice, both when getting the <code>da</code> array and when getting the <code>γ</code> array:</p>
+		<p>This <a href='https://codepen.io/thebabydino/pen/32a0fc006010ba85e42d52f9f4706550?editors=0011'>works as it should</a>. However, we're computing the angles of each of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segments twice, both when getting the <code>da</code> array and when getting the <code>γ</code> array (<code>prv - (Math.sign(prv) || -1)*Math.PI</code>):</p>
 		
 		<pre>let α = d.map(c => Math.atan2(...c.reverse()));
 
@@ -513,16 +507,13 @@ let da = α.map((c, i, a) => {
 
 let m = da.map(c => Math.floor(c/Math.PI));
 
-let β = da.map((c, i) => .5*(m[i]*FC + Math.pow(-1, m[i])*c));</pre>
-		
-		<p>Also, it would be useful if we did the same for the <code>γ</code> array (store in it both the angles of the <code><var>A<sub>i</sub>O<sub>i</sub></var></code> segments and those of the <code><var>O<sub>i</sub>A<sub>i</sub></var></code> segments with respect to the horizontal):</p>
-		
-		<pre>let γ = α.map((c, i, a) => {
-	let prv = a[(i + n - 1)%n] /* prev */, 
-		avg = .5*(prv[1] + c[0]), 
-		res = [avg, avg - (Math.sign(avg) || -1)*Math.PI];
+let β = da.map((c, i) => .5*(m[i]*FC + Math.pow(-1, m[i])*c));
 
-	return m[i] ? res.reverse() : res;
+let γ = α.map((c, i, a) => {
+	let prv = a[(i + n - 1)%n] /* prev */, 
+		avg = .5*(prv[1] + c[0]);
+
+	return avg - m[i]*(Math.sign(avg) || -1)*Math.PI;
 });</pre>
 		
 		<p><a href='https://codepen.io/thebabydino/pen/9a560bc31ba057ea60b28c90c0ff5186?editors=0011'>Test</a>.</p>
@@ -533,7 +524,7 @@ let β = da.map((c, i) => .5*(m[i]*FC + Math.pow(-1, m[i])*c));</pre>
 
 let o = v.map((c, i) => {
 	let ρ = r/Math.sin(β[i]), 
-		a = γ[i][0];
+		a = γ[i];
 	
 	return c.map((c, i) => c + ρ*Math[FN[i]](a));
 });</pre>
@@ -548,30 +539,59 @@ let o = v.map((c, i) => {
 		
 		<p>For a clockwise arc, we have that the angles between the horizontal and the radial segments connecting the central point to the start and end points of the <code>i</code>-th arc are:</p>
 		
-		<pre><var>φ<sub>i</sub></var> = γ<sub>i</sub> - (sign(γ<sub>i</sub>) || -1)*180° - δ<sub>i</sub>
-<var>ψ<sub>i</sub></var> = γ<sub>i</sub> - (sign(γ<sub>i</sub>) || -1)*180° + δ<sub>i</sub></pre>
+		<pre><var>φ<sub>i</sub></var> = γ<sub>i</sub> - (sgn(γ<sub>i</sub>) || -1)*180° - δ<sub>i</sub>
+<var>ψ<sub>i</sub></var> = γ<sub>i</sub> - (sgn(γ<sub>i</sub>) || -1)*180° + δ<sub>i</sub></pre>
 		
 		<p>If the arc goes in the other direction, then we have:</p>
 		
-		<pre><var>φ<sub>i</sub></var> = γ<sub>i</sub> - (sign(γ<sub>i</sub>) || -1)*180° + δ<sub>i</sub>
-<var>ψ<sub>i</sub></var> = γ<sub>i</sub> - (sign(γ<sub>i</sub>) || -1)*180° - δ<sub>i</sub></pre>
+		<pre><var>φ<sub>i</sub></var> = γ<sub>i</sub> - (sgn(γ<sub>i</sub>) || -1)*180° + δ<sub>i</sub>
+<var>ψ<sub>i</sub></var> = γ<sub>i</sub> - (sgn(γ<sub>i</sub>) || -1)*180° - δ<sub>i</sub></pre>
 		
 		<p>Using the sweep flag <code>f<sub>i</sub></code> which is <code>1</code> if the arc goes clockwise from its start to its end point and <code>0</code> otherwise, our two sets of formulas can be compacted into one:</p>
 		
-		<pre><var>φ<sub>i</sub></var> = γ<sub>i</sub> - (sign(γ<sub>i</sub>) || -1)*180° + pow(-1, f<sub>i</sub>)*δ<sub>i</sub>
-<var>ψ<sub>i</sub></var> = γ<sub>i</sub> - (sign(γ<sub>i</sub>) || -1)*180° - pow(-1, f<sub>i</sub>)*δ<sub>i</sub></pre>
+		<pre><var>φ<sub>i</sub></var> = γ<sub>i</sub> - (sgn(γ<sub>i</sub>) || -1)*180° + pow(-1, f<sub>i</sub>)*δ<sub>i</sub>
+<var>ψ<sub>i</sub></var> = γ<sub>i</sub> - (sgn(γ<sub>i</sub>) || -1)*180° - pow(-1, f<sub>i</sub>)*δ<sub>i</sub></pre>
 		
 		<p>Good! Now let's turn all of this into JavaScript code that computes the coordinates of the start points (the <code>s</code> array) and those of the end points (the <code>e</code> array):</p>
 		
 		<pre>let s = o.map((c, i) => {
-	let φ = γ[i][1] + Math.pow(-1, f[i])*δ[i];
+	let φ = γ[i] - (Math.sign(γ[i]) || -1)*Math.PI + Math.pow(-1, f[i])*δ[i];
 	
 	return c.map((c, i) => c + r*Math[FN[i]](φ));
 });
 
 let e = o.map((c, i) => {
-	let ψ = γ[i][1] - Math.pow(-1, f[i])*δ[i];
+	let ψ = γ[i] - (Math.sign(γ[i]) || -1)*Math.PI - Math.pow(-1, f[i])*δ[i];
 	
+	return c.map((c, i) => c + r*Math[FN[i]](ψ));
+});</pre>
+		
+		<p>This looks awfully repetitive, so let's store both the angles of the <code><var>A<sub>i</sub>O<sub>i</sub></var></code> segments and those of the <code><var>O<sub>i</sub>A<sub>i</sub></var></code> segments with respect to the horizontal in the <code>γ</code> array in order to make our lives easier:</p>
+		
+		<pre>let γ = α.map((c, i, a) => {
+	let prv = a[(i + n - 1)%n] /* prev */, 
+		avg = .5*(prv[1] + c[0]), 
+		res = [avg, avg - (Math.sign(avg) || -1)*Math.PI];
+
+	return m[i] ? res.reverse() : res;
+});
+
+let o = v.map((c, i) => {
+	let ρ = r/Math.sin(β[i]), 
+		a = γ[i][0];
+
+	return c.map((c, i) => c + ρ*Math[FN[i]](a));
+});
+		
+let s = o.map((c, i) => {
+	let φ = γ[i][1] + Math.pow(-1, f[i])*δ[i];
+
+	return c.map((c, i) => c + r*Math[FN[i]](φ));
+});
+
+let e = o.map((c, i) => {
+	let ψ = γ[i][1] - Math.pow(-1, f[i])*δ[i];
+
 	return c.map((c, i) => c + r*Math[FN[i]](ψ));
 });</pre>
 		

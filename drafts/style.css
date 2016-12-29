@@ -19,3 +19,9 @@ code {
 }
 
 var { font-family: times new roman, serif }
+
+.note {
+	border: solid 2px orange;
+	padding: .5em;
+	background: lemonchiffon;
+}
