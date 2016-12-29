@@ -119,7 +119,7 @@ n = v.length;</pre>
 
 		<figure>
 			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_arcs_segs_min.svg' />
-			<figcaption>rounding the corners of a polygon means replacing it with a path made up of arcs (one replacing each of the polygon's proper vertices) and straight line segments (one along each proper edge of the initial polygon); note that the dashed lines denote the possibility of more vertices being in between those they connect</figcaption>
+			<figcaption>rounding the corners of a polygon means replacing it with a path made up of arcs (one replacing each of the polygon's proper vertices) and straight line segments (one along each proper edge of the initial polygon); the dashed lines denote the possibility of more vertices being in between those they connect</figcaption>
 		</figure>
 
 		<p>This <code>&lt;path&gt;</code> element's data (<code>d</code>) attribute is made up of:</p>
@@ -131,7 +131,7 @@ n = v.length;</pre>
 			<li>a 'close path' (<code>z</code>) command at the end which connects the end point of the last arc (<code><var>E<sub>n-1</sub></var></code> of coordinates <code><var>xe<sub>n-1</var></sub>,<var>ye<sub>n-1</var></sub></code>) to the start point of our path (also the start point of the first arc <code><var>S<sub>0</sub></var></code>);</li>
 		</ul>
 
-		<p class='note'>Note that by <code>i + 1</code> we actually mean <code>(i + 1)%n</code> and by <code>i - 1</code> we actually mean <code>(i + n - 1)%n</code>. That's what we're going to use in the JavaScript code, but we're lazy so, for now, we just want to write less.</p>
+		<p class='note'>By <code>i + 1</code> we actually mean <code>(i + 1)%n</code> and by <code>i - 1</code> we actually mean <code>(i + n - 1)%n</code>. That's what we're going to use in the JavaScript code, but we're lazy so, for now, we just want to write less.</p>
 
 		<figure>
 			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_arcs_segs_an_min.svg' />
@@ -323,7 +323,7 @@ let f = v.map((c, i, a) => {
 		
 		<p><a href='https://codepen.io/thebabydino/pen/5f25292013701031b2ebd791a47cd9dc?editors=0011'>Test</a>.</p>
 		
-		<p class='note'>Note that since every item in <code>d</code> array is a <code>dx,dy</code> pair, while the first argument of <code>Math.atan2()</code> is the <var>y</var> value and the second one the <var>x</var> value, we need to reverse each pair before <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment'>destructuring</a>.</p>
+		<p class='note'>Since every item in <code>d</code> array is a <code>dx,dy</code> pair, while the first argument of <code>Math.atan2()</code> is the <var>y</var> value and the second one the <var>x</var> value, we need to reverse each pair before <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment'>destructuring</a>.</p>
 		
 		<p>Good, now we have the angles of the <code><var>A<sub>0</sub>A<sub>1</sub></var></code>, <code><var>A<sub>1</sub>A<sub>2</sub></var></code>, ... <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code>, ... <code><var>A<sub>n-1</sub>A<sub>0</sub></var></code> edges with respect to the horizontal all stored into the <code>α</code> array.</p>
 		
@@ -336,7 +336,7 @@ let f = v.map((c, i, a) => {
 		
 		<p>For the <code>i</code>-th vertex, this means computing the absolute value of the difference between the angles of the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> and <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> edges with respect to the horizontal.</p>
 		
-		<p class='note'>Note that we don't have the angle between the horizontal and the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment. We have <code>α<sub>i-1</sub></code>, which is the angle between the horizontal and <code><var>A<sub>i-1</sub>A<sub>i</sub></var></code> - not the same thing! The angle of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> edge with respect to the horizontal is <code>180°</code> away from <code>α<sub>i-1</sub></code>.</p>
+		<p class='note'>We don't have the angle between the horizontal and the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment. We have <code>α<sub>i-1</sub></code>, which is the angle between the horizontal and <code><var>A<sub>i-1</sub>A<sub>i</sub></var></code> - not the same thing! The angle of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> edge with respect to the horizontal is <code>180°</code> away from <code>α<sub>i-1</sub></code>.</p>
 		
 		<p>Does that mean we need to add or subtract <code>180°</code>? Well, it depends. The <code>atan2()</code> function returns values in the <code>(-180°, 180°]</code> interval, so that's where all our <code>α</code> angles are. We want to keep the angle of the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment with respect to the horizontal within the same interval as well. So, if <code>α<sub>i-1</sub></code> is positive, then we subtract <code>180°</code>, otherwise (if it's negative or <code>0</code>), we add <code>180°</code>. This means that the angle between the horizontal and the <code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> segment is <code>α<sub>i-1</sub> - (sgn(α<sub>i-1</sub>) || -1)*180°</code>.</p>
 		
@@ -633,7 +633,11 @@ _up.insertBefore(_path, _poly);</pre>
 		
 		<p>But can we be sure this works in all situations?</p>
 		
-		<p>It works for random plain convex polygons, it works for concave polygons, it works for self intersecting polygons, but there is one situation when the code we have so far fails. Let's consider the original SVG code we had for our first test polygon (the equilateral triangle) and let's increase the rounding radius (<code>r</code> attribute) to something like <code>35</code> or <code>53</code>. Now the result doesn't look right anymore and the same happens for other polygons when we increase their rounding radii beyond a certain value. We're also not removing the initial polygon anymore to make things a lot more clear.</p>
+		<p>It looks like it works for random plain convex polygons, for concave polygons, for self intersecting polygons, so can there still be a situation when it fails?</p>
+		
+		<p>Sadly, yes, so we're not done yet!</p>
+		
+		<p>Let's consider the original SVG code we had for our first test polygon (the equilateral triangle) and let's increase the rounding radius (<code>r</code> attribute) to something like <code>35</code> or <code>53</code>. Now the result doesn't look right anymore and the same happens for other polygons when we increase their rounding radii beyond a certain value. We're also not removing the initial polygon anymore to make things a lot more clear.</p>
 		
 		<p data-height="400" data-theme-id="0" data-slug-hash="e770b71f27d8e1996419a618dfe96504" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="round polygon corners, step 16" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/e770b71f27d8e1996419a618dfe96504/">round polygon corners, step 16</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
 		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
@@ -651,7 +655,7 @@ _up.insertBefore(_path, _poly);</pre>
 		
 		DEMO
 		
-		<p>Note that in doing this, no angles change. The only things changing are the actual dimensions of the <code><var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code> triangles - it's like they get scaled down with respect to the <code><var>A<sub>i</sub></var></code> points.</p>
+		<p class='note'>An important thing to notice is that, in doing this, no angles change. The only things changing are the actual dimensions of the <code><var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code> triangles - it's like they get scaled down with respect to the <code><var>A<sub>i</sub></var></code> points.</p>
 		
 		ILLUSTRATION - scaled down
 		
@@ -732,17 +736,27 @@ pd = s.reduce((a, c, i) => a +
 		<p data-height="400" data-theme-id="0" data-slug-hash="fdf05ed43aee14aaf28c802850923d11" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="round polygon corners, step 21" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/fdf05ed43aee14aaf28c802850923d11/">round polygon corners, step 21</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
 		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
 		
-		<p>An interesting thing to notice here is that, for regular polygons, if the radius is too large, then the "polygon with rounded corners" that we get is actually its <a href='http://mathworld.wolfram.com/Incircle.html'>incircle</a>:</p>
+		<p>There's something very interesting that can be seen in the above demo - while the rounded shapes for the random polygon look different for different starting radii, in the case of the equilateral triangle, they're both circles. This is because, in the case of regular shapes, all edges and angles are equal. This means that all values in the <code>l</code> array (storing the edge lengths) are equal and all the values in the <code>β</code> (storing half the angular measures at each vertex) array are equal. Consequently, all values in the <code>rm</code> array (the array of limit radii depending solely on these two sets of factors - edge lengths and angular methods) are equal, so the shape we get for any given rounding radius greater than this common limit radius is always the same.</p>
+		
+		<p>At the limit, the end point of an arc coincides with the start point of the next arc and, since the actual radii are also equal and the central points of the circles are always inside the initial polygon shape in the case of a regular polygon, be it a convex regular one or a self-intersecting star one, then all these circles are all the same (as they have the same central point and the same radius). So we get to the conclusion that, in the case of any regular polygon, its rounding shape beyond the limit radius (that its edges and angles allow) is a circle that's tangent to all of its edges.</p>
+		
+		<p>But that's exactly what its <a href='http://mathworld.wolfram.com/Incircle.html'>incircle</a> is!</p>
+		
+		<p>So for any regular polygon, any given rounding radius (<code>r</code>) greater than the limit radius (<code>rm</code>) always gives us a rounding shape that's identical to the inradius of the initial regular polygon. This is illustrated by the following demo.</p>
 		
 		<p data-height="400" data-theme-id="0" data-slug-hash="MbxQmJ" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="round regular poly corners" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/MbxQmJ/">round regular poly corners</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
 		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
 		
-		text
+		<p>Similarly, we always get the same shape for a rounding radius (<code>r</code>) greater than the limit radius (<code>rm</code>) in the case of equilateral polygons where the sum of any two consecutive angles is always the same. This includes all polygons with an even number of edges, all even numbered angles equal and all odd numbered angles equal (though the odd and the even not equal between them, as that would give us the particular case covered previously, that of a regular polygon). This covers the case of any rhombus as well as that of any equilateral star-shaped polygon or equilateral, non-equiangular self-intersecting star polygon.</p>
+		
+		DEMO
+		
+		<p>Now let's see how things look for random, pretty irregular polygons:</p>
 		
 		<p data-height="500" data-theme-id="0" data-slug-hash="a392fea26df55d270cee1abece998654" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="round polygon corners, step 22" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/a392fea26df55d270cee1abece998654/">round polygon corners, step 22</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
 		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
 		
-		more text
+		<p>Removing the initial polygons and leaving just the rounding result:</p>
 		
 		<p data-height="500" data-theme-id="0" data-slug-hash="9f31eb22229aaeb48fd3f18b8b6450c7" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="round polygon corners, step 23" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/9f31eb22229aaeb48fd3f18b8b6450c7/">round polygon corners, step 23</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
 		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
