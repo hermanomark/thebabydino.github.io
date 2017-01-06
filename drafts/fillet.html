@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang='en'>
+	<head>
+		<meta charset='UTF-8' />
+		<link rel='stylesheet' href='style.css' />
+		<title>behind fillet.js - round poly(gon|line) corners</title>
+	</head>
+	<body>
+		<h1>behind fillet.js - round poly(gon|line) corners</h1>
+
+		<p>I've recently felt frustrated at the lack of an option to round the corners of a <code>&lt;polygon&gt;</code> element by simply specifying a rounding radius (<code>r</code>) attribute. After all, the <code>&lt;rect&gt;</code> element gives us the option of specifying rounding radii along the <code><var>x</var></code> and <code><var>y</var></code> axes via the <a href='https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/rx'><code>rx</code></a> and <a href='https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/ry'><code>ry</code></a> attributes.</p>
+
+		<p>I've learned that it's been proposed and got asked if I could draft an algorithm for getting the equivalent <code>&lt;path&gt;</code> data (<code>d</code>) attribute from the <a href='https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/points'><code>points</code></a> and <code>r</code> attribute specified for the initial <code>&lt;polygon&gt;</code>. I've never done this before, had no idea how to do it, what to begin with, so I'd thought I'd have a more clear idea once I've coded some kind of JavaScript polyfill. This article is going to walk you through the thought process behind the JavaScript code.</p>
+		
+		<p>Also, why stop at just <code>&lt;polygon&gt;</code> elements? Let's make this work for <code>&lt;polyline&gt;</code> elements as well!</p>
+		
+		<h2>picking test elements</h2>
+		
+		<p>For testing our code at every step, we pick two distinct <code>&lt;polygon&gt;</code> elements and two <code>&lt;polyline&gt;</code> elements with the same <code>points</code> attributes as the <code>&lt;polygon&gt;</code> elements.</p>
+		
+		<p>The first <code>&lt;polygon&gt;</code> and <code>&lt;polyline&gt;</code> have the minimum mumber of coordinate pairs needed to create a polygonal shape (closed in the case of the <code>&lt;polygon&gt;</code> and open in the case of the <code>&lt;polyline&gt;</code>) - three. This is so that we make it easier for ourselves to check computations.</p>
+		
+		<p>For the first closed polygonal chain, we have the following code:</p>
+		
+		<pre>&lt;svg viewbox='-50 -50 100 100'>
+	&lt;polygon points='50,0 -25,-43.3 -25,43.3' r='10'/>
+&lt;/svg></pre>
+		
+		<p>If we want an open polygonal chain, then we replace <code>polygon</code> with <code>polyline</code> in the code above.</p>
+		
+		<p>The coordinates listed in the <code>points</code> attribute describe the vertices of an an equilateral triangle. Three vertices, three sets of coordinates, all edges equal, equal angles, all three <code>60°</code> ones. Furthermore, the first vertex (the one at <code>50,0</code>) is on the <code><var>x</var></code> axis, so its <code><var>y</var></code> coordinate is <code>0</code>. All chosen this way just to make our life easier when checking whether our code works correctly or not. For example, at some step, we may need to compute the angles between edges and, we know that, in this particular case, we should always get <code>60°</code> so, if that's not what our code outputs at that step, then there's something wrong with it.</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_ini_test_reg_min.svg' alt='first two polygonal chains we use for testing: the vertices are those of an equilateral triangle, first one of the being on the x axis'/>
+			<figcaption>first two polygonal chains we use for testing: the vertices are those of an equilateral triangle, first one of the being on the <code><var>x</var></code> axis</figcaption>
+		</figure>
+		
+		<p>The other two polygonal chains use a completely random list of coordinates for their <code>points</code> attributes. This is to give us a sense of how things work outside the particular case because certain things may be valid for the particular case, but not for the general case and we shouldn't lose sight of that either.</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_ini_test_rand_min.svg' alt='the other two polygonal chains we use for testing are completely random'/>
+			<figcaption>the other two polygonal chains we use for testing are completely random; the dashed lines denote the possibility of more vertices being in between those they connect</figcaption>
+		</figure>
+		
+		<p>For these elements, we've also set an <code>r</code> attribute - this is the rounding radius. It doesn't do anything at this point, but we'll soon start writing the JavaScript code which fixes that. The value is completely arbitrary, we took it to be <code>10</code> here because it's a nice round number (it's easier to multiply or divide by <code>10</code> than it is by, let's say, <code>7.8</code>) and it's also big enough relative to their sizes for the rounding such a radius produces to be noticeable.</p>
+		
+		<h2>vertex, edge and angle numbering</h2>
+		
+		<p>Before we sink our teeth into code, let's make sure a few basic concepts are clear.</p>
+		
+		<p>If we have a <code>points</code> attribute with <code>n</code> pairs of coordinates, then our polygonal chain, whether it's closed (<code>&lt;polygon&gt;</code>) or open (<code>&lt;polyline&gt;</code>) has <code>n</code> vertices: <code>0</code>, <code>1</code>, ... <code>n-1</code>.</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_nv_min.svg' alt='if the points attribute has n pairs of coordinates, then our polygonal chain (closed or open, same thing) also has n vertices'/>
+			<figcaption>if the <code>points</code> attribute has <code>n</code> pairs of coordinates, then our polygonal chain (closed or open, doesn't matter) also has <code>n</code> vertices</figcaption>
+		</figure>
+		
+		<p>In the <code>&lt;polygon&gt;</code> case, we also have <code>n</code> edges. However, in the <code>&lt;polyline&gt;</code> case, we don't connect the last vertex (<code>n-1</code>) to the first one (<code>0</code>) anymore, so we have one edge less - that's <code>n-1</code> edges. In both cases, we take edge <code>0</code> to be the one between vertex <code>0</code> and vertex <code>1</code>, edge <code>1</code> between vertices <code>1</code> and <code>2</code> and so on... <strong>in general, edge <code>i</code> is between vertices <code>i</code> and <code>i+1</code></strong>, where <code>i</code> can be any natural number smaller than the number of edges.</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_ne_min.svg' alt='if the points attribute has n pairs of coordinates, then our polygonal chain has n edges if it is closed and n-1 edges if it is open; in general, edge i is between vertices i and i+1 in both cases'/>
+			<figcaption>if the <code>points</code> attribute has <code>n</code> pairs of coordinates, then our polygonal chain has <code>n</code> edges if it's closed and <code>n-1</code> edges if it's open; in general, edge <code>i</code> is between vertices <code>i</code> and <code>i+1</code> in both cases</figcaption>
+		</figure>
+		
+		<p class='note'>In the <code>&lt;polygon&gt;</code> case, vertex <code>i+1</code> is actually vertex <code>(i+1)%n</code> - that's what's we're going to use in the JavaScript code, but, for now, we're lazy and we just want to write less.</p>
+		
+		<p>This means that, compared to a <code>&lt;polygon&gt;</code>, a <code>&lt;polyline&gt;</code> with the same <code>points</code> attribute is missing the polygon's last edge (<code>n-1</code>).</p>
+		
+		<p>Now let's move on to angles. These are formed by two consecutive edges meeting at a vertex. In the <code>&lt;polygon&gt;</code> case, we have an angle at each vertex - that's <code>n</code> angles. In the <code>&lt;polygon&gt;</code> case however, we don't have two edges meeting at the first (<code>0</code>) and last (<code>n-1</code>) vertices - those are endpoints, we have no angles there. This makes the number of angles equal to <code>n-2</code> in this situation.</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_na_min.svg' alt='if the points attribute has n pairs of coordinates, then our polygonal chain has n angles if it is closed and n-2 angles if it is open'/>
+			<figcaption>if the <code>points</code> attribute has <code>n</code> pairs of coordinates, then our polygonal chain has <code>n</code> angles if it's closed and <code>n-2</code> angles if it's open; in general, angle <code>i</code> is between edges <code>i-1</code> and <code>i</code> in the <code>&lt;polygon&gt;</code> case and between edges <code>i</code> and <code>i+1</code> in the <code>&lt;polyline&gt;</code> case</figcaption>
+		</figure>
+		
+		<p>In the <code>&lt;polygon&gt;</code> case, the first angle (<code>0</code>) is formed by edges <code>n-1</code> and <code>0</code> at vertex <code>0</code>, second angle (<code>1</code>) is formed by edges <code>0</code> and <code>1</code> at vertex <code>1</code> and, in general, angle <code>i</code> is formed by edges <code>i-1</code> and <code>i</code> at vertex <code>i</code>. While in the <code>&lt;polyline&gt;</code> case, the first angle (<code>0</code>) is formed by edges <code>0</code> and <code>1</code> at vertex <code>1</code> and, in general, angle <code>i</code> is formed by edges <code>i</code> and <code>i+1</code> at vertex <code>i+1</code>, where <code>i</code> can be any natural number smaller than the number of angles (<code>n-2</code>).</p>
+		
+		<p class='note'>Again, by <code>i-1</code>, we actually mean <code>(i+n-1)%n</code> and by <code>i+1</code> we actually mean <code>(i+1)%n</code> (though it's something we only care about if the polygonal chain is closed).</p>
+		
+		<p>Let's see what this means in the case of our first two polygonal chains. For the closed chain, we have <code>3</code> vertices, <code>3</code> edges and <code>3</code> angles. For the open chain, we have <code>3</code> vertices, <code>2</code> edges (<code>3-1</code>) and <code>1</code> angle (<code>3-2</code>).</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_n_reg_min.svg' alt='numbering vertices (dark blue), edges (light blue) and angles (purple) for a polygonal chain (closed on the left and open on the right) whose vertex coordinates describe an equilateral triangle'/>
+			<figcaption>numbering vertices (dark blue), edges (light blue) and angles (purple) for a polygonal chain (closed on the left and open on the right) whose vertex coordinates describe an equilateral triangle</figcaption>
+		</figure>
+		
+		<h2>the start code</h2>
+		
+		<p>Now let's go to the JavaScript part. We begin by creating a <code>fillet(_poly)</code> function, which we call for every element that has both a <code>points</code> attribute (because the only two SVG elements that need it are <code>&lt;polygon&gt;</code> and <code>&lt;polyline&gt;</code>) and an <code>r</code> attribute (because we only trigger corner rounding if we have a rounding radius specified):</p>
+
+		<pre>function fillet(_poly) {};
+
+const _p = document.querySelectorAll('[points][r]'), 
+	n = _p.length;
+
+for(let i = 0; i &lt; n; i++)
+	fillet(_p[i]);</pre>
+		
+		<p>Our function doesn't yet do anything, so let's start working on that.</p>
+		
+		<h2>checking rounding radius validity</h2>
+		
+		<p>We read the value of the <code>r</code> attribute, <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Unary_plus'>convert</a> it to a number. Then we check that the value we got is a finite, positive (<code>&gt; 0</code>) number. Otherwise, we exit the function.</p>
+
+		<pre>let r = +_poly.getAttribute('r');
+
+if(!isFinite(r) || r &lt;= 0) return;</pre>
+		
+		<p>In order to <a href='https://codepen.io/thebabydino/pen/393035a0796efb509ec4ed2afb866728?editors=1011'>test</a> this code, we also try giving the <code>r</code> attribute invalid values.</p>
+		
+		<h2>extracting vertex coordinates and checking their validity</h2>
+		
+		<p>Next, we extract the vertex coordinates from the <code>points</code> attribute, checking that they're at least <code>3</code> sets of coordinates, the minimum number to create a polygon (because a polygon has at least 3 vertices, in which case it's a triangle). Now we've written nice and clean <code>points</code> attributes for our test polygons and polylines, which makes them easy to split into sets of coordinates. However, differently formatted and messier versions display the exact same result, SVG is pretty forgiving here.</p>
+		
+		<p>All of the following also result in the exact same <code>&lt;polygon&gt;</code> or <code>&lt;polyline&gt;</code> (note the different comma and space placement and the fact that one even has an extra number at the end):</p>
+
+		<pre>'50,0 -25,-43.3 -25,43.3'
+'50 0 -25 -43.3 -25 43.3'
+'50 0,-25 -43.3,-25 43.3'
+'50 0 -25,-43.3 -25 43.3'
+'50 0,-25 -43.3 -25,43.3'
+'50 0,-25 -43.3 -25,43.3 17'
+'50, 0 -25, -43.3 -25, 43.3'
+'50,0 
+-25,-43.3 
+-25,43.3' 
+'50 ,   0 -25 , -43.3        -25 , 43.3'</pre>
+
+		<p>So, after reading the value of the <code>points</code> attribute, we need to make sure we catch all these possibilities with the regular expression we use to <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split'><code>split()</code></a> the string we get and then, since all the coordinate values are still strings at this point, we convert them to numbers:</p>
+
+		<pre>let v = _poly.getAttribute('points')
+	.split(/\s*,\s*|\s+/g)
+	.map(c => +c);</pre>
+
+		
+	</body>
+</html>
