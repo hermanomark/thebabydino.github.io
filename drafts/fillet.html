@@ -18,7 +18,7 @@
 		
 		<p>For testing our code at every step, we pick two distinct <code>&lt;polygon&gt;</code> elements and two <code>&lt;polyline&gt;</code> elements with the same <code>points</code> attributes as the <code>&lt;polygon&gt;</code> elements.</p>
 		
-		<p>The first <code>&lt;polygon&gt;</code> and <code>&lt;polyline&gt;</code> have the minimum mumber of coordinate pairs needed to create a polygonal shape (closed in the case of the <code>&lt;polygon&gt;</code> and open in the case of the <code>&lt;polyline&gt;</code>) - three. This is so that we make it easier for ourselves to check computations.</p>
+		<p>The first <code>&lt;polygon&gt;</code> and <code>&lt;polyline&gt;</code> have the minimum number of coordinate pairs needed to create a polygonal shape (closed in the case of the <code>&lt;polygon&gt;</code> and open in the case of the <code>&lt;polyline&gt;</code>) - three. This is so that we make it easier for ourselves to check computations.</p>
 		
 		<p>For the first closed polygonal chain, we have the following code:</p>
 		
@@ -84,17 +84,19 @@
 			<figcaption>numbering vertices (dark blue), edges (light blue) and angles (purple) for a polygonal chain (closed on the left and open on the right) whose vertex coordinates describe an equilateral triangle</figcaption>
 		</figure>
 		
+		<p>This is important to understand because some of the variables we have to deal with with are vertex-related (for example, an array of vertex coordinates), which means they're arrays of length <code>n</code> in both cases. Others are edge-related (for example, an array of edge lengths or an array of edge slopes), which means they're arrays of length <code>n</code> in the <code>&lt;polygon&gt;</code> case and of length <code>n-1</code> in the <code>&lt;polyline&gt;</code> case. Others are angle-related (for example, an array of angle measures or an array of start or end points of each rounding arc), which means they're arrays of length <code>n</code> in the <code>&lt;polygon&gt;</code> case and of length <code>n-2</code> in the <code>&lt;polyline&gt;</code> case.</p>
+		
 		<h2>the start code</h2>
 		
 		<p>Now let's go to the JavaScript part. We begin by creating a <code>fillet(_poly)</code> function, which we call for every element that has both a <code>points</code> attribute (because the only two SVG elements that need it are <code>&lt;polygon&gt;</code> and <code>&lt;polyline&gt;</code>) and an <code>r</code> attribute (because we only trigger corner rounding if we have a rounding radius specified):</p>
 
 		<pre>function fillet(_poly) {};
 
-const _p = document.querySelectorAll('[points][r]'), 
-	n = _p.length;
+const _P = document.querySelectorAll('[points][r]'), 
+	NP = _P.length;
 
-for(let i = 0; i &lt; n; i++)
-	fillet(_p[i]);</pre>
+for(let i = 0; i &lt; NP; i++)
+	fillet(_P[i]);</pre>
 		
 		<p>Our function doesn't yet do anything, so let's start working on that.</p>
 		
@@ -102,9 +104,9 @@ for(let i = 0; i &lt; n; i++)
 		
 		<p>We read the value of the <code>r</code> attribute, <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Unary_plus'>convert</a> it to a number. Then we check that the value we got is a finite, positive (<code>&gt; 0</code>) number. Otherwise, we exit the function.</p>
 
-		<pre>let r = +_poly.getAttribute('r');
+		<pre>const R = +_poly.getAttribute('r');
 
-if(!isFinite(r) || r &lt;= 0) return;</pre>
+if(!isFinite(R) || R &lt;= 0) return;</pre>
 		
 		<p>In order to <a href='https://codepen.io/thebabydino/pen/393035a0796efb509ec4ed2afb866728?editors=1011'>test</a> this code, we also try giving the <code>r</code> attribute invalid values.</p>
 		
@@ -132,6 +134,143 @@ if(!isFinite(r) || r &lt;= 0) return;</pre>
 	.split(/\s*,\s*|\s+/g)
 	.map(c => +c);</pre>
 
+		<p>This makes sure we get the same array if we have the same coordinates, no matter how the <code>points</code> attribute may have been formatted, as it can be seen in <a href='https://codepen.io/thebabydino/pen/d91ca4e8bcabb2962da6e71ba253ac33?editors=1011'>this Pen</a> (we get something like <code>[x<sub>0</sub>, y<sub>0</sub>, x<sub>1</sub>, y<sub>1</sub>, ...]</code>).</p>
+
+		<p>Now we check if we have the minimum number of coordinates needed to form a polygon. If not, we exit the function.</p>
+
+		<pre>let n = v.length;
+if(.5*n &lt; 3) return;
+n -= n%2;</pre>
+
+		<p>After that, we check that all useful coordinates are finite numbers. If not, we exit the function, otherwise we compact the 1D array of coordinates into a 2D array of <code>x,y</code> pairs of coordinates (so basically, we go from something like <code>[x<sub>0</sub>, y<sub>0</sub>, x<sub>1</sub>, y<sub>1</sub>, ...]</code> to something like <code>[[x<sub>0</sub>, y<sub>0</sub>], [x<sub>1</sub>, y<sub>1</sub>], ...]</code>) using <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce'><code>reduce()</code></a>.</p>
+
+		<pre>for(let i = 0; i &lt; n; i++)
+	if(!isFinite(v[i])) return;
+
+// a, c, i = accumulator, current item, current index
+v = v.reduce((a, c, i) => i%2 ? a.concat([[v[i - 1], c]]) : a, []);
+
+n = v.length;</pre>
+
+		<p><a href='https://codepen.io/thebabydino/pen/4b263549df6413cec17ab3cec4f23619?editors=1011'>This Pen</a> tests that the above code works as intended.</p>
+		
+		<h2>getting the type of shape</h2>
+		
+		<p>So far, it didn't matter whether our shape is a <code>&lt;polygon&gt;</code> or a <code>&lt;polyline&gt;</code> because we've only dealt with invariant things (the polygonal chain itself <code>_poly</code>, its rounding radius <code>R</code>) or with vertex-related ones (the array of vertex coordinates <code>v</code>).</p>
+		
+		<p>But things are about to change, so we need to get the type of polygonal shape we're dealing with:</p>
+		
+		<pre>const T = +(_poly.localName !== 'polygon');</pre>
+		
+		<p><code>T</code> is <code>0</code> for a <code>&lt;polygon&gt;</code> element and <code>1</code> for a <code>&lt;polyline&gt;</code>, as it can be tested <a href='https://codepen.io/thebabydino/pen/4b6a361c302c1db1ab4b8bc69c127824?editors=1011'>here</a>.</p>
+		
+		<h2>checking for collinearity and eliminating unneeded vertices</h2>
+
+		<p>We're doing one more check here and that's to see that no three consecutive points are <a href='http://mathworld.wolfram.com/Collinear.html'>collinear</a>. If that happens to be the case, we remove the one in the middle (the second of the three) because we don't really need it - with or without it, our shape is the same. The illustration below shows this:</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_collin_mid_reg_min.svg' alt='1, 2 and 3 are collinear; 2 is not a real vertex, we can safely remove it'/>
+			<figcaption><code>1</code>, <code>2</code> and <code>3</code> are collinear; <code>2</code> isn't a real vertex, we can safely remove it</figcaption>
+		</figure>
+		
+		<p>Points <code>1</code>, <code>2</code> and <code>3</code> are collinear. Point <code>2</code> isn't a real vertex, just a point on the segment between the previous (<code>1</code>) and the next (<code>3</code>) points. Removing it (and shifting the indices of the points that come after it) doesn't alter our shape, but reduces or code and makes our life easier.</p>
+			
+		<p>If removing a vertex happens to leave us with less than <code>3</code> vertices, then we exit the function.</p>
+		
+		<p>Whether we have a closed or an open polygonal chain, we need to perform this check for every possible group of three consecutive points.</p>
+		
+		<p>In the <code>&lt;polyline&gt;</code> case, these groups are:</p>
+		
+		<pre>0, 1, 2
+1, 2, 3
+...
+i-1, i, i+1
+...
+n-3, n-2, n-1</pre>
+		
+		<p>The general form of these groups is <code>i-1, i, i+1</code>, where <code>1 &le; i &lt; n-1</code>.</p>
+		
+		<p>In the <code>&lt;polygon&gt;</code> case however, the list of points is cyclic. This means that the first point has a previous one (it's the last) and the last point has a next one (it's the first). So in this case, our groups are:</p>
+		
+		<pre><strong>n-1, 0, 1</strong>
+0, 1, 2
+1, 2, 3
+...
+i-1, i, i+1
+...
+n-3, n-2, n-1
+<strong>n-2, n-1, 0</strong></pre>
+		
+		<p>The general form of these groups is pretty much the same as before, <code>(i-1+n)%n, i, (i+1)%n</code>, it's just that this time <code>0 &le; i &lt; n</code>.</p>
+		
+		<p>The geometric interpretation of this is that, in the <code>&lt;polyline&gt;</code> case, adding a point that's collinear with the first and the last at the beginning (or at the end) of the list of points gives us a different shape from the initial one. In the <code>&lt;polygon&gt;</code> case, this doesn't happen, we still have the same shape. This is why such a point is safe to remove in the <code>&lt;polygon&gt;</code> case, but not in the <code>&lt;polyline&gt;</code> one (we'd lose an edge in this case).</p>
+		
+		<p>The following image illustrates this. The first row presents the <code>&lt;polygon&gt;</code> case, while the second one presents the <code>&lt;polyline&gt;</code> case. The first colums shows the initial shapes. The second one shows the result of adding a point collinear with the first and last at the beginning of the list of points. The third one shows the result of adding a point collinear with the first and last at the beginning of the list of points.</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_collin_end_reg_min.svg' alt='adding a point that is collinear to the first and the last at the beginning or at the end in the <polygon> case (top row, same shape in all cases) vs. in the <polyline> case (bottom row, different shapes); first colum shows the initial polygonal chains, while others show the results of adding a point that is collinear to the first and the last at the beginning (column two) or at the end (column three)'/>
+			<figcaption>adding a point that's collinear to the first and the last at the beginning or at the end in the <code>&lt;polygon&gt;</code> case (top row, same shape in all cases) vs. in the <code>&lt;polyline&gt;</code> case (bottom row, different shapes); first colum shows the initial polygonal chains, while others show the results of adding a point that's collinear to the first and the last at the beginning (column two) or at the end (column three)</figcaption>
+		</figure>
+		
+		<p>In the <code>&lt;polygon&gt;</code> case, adding this extra point doesn't modify the shape. The newly added point isn't a new vertex and the segments that start from it aren't two distinct edges, just two parts of the same edge. In the <code>&lt;polyline&gt;</code> case however, the newly added point is a new vertex, even if it's on the same line with the initial endpoints. This is because the initial endpoints aren't connected and, due to the nature of the polyline, this point doesn't get connected to both, only to one of them.</p>
+		
+		<p>Now let's see what putting the collinearity check into code means. For points <code>i-1</code>, <code>i</code> and <code>i+1</code> to be collinear, we need to have:</p>
+		
+		<pre>(y<sub>i</sub> - y<sub>i-1</sub>)*(x<sub>i+1</sub> - x<sub>i</sub>) = 
+(x<sub>i</sub> - x<sub>i-1</sub>)*(y<sub>i+1</sub> - y<sub>i</sub>)</pre>
+		
+		<p>Of course, we need to think that some computation errors might come into play, so we cannot test for strict equality. Instead, we test whether the absolute value of the difference between the two parts is smaller than a certain error threshold <code>ε</code>.</p>
+		
+		<pre>|(y<sub>i</sub> - y<sub>i-1</sub>)*(x<sub>i+1</sub> - x<sub>i</sub>) -
+ (x<sub>i</sub> - x<sub>i-1</sub>)*(y<sub>i+1</sub> - y<sub>i</sub>)| &lt; ε</pre>
+		
+		<p>If this difference in absolute value is smaller than this error threshold <code>ε</code> (which we take to be <code>.1</code>), then we remove point <code>i</code> (more exactly, its vertex coordinates from the <code>v</code> array) and also update the value of the number of points <code>n</code> (which also means we have to recheck whether <code>n</code> is still at least <code>3</code> because, if it isn't, then we don't have enough points to draw a polygon anymore).</p>
+		
+		<p>As established before, we perform this check for every <code>i</code> in the <code>{0, 1, ... n-1}</code> set in the <code>&lt;polygon&gt;</code> case and for every <code>i</code> in the <code>{1, ... n-2}</code> set in the <code>&lt;polyline&gt;</code> case.</p>
+		
+		<p>This gives us the following JavaScript code:</p>
+		
+		<pre>for(let i = T; i &lt; n - T; i++) {
+	let c = v[i] /* current vertex coords */, 
+		prv = v[(i + n - 1)%n] /* previous */, 
+		nxt = v[(i + 1)%n] /* next */;
+
+	/*
+	 * are previous, current and next 
+	 * vertices collinear?
+	 */
+	if((c[1] - prv[1])*(nxt[0] - c[0]) -
+		(c[0] - prv[0])*(nxt[1] - c[1]) &lt; .1) {
+		/* remove current vertex */
+		v.splice(i--, 1);
+		/* do we still have enough vertices? */
+		if(--n &lt; 3) return;
+	}
+}</pre>
+
+		<p><a href='https://codepen.io/thebabydino/pen/fbf4429f30c242e31bf65dd680cfa93a?editors=1011'>This pen</a> checks that the above code works as intended.</p>
+		
+		<h2>recap of what we know so far</h2>
+		
+		<p>Now that we got edge cases out of the way, let's see what we have so far:</p>
+		
+		<ul>
+			<li>the rounding radius <code>r</code>, which we've extracted from the <code>r</code> attribute</li>
+			<li>the vertex coordinates (the <code>v</code> array) of the initial polygonal chain, which we've extracted from the <code>points</code> attribute</li>
+			<li>the number (<code>n</code>) of vertices</li>
+		</ul>
+		
+		<h2>how rounding corners works</h2>
+		
+		<p>A polygonal chain with rounded corners is equivalent to a path made up of straight line segments (one along each proper edge of the initial polygonal chain) and arcs (one replacing each corner of the initial polygonal chain).</p>
+		
+		<figure>
+			<img alt='' src='' />
+			<figcaption>ILLUSTRATION</figcaption>
+		</figure>
+		
+		
+		
 		
 	</body>
 </html>
