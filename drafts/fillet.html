@@ -10,9 +10,11 @@
 
 		<p>I've recently felt frustrated at the lack of an option to round the corners of a <code>&lt;polygon&gt;</code> element by simply specifying a rounding radius (<code>r</code>) attribute. After all, the <code>&lt;rect&gt;</code> element gives us the option of specifying rounding radii along the <code><var>x</var></code> and <code><var>y</var></code> axes via the <a href='https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/rx'><code>rx</code></a> and <a href='https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/ry'><code>ry</code></a> attributes.</p>
 
-		<p>I've learned that it's been proposed and got asked if I could draft an algorithm for getting the equivalent <code>&lt;path&gt;</code> data (<code>d</code>) attribute from the <a href='https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/points'><code>points</code></a> and <code>r</code> attribute specified for the initial <code>&lt;polygon&gt;</code>. I've never done this before, had no idea how to do it, what to begin with, so I'd thought I'd have a more clear idea once I've coded some kind of JavaScript polyfill. This article is going to walk you through the thought process behind the JavaScript code.</p>
+		<p>I've learned that it's been proposed and got asked if I could draft an algorithm for getting the equivalent <code>&lt;path&gt;</code> data (<code>d</code>) attribute from the <a href='https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/points'><code>points</code></a> and <code>r</code> attribute specified for the initial <code>&lt;polygon&gt;</code>. I've never done this before, had no idea how to do it, what to begin with, so I'd thought I'd have a more clear idea once I've coded some kind of JavaScript polyfill.</p>
 		
-		<p>Also, why stop at just <code>&lt;polygon&gt;</code> elements? Let's make this work for <code>&lt;polyline&gt;</code> elements as well!</p>
+		<p>Well, here it is - <code>fillet.js</code>! It's a script that rounds the corners of any inline <code>&lt;polygon&gt;</code> and <code>&lt;polyline&gt;</code> elements that have a finite, positive rounding radius attribute (<code>r</code>) specified. All we need to do is include the script at the end of the page and... bam! Whenever we specify a valid rounding radius attribute <code>r</code> for a <code>&lt;polygon&gt;</code> or <code>&lt;polyline&gt;</code>, it magically gets rounded corners using that rounding radius or, if the given rounding radius is too big, the maximum rounding radius possible.</p>
+		
+		<p>This article is going to walk you through the thought process behind the JavaScript code. So let's get started!</p>
 		
 		<h2>picking test elements</h2>
 		
@@ -268,9 +270,5 @@ n-3, n-2, n-1
 			<img alt='' src='' />
 			<figcaption>ILLUSTRATION</figcaption>
 		</figure>
-		
-		
-		
-		
 	</body>
 </html>
