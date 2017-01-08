@@ -14,7 +14,7 @@
 		
 		<p>Well, here it is - <code>fillet.js</code>! It's a script that rounds the corners of any inline <code>&lt;polygon&gt;</code> and <code>&lt;polyline&gt;</code> elements that have a finite, positive rounding radius attribute (<code>r</code>) specified. All we need to do is include the script at the end of the page and... bam! Whenever we specify a valid rounding radius attribute <code>r</code> for a <code>&lt;polygon&gt;</code> or <code>&lt;polyline&gt;</code>, it magically gets rounded corners using that rounding radius or, if the given rounding radius is too big, the maximum rounding radius possible.</p>
 		
-		<p>This article is going to walk you through the thought process behind the JavaScript code. So let's get started!</p>
+		<p>This article is going to walk you through the thought process behind the code and show you how <code>fillet.js</code> was built - step by step. So let's get started!</p>
 		
 		<h2>picking test elements</h2>
 		
@@ -104,7 +104,7 @@ for(let i = 0; i &lt; NP; i++)
 		
 		<h2>checking rounding radius validity</h2>
 		
-		<p>We read the value of the <code>r</code> attribute, <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Unary_plus'>convert</a> it to a number. Then we check that the value we got is a finite, positive (<code>&gt; 0</code>) number. Otherwise, we exit the function.</p>
+		<p>We read the value of the <code>r</code> attribute, <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Unary_plus'>convert</a> it to a number, then we check that the value we got is a finite, positive (<code>&gt; 0</code>) number. Otherwise, we exit the function.</p>
 
 		<pre>const R = +_poly.getAttribute('r');
 
@@ -267,8 +267,120 @@ n-3, n-2, n-1
 		<p>A polygonal chain with rounded corners is equivalent to a path made up of straight line segments (one along each proper edge of the initial polygonal chain) and arcs (one replacing each corner of the initial polygonal chain).</p>
 		
 		<figure>
-			<img alt='' src='' />
-			<figcaption>ILLUSTRATION</figcaption>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_path_equiv_rand_min.svg' alt=''/>
+			<figcaption>equivalent paths for polygonal chains with rounded corners with the start and end points for each arc marked on the figure; note how in the <code>&lt;polygon&gt;</code> case, arc <code>i</code> is at vertex <code>i</code> (and we have <code>n</code> arcs in total), while in the <code>&lt;polyline&gt;</code> case, it's at vertex <code>i+1</code> (and we only have <code>n-2</code> arcs in total, as the first and last vertices are endpoints and we don't have arcs there)</figcaption>
 		</figure>
+		
+		<p>This <code>&lt;path&gt;</code> element's data (<code>d</code>) attribute is made up of:</p>
+
+		<ul>
+			<li>a "move to" (<code>M</code>) command followed by the coordinates of the point where our path starts;
+				<ul>
+					<li>in the <code>&lt;polygon&gt;</code> case, this is the start point of the first arc (<code><var>S<sub>0</sub></var></code>), whose coordinates are <code><var>xs<sub>0</sub></var>,<var>ys<sub>0</sub></var></code> (still unknown at this point);
+					</li>
+					<li>in the <code>&lt;polyline&gt;</code> case, this is the first vertex of the initial <code>&lt;polyline&gt;</code> (<code><var>A<sub>0</sub></var></code>), whose coordinates are <code>x<sub>0</sub>,y<sub>0</sub></code> (which we already have);</li>
+				</ul>
+			</li>
+			<li>an "arc to" (<code>A</code>) command for every <code>i</code>-th arc (where <code>0 &le; i &lt; n</code> in the <code>&lt;polygon&gt;</code> case and <code>0 &le; i &lt; n-2</code> in the <code>&lt;polyline&gt;</code> case); this draws the arc between its start point (<code><var>S<sub>i</sub></var></code>) and its end point <code><var>E<sub>i</sub></var></code>);</li>
+			<li>a "line to" (<code>L</code>) command for every <code>i</code>-th segment where <code>0 &le; i &lt; n-1</code>, followed by the coordinates point where this line segment ends;
+				<ul>
+					<li>in the <code>&lt;polygon&gt;</code> case, this is the start point of the next arc (<code><var>S<sub>i+1</sub></var></code>), whose coordinates are <code><var>xs<sub>i+1</var></sub>,<var>ys<sub>i+1</var></sub></code>; also, this line segment starts from the end point of the arc we've just drawn (<code><var>E<sub>i</sub></var></code>, of coordinates <code><var>xe<sub>i</var></sub>,<var>ye<sub>i</var></sub></code>);</li>
+					<li>in the <code>&lt;polyline&gt;</code> case, this is either the start point of the next arc (<code><var>S<sub>i+1</sub></var></code>), whose coordinates are <code><var>xs<sub>i+1</var></sub>,<var>ys<sub>i+1</var></sub></code> (still unknown at this point) or the last vertex of the initial <code>&lt;polyline&gt;</code> (<code><var>A<sub>n-1</sub></var></code>), whose coordinates are <code>x<sub>n-1</sub>,y<sub>n-1</sub></code> (which we already have); also, this line segment starts either from the first vertex of the initial <code>&lt;polyline&gt;</code> (<code><var>A<sub>0</sub></var></code>), whose coordinates are <code>x<sub>0</sub>,y<sub>0</sub></code> (which we already have) or from the end point of the arc we've just drawn (<code><var>E<sub>i</sub></var></code>), of coordinates <code><var>xe<sub>i</var></sub>,<var>ye<sub>i</var></sub></code> (still unknown at this point);</li>
+				</ul>
+			</li>
+			<li><strong>only in the <code>&lt;polygon&gt;</code> case</strong>, a "close path" (<code>z</code>) command at the end which connects the end point of the last arc (<code><var>E<sub>n-1</sub></var></code> of coordinates <code><var>xe<sub>n-1</sub></var>,<var>ye<sub>n-1</sub></var></code>) to the start point of our path (also the start point of the first arc <code><var>S<sub>0</sub></var></code>);</li>
+		</ul>
+		
+		<h2>the "arc to" (<code>A</code>) command</h2>
+		
+		<p>Let's take a closer look at the components of an 'arc to' command. We have the following:</p>
+
+		<ul>
+			<li>the radius of this arc along the <code><var>x</var></code> axis of its system of coordinates - this is equal to the rounding radius <code>r</code></li>
+			<li>the radius of this arc along the <code><var>y</var></code> axis of its system of coordinates - this is also equal to the rounding radius <code>r</code></li>
+			<li>the rotation of its system of coordinates - this doesn't matter in our case since the radii along the two 2D dimensions (<code>x</code> and <code>y</code>) are equal, so we take it to be <code>0</code> to keep things as simple as possible</li>
+			<li>the large arc flag - this is <code>0</code> in our case since we always take the small arc at a vertex (the one inside the small angle, the one under <code>180°</code></li>
+			<li>the sweep flag <code><var>f<sub>i</sub></var></code> - this is <code>1</code> if the arc goes clockwise between its start and its end point and <code>0</code> otherwise; it's something we need to compute for each arc</li>
+			<li>the <code><var>x</var></code> coordinate of the arc's end point - this is <code><var>xe<sub>i</sub></var></code> for the generic <code>i</code>-th arc</li>
+			<li>the <code><var>y</var></code> coordinate of the arc's end point - this is <code><var>ye<sub>i</sub></var></code> for the generic <code>i</code>-th arc</li>
+		</ul>
+		
+		<h2>path data structure</h2>
+		
+		<p>Knowing all this, our path data is going to look something like this <code>&lt;polygon&gt;</code> case:</p>
+
+		<pre>M <var>xs<sub>0</sub></var>, <var>ys<sub>0</sub></var>
+A r, r, 0, 0, <var>f<sub>0</sub></var>, <var>xe<sub>0</sub></var>, <var>ye<sub>0</sub></var>
+L <var>xs<sub>1</sub></var>, <var>ys<sub>1</sub></var>
+A r, r, 0, 0, <var>f<sub>1</sub></var>, <var>xe<sub>1</sub></var>, <var>ye<sub>1</sub></var>
+...
+L <var>xs<sub>i</sub></var>, <var>ys<sub>i</sub></var>
+A r, r, 0, 0, <var>f<sub>i</sub></var>, <var>xe<sub>i</sub></var>, <var>ye<sub>i</sub></var>
+...
+L <var>xs<sub>n-2</sub></var>, <var>ys<sub>n-2</sub></var>
+A r, r, 0, 0, <var>f<sub>n-2</sub></var>, <var>xe<sub>n-2</sub></var>, <var>ye<sub>n-2</sub></var>
+L <var>xs<sub>n-1</sub></var>, <var>ys<sub>n-1</sub></var>
+A r, r, 0, 0, <var>f<sub>n-1</sub></var>, <var>xe<sub>n-1</sub></var>, <var>ye<sub>n-1</sub></var>
+z</pre>
+		
+		<p>In the <code>&lt;polygon&gt;</code> case, things look a bit different:</p>
+		
+		<pre>M x<sub>0</sub>, y<sub>0</sub>
+L <var>xs<sub>0</sub></var>, <var>ys<sub>0</sub></var>
+A r, r, 0, 0, <var>f<sub>0</sub></var>, <var>xe<sub>0</sub></var>, <var>ye<sub>0</sub></var>
+L <var>xs<sub>1</sub></var>, <var>ys<sub>1</sub></var>
+A r, r, 0, 0, <var>f<sub>1</sub></var>, <var>xe<sub>1</sub></var>, <var>ye<sub>1</sub></var>
+...
+L <var>xs<sub>i</sub></var>, <var>ys<sub>i</sub></var>
+A r, r, 0, 0, <var>f<sub>i</sub></var>, <var>xe<sub>i</sub></var>, <var>ye<sub>i</sub></var>
+...
+L <var>xs<sub>n-3</sub></var>, <var>ys<sub>n-3</sub></var>
+A r, r, 0, 0, <var>f<sub>n-3</sub></var>, <var>xe<sub>n-3</sub></var>, <var>ye<sub>n-3</sub></var>
+L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
+		
+		<p>However, in the end, we still to get the same three things for each arc <code>i</code>, whether the number of arcs is <code>n</code> (closed polygonal chain) or <code>n-2</code> (open polygonal chain):</p>
+		
+		<ul>
+			<li>whether it goes clockwise or not, which determines the value (<code>1</code> or <code>0</code>) for its sweep flag <code><var>f<sub>i</sub></var></code></li>
+			<li>the coordinates <code><var>xs<sub>i</sub></var>,<var>ys<sub>i</sub></var></code> of its start point <code><var>S<sub>i</sub></var></code></li>
+			<li>the coordinates <code><var>xe<sub>i</sub></var>,<var>ye<sub>i</sub></var></code> of its end point <code><var>E<sub>i</sub></var></code></li>
+		</ul>
+		
+		<h2>getting the sweep flags</h2>
+		
+		<p>For the <code>i</code>-th arc, the value of the sweep flag <code><var>f<sub>i</sub></var></code> is determined by whether the arc goes clockwise (in which case it's <code>1</code>) or not (in which case it's <code>0</code>).</p>
+		
+		<p>We can get the direction of the arc replacing vertex <code>i</code> by <a href='https://en.wikipedia.org/wiki/Curve_orientation#Orientation_of_a_simple_polygon'>computing the following sum</a>:</p>
+		
+		<pre>  x<sub>i-1</sub>y<sub>i</sub> + x<sub>i</sub>y<sub>i+1</sub> + x<sub>i+1</sub>y<sub>i-1</sub>
+- y<sub>i-1</sub>x<sub>i</sub> - y<sub>i</sub>x<sub>i+1</sub> - y<sub>i+1</sub>x<sub>i-1</sub></pre>
+		
+		<p>If this sum is positive, then the arc goes in the clockwise direction and the sweep flag for the arc we replace vertex <code>i</code> with is <code>1</code>. If it's negative, then the arc goes counterclockwise and the sweep flag is <code>0</code>. But what if it's exactly <code>0</code>? Well, that cannot happen, as it would mean the three points are collinear and we've already taken care of that situation.</p>
+
+		<p>If the sum is positive, then the sign of the sum is <code>+</code> (the value of the <a href='https://en.wikipedia.org/wiki/Sign_function'>sign function</a> is <code>1</code>) and the corresponding sweep flag is <code>1</code>. If the sum is negative, then the sign of the sum is <code>-</code> (the value of the sign function is <code>-1</code>) and corresponding sweep flag is <code>0</code>.</p>
+		
+		<p>This helps us extract a formula for <code><var>f<sub>i</sub></var></code>:</p>
+
+		<pre><var>f<sub>i</sub></var> = .5*(sgn(Σ<sub>i</sub>) + 1)</pre>
+		
+		<p>We can check that this works for both a positive sum (<code>.5*(1 + 1) = .5*2 = 1</code>) as well as for a negative one (<code>.5*(-1 + 1) = .5*0 = 0</code>).</p>
+		
+		<p>A very important thing to keep in mind is that that arc <code>i</code> replaces vertex <code>i</code> only for a closed polygonal chain. For an open one, it replaces vertex <code>i+1</code>.</p>
+		
+		<p>This means that, in the <code>&lt;polygon&gt;</code> case, the value of the sweep flag <code><var>f<sub>i</sub></var></code> depends on the coordinates of vertices <code>i-1</code>, <code>i</code> (the one it replaces) and <code>i+1</code>:</p>
+		
+		<pre><var>f<sub>i</sub></var> = fn(x<sub>i-1</sub>,y<sub>i-1</sub>, x<sub>i</sub>,y<sub>i</sub>, x<sub>i+1</sub>,y<sub>i+1</sub>)</pre>
+		
+		<p>In the <code>&lt;polyline&gt;</code> case, the value of the sweep flag <code><var>f<sub>i</sub></var></code> depends on the coordinates of vertices <code>i</code>, <code>i+1</code> (the one it replaces) and <code>i+2</code>:</p>
+		
+		<pre><var>f<sub>i</sub></var> = fn(x<sub>i</sub>,y<sub>i</sub>, x<sub>i+1</sub>,y<sub>i+1</sub>, x<sub>i+2</sub>,y<sub>i+2</sub>)</pre>
+		
+		<p>If <code>T</code> is the type of polygonal chain (<code>0</code> when closed vs. <code>1</code> when open), then the two can be unified:</p>
+		
+		<pre><var>f<sub>i</sub></var> = fn(x<sub>i-1+T</sub>,y<sub>i-1+T</sub>, x<sub>i+T</sub>,y<sub>i+T</sub>, x<sub>i+1+T</sub>,y<sub>i+1+T</sub>)</pre>
+		
+		<p></p>
+		
+		
 	</body>
 </html>
