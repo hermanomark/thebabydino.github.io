@@ -46,7 +46,7 @@
 		
 		<p>For these elements, we've also set an <code>r</code> attribute - this is the rounding radius. It doesn't do anything at this point, but we'll soon start writing the JavaScript code which fixes that. The value is completely arbitrary, we took it to be <code>10</code> here because it's a nice round number (it's easier to multiply or divide by <code>10</code> than it is by, let's say, <code>7.8</code>) and it's also big enough relative to their sizes for the rounding such a radius produces to be noticeable.</p>
 		
-		<h2>vertex, edge and angle numbering</h2>
+		<h2>vertex, edge and corner (angle) numbering</h2>
 		
 		<p>Before we sink our teeth into code, let's make sure a few basic concepts are clear.</p>
 		
@@ -68,25 +68,25 @@
 		
 		<p>This means that, compared to a <code>&lt;polygon&gt;</code>, a <code>&lt;polyline&gt;</code> with the same <code>points</code> attribute is missing the polygon's last edge (<code>n-1</code>).</p>
 		
-		<p>Now let's move on to angles. These are formed by two consecutive edges meeting at a vertex. In the <code>&lt;polygon&gt;</code> case, we have an angle at each vertex - that's <code>n</code> angles. In the <code>&lt;polygon&gt;</code> case however, we don't have two edges meeting at the first (<code>0</code>) and last (<code>n-1</code>) vertices - those are endpoints, we have no angles there. This makes the number of angles equal to <code>n-2</code> in this situation.</p>
+		<p>Now let's move on to corners (angles). These are formed by two consecutive edges meeting at a vertex. In the <code>&lt;polygon&gt;</code> case, we have a corner (angle) at each vertex - that's <code>n</code> corners (angles). In the <code>&lt;polygon&gt;</code> case however, we don't have two edges meeting at the first (<code>0</code>) and last (<code>n-1</code>) vertices - those are endpoints, we have no corners (angles) there. This makes the number of corners (angles) equal to <code>n-2</code> in this situation.</p>
 		
 		<figure>
 			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_na_min.svg' alt='if the points attribute has n pairs of coordinates, then our polygonal chain has n angles if it is closed and n-2 angles if it is open'/>
-			<figcaption>if the <code>points</code> attribute has <code>n</code> pairs of coordinates, then our polygonal chain has <code>n</code> angles if it's closed and <code>n-2</code> angles if it's open; in general, angle <code>i</code> is between edges <code>i-1</code> and <code>i</code> in the <code>&lt;polygon&gt;</code> case and between edges <code>i</code> and <code>i+1</code> in the <code>&lt;polyline&gt;</code> case</figcaption>
+			<figcaption>if the <code>points</code> attribute has <code>n</code> pairs of coordinates, then our polygonal chain has <code>n</code> corners (angles) if it's closed and <code>n-2</code> corners (angles) if it's open; in general, corner (angle) <code>i</code> is between edges <code>i-1</code> and <code>i</code> in the <code>&lt;polygon&gt;</code> case and between edges <code>i</code> and <code>i+1</code> in the <code>&lt;polyline&gt;</code> case</figcaption>
 		</figure>
 		
-		<p>In the <code>&lt;polygon&gt;</code> case, the first angle (<code>0</code>) is formed by edges <code>n-1</code> and <code>0</code> at vertex <code>0</code>, second angle (<code>1</code>) is formed by edges <code>0</code> and <code>1</code> at vertex <code>1</code> and, in general, angle <code>i</code> is formed by edges <code>i-1</code> and <code>i</code> at vertex <code>i</code>. While in the <code>&lt;polyline&gt;</code> case, the first angle (<code>0</code>) is formed by edges <code>0</code> and <code>1</code> at vertex <code>1</code> and, in general, angle <code>i</code> is formed by edges <code>i</code> and <code>i+1</code> at vertex <code>i+1</code>, where <code>i</code> can be any natural number smaller than the number of angles (<code>n-2</code>).</p>
+		<p>In the <code>&lt;polygon&gt;</code> case, the first corner (<code>0</code>) is formed where edges <code>n-1</code> and <code>0</code> meet at vertex <code>0</code>, second corner (<code>1</code>) is formed where  edges <code>0</code> and <code>1</code> meet at vertex <code>1</code> and, in general, corner <code>i</code> is formed where edges <code>i-1</code> and <code>i</code> meet at vertex <code>i</code>. While in the <code>&lt;polyline&gt;</code> case, the first corner (<code>0</code>) is formed where edges <code>0</code> and <code>1</code> meet at vertex <code>1</code> and, in general, corner <code>i</code> is formed where edges <code>i</code> and <code>i+1</code> meet at vertex <code>i+1</code>, where <code>i</code> can be any natural number smaller than the number of corners (<code>n-2</code>).</p>
 		
 		<p class='note'>Again, by <code>i-1</code>, we actually mean <code>(i+n-1)%n</code> and by <code>i+1</code> we actually mean <code>(i+1)%n</code> (though it's something we only care about if the polygonal chain is closed).</p>
 		
-		<p>Let's see what this means in the case of our first two polygonal chains. For the closed chain, we have <code>3</code> vertices, <code>3</code> edges and <code>3</code> angles. For the open chain, we have <code>3</code> vertices, <code>2</code> edges (<code>3-1</code>) and <code>1</code> angle (<code>3-2</code>).</p>
+		<p>Let's see what this means in the case of our first two polygonal chains. For the closed chain, we have <code>3</code> vertices, <code>3</code> edges and <code>3</code> corners (angles). For the open chain, we have <code>3</code> vertices, <code>2</code> edges (<code>3-1</code>) and <code>1</code> angle (<code>3-2</code>).</p>
 		
 		<figure>
 			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_n_reg_min.svg' alt='numbering vertices (dark blue), edges (light blue) and angles (purple) for a polygonal chain (closed on the left and open on the right) whose vertex coordinates describe an equilateral triangle'/>
 			<figcaption>numbering vertices (dark blue), edges (light blue) and angles (purple) for a polygonal chain (closed on the left and open on the right) whose vertex coordinates describe an equilateral triangle</figcaption>
 		</figure>
 		
-		<p>This is important to understand because some of the variables we have to deal with with are vertex-related (for example, an array of vertex coordinates), which means they're arrays of length <code>n</code> in both cases. Others are edge-related (for example, an array of edge lengths or an array of edge slopes), which means they're arrays of length <code>n</code> in the <code>&lt;polygon&gt;</code> case and of length <code>n-1</code> in the <code>&lt;polyline&gt;</code> case. Others are angle-related (for example, an array of angle measures or an array of start or end points of each rounding arc), which means they're arrays of length <code>n</code> in the <code>&lt;polygon&gt;</code> case and of length <code>n-2</code> in the <code>&lt;polyline&gt;</code> case.</p>
+		<p>This is important to understand because some of the variables we have to deal with with are vertex-related (for example, an array of vertex coordinates), which means they're arrays of length <code>n</code> in both cases. Others are edge-related (for example, an array of edge lengths or an array of edge slopes), which means they're arrays of length <code>n</code> in the <code>&lt;polygon&gt;</code> case and of length <code>n-1</code> in the <code>&lt;polyline&gt;</code> case. Others are corner-related (for example, an array of polygonal chain angles or an array of start or end points of each rounding arc), which means they're arrays of length <code>n</code> in the <code>&lt;polygon&gt;</code> case and of length <code>n-2</code> in the <code>&lt;polyline&gt;</code> case.</p>
 		
 		<h2>the start code</h2>
 		
@@ -293,7 +293,7 @@ n-3, n-2, n-1
 		
 		<h2>the "arc to" (<code>A</code>) command</h2>
 		
-		<p>Let's take a closer look at the components of an 'arc to' command. We have the following:</p>
+		<p>Let's take a closer look at the components of an "arc to" command. We have the following:</p>
 
 		<ul>
 			<li>the radius of this arc along the <code><var>x</var></code> axis of its system of coordinates - this is equal to the rounding radius <code>r</code></li>
@@ -365,21 +365,115 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		
 		<p>We can check that this works for both a positive sum (<code>.5*(1 + 1) = .5*2 = 1</code>) as well as for a negative one (<code>.5*(-1 + 1) = .5*0 = 0</code>).</p>
 		
-		<p>A very important thing to keep in mind is that that arc <code>i</code> replaces vertex <code>i</code> only for a closed polygonal chain. For an open one, it replaces vertex <code>i+1</code>.</p>
+		<p>A very important thing to keep in mind is that that arc <code>i</code> replaces vertex <code>i</code> only for a closed polygonal chain. For an open one, it replaces vertex <code>i+1</code>. This is because the array of sweep flags (like all other variables that define an arc, such as the coordinates of its endpoints) is corner-related - we have a sweep flag for each arc, but we have no arcs at the vertices where we don't have corners (the endpoints of a <code>&lt;polyline&gt;</code>)</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_sweep_f_arc_min.svg' alt='the rounding arcs highlighted for the two random polygonal chains: closed (left) vs. open (right)'/>
+			<figcaption>the rounding arcs highlighted for the two random polygonal chains: closed (left) vs. open (right)</figcaption>
+		</figure>
 		
 		<p>This means that, in the <code>&lt;polygon&gt;</code> case, the value of the sweep flag <code><var>f<sub>i</sub></var></code> depends on the coordinates of vertices <code>i-1</code>, <code>i</code> (the one it replaces) and <code>i+1</code>:</p>
 		
-		<pre><var>f<sub>i</sub></var> = fn(x<sub>i-1</sub>,y<sub>i-1</sub>, x<sub>i</sub>,y<sub>i</sub>, x<sub>i+1</sub>,y<sub>i+1</sub>)</pre>
+		<pre><var>f<sub>i</sub></var> = fn(v<sub>i-1</sub>, v<sub>i</sub>, v<sub>i+1</sub>)</pre>
 		
 		<p>In the <code>&lt;polyline&gt;</code> case, the value of the sweep flag <code><var>f<sub>i</sub></var></code> depends on the coordinates of vertices <code>i</code>, <code>i+1</code> (the one it replaces) and <code>i+2</code>:</p>
 		
-		<pre><var>f<sub>i</sub></var> = fn(x<sub>i</sub>,y<sub>i</sub>, x<sub>i+1</sub>,y<sub>i+1</sub>, x<sub>i+2</sub>,y<sub>i+2</sub>)</pre>
+		<pre><var>f<sub>i</sub></var> = fn(v<sub>i</sub>, v<sub>i+1</sub>, v<sub>i+2</sub>)</pre>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_sweep_f_diagr_min.svg' alt=''/>
+			<figcaption>diagram showing how getting sweep flags from vertex coordinates works in the two cases: <code>&lt;polygon&gt;</code> (top) vs. <code>&lt;polyline&gt;</code> (bottom)</figcaption>
+		</figure>
 		
 		<p>If <code>T</code> is the type of polygonal chain (<code>0</code> when closed vs. <code>1</code> when open), then the two can be unified:</p>
 		
-		<pre><var>f<sub>i</sub></var> = fn(x<sub>i-1+T</sub>,y<sub>i-1+T</sub>, x<sub>i+T</sub>,y<sub>i+T</sub>, x<sub>i+1+T</sub>,y<sub>i+1+T</sub>)</pre>
+		<pre><var>f<sub>i</sub></var> = fn(v<sub>i-1+T</sub>, v<sub>i+T</sub>, v<sub>i+1+T</sub>)</pre>
 		
-		<p></p>
+		<p>In the <code>&lt;polygon&gt;</code> case, both the index of the current arc and that of the vertex it's replacing going from <code>0</code> all the way through <code>n-1</code> (<code>0 &le; i &lt; n</code>). In the <code>&lt;polygon&gt;</code> case, the index of the current arc goes from <code>0</code> through <code>n-3</code> (<code>0 &le; i &lt; n-2</code>), while that of the index it replaces goes from <code>1</code> through <code>n-2</code> (<code>1 &le; i &lt; n-1</code>).</p>
+		
+		<p>In the unified case, the index of the current arc goes from <code>0</code> through <code>n-1-2*T</code> (<code>0 &le; i &lt; n-2*T</code>), while that of the index it replaces goes from <code>T</code> through <code>n-1-T</code> (<code>T &le; i &lt; n-T</code>).</p>
+		
+		<p>Now let's code this! What we do here is <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map'><code>map()</code></a> the 2D array of vertex coordinates to a 1D array of flags:</p>
+		
+		<pre>let f = v.slice(T, n - T).map((c, i) => {
+	let prv = v[(i + n - 1 + T)%n] /* previous */, 
+		nxt = v[(i + 1 + T)%n] /* next */,
+		Σ /* sum */;
+
+	Σ = prv[0]*c[1] + c[0]*nxt[1] + nxt[0]*prv[1]
+		- prv[1]*c[0] - c[1]*nxt[0] - nxt[1]*prv[0];
+
+	return .5*(Math.sign(Σ) + 1);
+});</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/d71cfc5580d99d1ccbbd67fcf47ee7ae?editors=0011'>This Pen</a> checks that the above bit of JavaScript works as it should.</p>
+		
+		<h2>getting the start and end points of the arcs</h2>
+		
+		<h3>getting coordinates for random point in the plane</h3>
+		
+		<p>Let's take a random point <code><var>P</var></code>, whose coordinates <code><var>xp</var>,<var>yp</var></code> we need to compute. We can consider this point to be on a circle of radius <code>r</code>. Its <code><var>xp</var>,<var>yp</var></code> coordinates depend on the radius of the circle and on where it is on the circle. The measure of where it is on the circle is the angle <code>θ</code> between the radial line <code><var>OP</var></code> and the horizontal (the <code><var>Ox</var></code> axis). The following interactive demo illustrates this (drag point <code><var>P</var></code> to see how its coordinates change as the circle radius and the angle of the radial line change):</p>
+		
+		<p data-height="620" data-theme-id="0" data-slug-hash="KNxXZJ" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="position of point in a plane (drag point)" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/KNxXZJ/">position of point in a plane (drag point)</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+		
+		<p>Consider the following particular case:</p>
+
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_pt_coords_pcase_min.svg' alt='particular case of a point in a plane'/>
+			<figcaption>particular case of a point in a plane</figcaption>
+		</figure>
+
+		<p>The <code><var>Q</var></code> and <code><var>R</var></code> points are the projections of our point <code><var>P</var></code> onto the axes of our system of coordinates. This means that <code><var>PQ</var></code> and <code><var>PR</var></code> are perpendicular onto the axes (the <code>∠<var>PQO</var></code> and <code>∠<var>PRO</var></code> angles are <code>90°</code> angles). It also means that the <code><var>OQ</var></code> and <code><var>PR</var></code> segments are equal to <code><var>xp</var></code> (which is the value of <code><var>P</var></code>'s <code><var>x</var></code> coordinate) and that the <code><var>OR</var></code> and <code><var>PQ</var></code> segments are equal to <code><var>yp</var></code> (which is the value of <code><var>P</var></code>'s <code><var>y</var></code> coordinate).</p>
+
+		<p><code><var>PQO</var></code> is a right triangle (since the <code>∠<var>PQO</var></code> angle is a <code>90°</code> angle) where we know the hypotenuse <code><var>OP</var></code> (it's <code>r</code>, the radius of the circle <code><var>P</var></code>    is on) and the <code>∠<var>QOP</var></code> angle (it's <code>θ</code>).</p>
+
+		<p>The cosine of the <code>∠<var>QOP</var></code> angle (<code>θ</code>) is the ratio between the adjacent <a href='https://en.wikipedia.org/wiki/Cathetus'>cathetus</a> <code><var>OQ</var></code> (<code><var>xp</var></code>) and the hypotenuse <code><var>OP</var></code> (<code>r</code>). This means we have <code>cos(θ) = <var>xp</var>/r</code> and, from here, we get that <code><var>xp</var> = r*cos(θ)</code>.</p>
+
+		<p>Similarly, the sine of the same <code>∠<var>QOP</var></code> angle (<code>θ</code>) is the ratio between the opposing cathetus <code><var>PQ</var></code> (<code><var>yp</var></code>) and the hypotenuse <code><var>OP</var></code> (<code>r</code>). This means we have <code>sin(θ) = <var>yp</var>/r</code> and, from here, we get that <code><var>yp</var> = r*sin(θ)</code>.</p>
+
+		<p>So the <code><var>xp</var>,<var>yp</var></code> coordinates of any point <code><var>P</var></code> on a circle around the origin are:</p>
+
+		<pre><var>xp</var> = r*cos(θ)
+<var>yp</var> = r*sin(θ)</pre>
+
+		<p>Here, <code>r</code> is the radius of the circle and <code>θ</code> is the angle of the radial line connecting the origin to our point <code><var>P</var></code> with respect to the horizontal (both are known).</p>
+		
+		<p>But what about the case when this circle's central point doesn't coincide with the <code>0,0</code> point of the coordinate system? Well, in this case, we need to add up the coordinates of the circle's central point:</p>
+
+		<pre><var>xp</var> = xo + r*cos(θ)
+<var>yp</var> = yo + r*sin(θ)</pre>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_pt_coords_pcase_off_min.svg' alt='particular case of a point in a plane when the central point of the circle it is on is not at the (0,0) point of the coordinate system'/>
+			<figcaption>particular case of a point in a plane when the central point of the circle it's on is not at the <code>0,0</code> point of the coordinate system</figcaption>
+		</figure>
+		
+		<p>This is the situation we're actually interested in because what we do here is take the start and end points of our arcs as being on circles whose central points are the corner points of our initial polygonal chain.</p>
+		
+		<p>Let's consider first the start points:</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_s_pts_on_circ_base_min.svg' alt='start points of arcs relative to vertices of initial polygonal chain'/>
+			<figcaption>start points of arcs relative to vertices of initial polygonal chain</figcaption>
+		</figure>
+
+		<p>So for arc <code>i</code>, the coordinates of its start points can be computed from the <code>x<sub>i+T</sub>,y<sub>i+T</sub></code> coordinates of the the polygonal chain vertex that's being replaced by this arc <code><var>A<sub>i+T</sub></var></code> (<code><var>A<sub>i</sub></var></code> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <code><var>A<sub>i+1</sub></var></code> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>), the radius <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> (<code><var>A<sub>i</sub>S<sub>i</sub></var></code> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <code><var>A<sub>i+1</sub>S<sub>i</sub></var></code> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>) of this circle and the angle of the radial segment <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> with respect to the horizontal. We already know all vertex coordinates, so what we still need to get are the <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> radii and the angles between the horizontal and these radial lines.</p>
+		
+		<h3>angles of radial segments with respect to the horizontal</h3>
+		
+		<p>If we also draw the angles on the previous figure, it looks like this:</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_s_pts_on_circ_meas_min.svg' alt='angles of radial segments with respect to the horizontal'/>
+			<figcaption>angles of radial segments <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> with respect to the horizontal</figcaption>
+		</figure>
+				
+		<p>Since the <code><var>S<sub>i</sub></var></code> points are on the <code><var>A<sub>i+T</sub>A<sub>i-1+T</sub></var></code> segments, the angles of the <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> radii with respect to the horizontal are the angles between the horizontal and these <code><var>A<sub>i+T</sub>A<sub>i-1+T</sub></var></code> segments (which are edges of our initial polygonal chain). This means that the array of <code><var>β</var></code> angles we need to get is an edge-related variable - we compute one angle for each edge of the polygonal chain, so we have one less angle computation to do in the <code>&lt;polyline&gt;</code> case (because we have one less edge in this situation).</p>
+		
+		
+			
+		<h3>circles, tangents, right triangles and congruence</h3>
 		
 		
 	</body>
