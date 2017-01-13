@@ -10,7 +10,7 @@
 
 		<p>I've recently felt frustrated at the lack of an option to round the corners of a <code>&lt;polygon&gt;</code> element by simply specifying a rounding radius (<code>r</code>) attribute. After all, the <code>&lt;rect&gt;</code> element gives us the option of specifying rounding radii along the <code><var>x</var></code> and <code><var>y</var></code> axes via the <a href='https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/rx'><code>rx</code></a> and <a href='https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/ry'><code>ry</code></a> attributes.</p>
 
-		<p>I've learned that it's been proposed and got asked if I could draft an algorithm for getting the equivalent <code>&lt;path&gt;</code> data (<code>d</code>) attribute from the <a href='https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/points'><code>points</code></a> and <code>r</code> attribute specified for the initial <code>&lt;polygon&gt;</code>. I've never done this before, had no idea how to do it, what to begin with, so I'd thought I'd have a more clear idea once I've coded some kind of JavaScript polyfill.</p>
+		<p>I've learned that it's been proposed and got asked if I could draft an algorithm for getting the equivalent <code>&lt;path&gt;</code> data (<code>d</code>) attribute from the <a href='https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/points'><code>points</code></a> and <code>r</code> attributes specified for the initial <code>&lt;polygon&gt;</code>. I've never done this before, had no idea how to do it, what to begin with, so I'd thought I'd have a more clear idea once I've coded some kind of JavaScript polyfill.</p>
 		
 		<p>Well, here it is - <code>fillet.js</code>! It's a script that rounds the corners of any inline <code>&lt;polygon&gt;</code> and <code>&lt;polyline&gt;</code> elements that have a finite, positive rounding radius attribute (<code>r</code>) specified. All we need to do is include the script at the end of the page and... bam! Whenever we specify a valid rounding radius attribute <code>r</code> for a <code>&lt;polygon&gt;</code> or <code>&lt;polyline&gt;</code>, it magically gets rounded corners using that rounding radius or, if the given rounding radius is too big, the maximum rounding radius possible.</p>
 		
@@ -18,7 +18,7 @@
 		
 		<h2>picking test elements</h2>
 		
-		<p>For testing our code at every step, we pick two distinct <code>&lt;polygon&gt;</code> elements and two <code>&lt;polyline&gt;</code> elements with the same <code>points</code> attributes as the <code>&lt;polygon&gt;</code> elements.</p>
+		<p>For testing our code at every step, we pick two distinct <code>&lt;polygon&gt;</code> elements and two <code>&lt;polyline&gt;</code> elements with the same <code>points</code> attributes as the previously mentioned polygons.</p>
 		
 		<p>The first <code>&lt;polygon&gt;</code> and <code>&lt;polyline&gt;</code> have the minimum number of coordinate pairs needed to create a polygonal shape (closed in the case of the <code>&lt;polygon&gt;</code> and open in the case of the <code>&lt;polyline&gt;</code>) - three. This is so that we make it easier for ourselves to check computations.</p>
 		
@@ -207,7 +207,7 @@ n-3, n-2, n-1
 		
 		<p>The geometric interpretation of this is that, in the <code>&lt;polyline&gt;</code> case, adding a point that's collinear with the first and the last at the beginning (or at the end) of the list of points gives us a different shape from the initial one. In the <code>&lt;polygon&gt;</code> case, this doesn't happen, we still have the same shape. This is why such a point is safe to remove in the <code>&lt;polygon&gt;</code> case, but not in the <code>&lt;polyline&gt;</code> one (we'd lose an edge in this case).</p>
 		
-		<p>The following image illustrates this. The first row presents the <code>&lt;polygon&gt;</code> case, while the second one presents the <code>&lt;polyline&gt;</code> case. The first colums shows the initial shapes. The second one shows the result of adding a point collinear with the first and last at the beginning of the list of points. The third one shows the result of adding a point collinear with the first and last at the beginning of the list of points.</p>
+		<p>The following image illustrates this. The first row presents the <code>&lt;polygon&gt;</code> case, while the second one presents the <code>&lt;polyline&gt;</code> case. The first colums shows the initial shapes. The second one shows the result of adding a point collinear with the first and last at the beginning of the list of points. The third one shows the result of adding a point collinear with the first and last at the end of the list of points.</p>
 		
 		<figure>
 			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_collin_end_reg_min.svg' alt='adding a point that is collinear to the first and the last at the beginning or at the end in the <polygon> case (top row, same shape in all cases) vs. in the <polyline> case (bottom row, different shapes); first colum shows the initial polygonal chains, while others show the results of adding a point that is collinear to the first and the last at the beginning (column two) or at the end (column three)'/>
@@ -250,7 +250,7 @@ n-3, n-2, n-1
 	}
 }</pre>
 
-		<p><a href='https://codepen.io/thebabydino/pen/fbf4429f30c242e31bf65dd680cfa93a?editors=1011'>This pen</a> checks that the above code works as intended.</p>
+		<p><a href='https://codepen.io/thebabydino/pen/fbf4429f30c242e31bf65dd680cfa93a?editors=1011'>This Pen</a> checks that the above code works as intended.</p>
 		
 		<h2>recap of what we know so far</h2>
 		
@@ -281,7 +281,7 @@ n-3, n-2, n-1
 					<li>in the <code>&lt;polyline&gt;</code> case, this is the first vertex of the initial <code>&lt;polyline&gt;</code> (<code><var>A<sub>0</sub></var></code>), whose coordinates are <code>x<sub>0</sub>,y<sub>0</sub></code> (which we already have);</li>
 				</ul>
 			</li>
-			<li>an "arc to" (<code>A</code>) command for every <code>i</code>-th arc (where <code>0 &le; i &lt; n</code> in the <code>&lt;polygon&gt;</code> case and <code>0 &le; i &lt; n-2</code> in the <code>&lt;polyline&gt;</code> case); this draws the arc between its start point (<code><var>S<sub>i</sub></var></code>) and its end point <code><var>E<sub>i</sub></var></code>);</li>
+			<li>an "arc to" (<code>A</code>) command for every <code>i</code>-th arc (where <code>0 &le; i &lt; n</code> in the <code>&lt;polygon&gt;</code> case and <code>0 &le; i &lt; n-2</code> in the <code>&lt;polyline&gt;</code> case); this draws the arc between its start point (<code><var>S<sub>i</sub></var></code>) and its end point (<code><var>E<sub>i</sub></var></code>);</li>
 			<li>a "line to" (<code>L</code>) command for every <code>i</code>-th segment where <code>0 &le; i &lt; n-1</code>, followed by the coordinates point where this line segment ends;
 				<ul>
 					<li>in the <code>&lt;polygon&gt;</code> case, this is the start point of the next arc (<code><var>S<sub>i+1</sub></var></code>), whose coordinates are <code><var>xs<sub>i+1</var></sub>,<var>ys<sub>i+1</var></sub></code>; also, this line segment starts from the end point of the arc we've just drawn (<code><var>E<sub>i</sub></var></code>, of coordinates <code><var>xe<sub>i</var></sub>,<var>ye<sub>i</var></sub></code>);</li>
@@ -338,7 +338,7 @@ L <var>xs<sub>n-3</sub></var>, <var>ys<sub>n-3</sub></var>
 A r, r, 0, 0, <var>f<sub>n-3</sub></var>, <var>xe<sub>n-3</sub></var>, <var>ye<sub>n-3</sub></var>
 L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		
-		<p>However, in the end, we still to get the same three things for each arc <code>i</code>, whether the number of arcs is <code>n</code> (closed polygonal chain) or <code>n-2</code> (open polygonal chain):</p>
+		<p>However, in the end, we still need to get the same three things for each arc <code>i</code>, whether the number of arcs is <code>n</code> (closed polygonal chain) or <code>n-2</code> (open polygonal chain):</p>
 		
 		<ul>
 			<li>whether it goes clockwise or not, which determines the value (<code>1</code> or <code>0</code>) for its sweep flag <code><var>f<sub>i</sub></var></code></li>
@@ -471,8 +471,95 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 				
 		<p>Since the <code><var>S<sub>i</sub></var></code> points are on the <code><var>A<sub>i+T</sub>A<sub>i-1+T</sub></var></code> segments, the angles of the <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> radii with respect to the horizontal are the angles between the horizontal and these <code><var>A<sub>i+T</sub>A<sub>i-1+T</sub></var></code> segments (which are edges of our initial polygonal chain). This means that the array of <code><var>β</var></code> angles we need to get is an edge-related variable - we compute one angle for each edge of the polygonal chain, so we have one less angle computation to do in the <code>&lt;polyline&gt;</code> case (because we have one less edge in this situation).</p>
 		
+		<p>So let's see how we can get the angles with respect to the horizontal for each edge. As we've established before, edge <code>i</code> is the edge between vertex <code><var>A<sub>i</sub></var></code> and vertex <code><var>A<sub>i+1</sub></var></code>. In order to get the angle of the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> segment with respect to the horizontal, we first draw a horizontal line through the <code><var>A<sub>i</sub></var></code> point.</p>
 		
-			
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_edge_angle_base_min.svg' alt='αi is the angle between the horizontal and edge i'/>
+			<figcaption><code><var>α<sub>i</sub></var></code> is the angle between the horizontal and edge <code>i</code> (<code><var>A<sub>i</sub>A<sub>i+1</sub></var></code>)</figcaption>
+		</figure>
+		
+		<p>Then, we draw a perpendicular from <code><var>A<sub>i+1</sub></var></code> onto this horizontal line. This perpendicular is a vertical line and we've now created a right triangle where we know the coordinates of all three vertices.</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_edge_angle_right_tri_min.svg' alt='we get a right triangle where we know the coordinates of all three vertices'/>
+			<figcaption><code><var>A<sub>i</sub>T<sub>i+1</sub>A<sub>i+1</sub></var></code> is a right triangle where we know the coordinates of all three vertices</figcaption>
+		</figure>
+		
+		<p>In the right triangle <code><var>A<sub>i</sub>T<sub>i+1</sub>A<sub>i+1</sub></var></code>, the <code><var>T<sub>i+1</sub></var></code> vertex is on the same horizontal line as <code><var>A<sub>i</sub></var></code>, so it has the same <code><var>y</var></code> coordinate (<code>y<sub>i</sub></code>). It's also on the same vertical line as <code><var>A<sub>i+1</sub></var></code>, so it has the same <code><var>x</var></code> coordinate (<code>x<sub>i+1</sur></code>). Since the <code><var>A<sub>i</sub>T<sub>i+1</sub></var></code> segment is a horizontal one, its length is the difference between the <code><var>x</var></code> coordinates of the two points:</p>
+		
+		<pre><var>dx<sub>i</sub></var> = x<sub>i+1</sub> - x<sub>i</sub></pre>
+		
+		<p>Similarly, since the <code><var>T<sub>i+1</sub>A<sub>i+1</sub></var></code> segment is a vertical one, its length is the difference between the <code><var>y</var></code> coordinates of the two points:</p>
+		
+		<pre><var>dy<sub>i</sub></var> = y<sub>i+1</sub> - y<sub>i</sub></pre>
+		
+		<p>Since we compute these coordinate differences between the ends of each edge, that makes them edge-related - we have as many such coordinate differences as edges, which is <code>n</code> in the <code>&lt;polygon&gt;</code> case and <code>n-1</code> in the <code>&lt;polyline&gt;</code> case. We'll be needing these coordinate differences for more than one thing, so we compute them and store them in an array <code>d</code>. Every item in this array is a pair of differences along the two axes.</p>
+		
+		<p>Whether we have a closed or an open polygonal chain, the value of pair <code>i</code> depends on the coordinates of vertex <code>i</code> and on those of vertex <code>i+1</code>.</p>
+		
+		<pre><var>d<sub>i</sub></var> = fn(v<sub>i</sub>, v<sub>i+1</sub>)</pre>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_edge_diff_diagr_min.svg' alt=''/>
+			<figcaption>diagram showing how getting coordinate differences between edge endpoints from vertex coordinates works in the two cases: <code>&lt;polygon&gt;</code> (top) vs. <code>&lt;polyline&gt;</code> (bottom)</figcaption>
+		</figure>
+		
+		<p>Putting all this into code, we start from the 2D array of vertex coordinates <code>v</code>, which we <code>map()</code> to another 2D array of differences <code>d</code>:</p>
+		
+		<pre>let d = v.slice(0, ne).map((c, i) => {
+	let nxt = v[(i + 1)%n]; /* next vertex coords */
+
+	return [
+		nxt[0] - c[0] /* x difference dx */, 
+		nxt[1] - c[1] /* y difference dy */
+	];
+});</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/0f8705efbf2d0b381048c23c21f178c4?editors=0011'>This Pen</a> checks that it all went fine for our polygonal chains.</p>
+		
+		<p>Moving further, in the same right triangle <code><var>A<sub>i</sub>T<sub>i+1</sub>A<sub>i+1</sub></var></code>, the tangent of the <code>∠<var>T<sub>i+1</sub>A<sub>i</sub>A<sub>i+1</sub></var></code> angle (<code><var>α<sub>i</sub></var></code>) is the ratio between the opposing cathetus <code><var>T<sub>i+1</sub>A<sub>i+1</sub></var></code> (<code>dy<sub>i</sub></code>) and the adjacent cathetus <code><var>A<sub>i</sub>T<sub>i+1</sub></var></code> (<code>dx<sub>i</sub></code>).</p>
+		
+		<pre><var>α<sub>i</sub></var> = tan(dy<sub>i</sub>/dx<sub>i</sub>)</pre>
+		
+		<p>This means that we can get this angle <code><var>α<sub>i</sub></var></code> (which is also the angle of the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> edge) from the values of the <code>dx<sub>i</sub></code> and <code>dy<sub>i</sub></code> differences that we now know (the <code>d</code> array) using <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/atan2'><code>Math.atan2()</code></a>:</p>
+		
+		<pre>let α = d.map(c => Math.atan2(...c.reverse()));</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/e6f771db5d18c59c2b17a9145ecc6ed6?editors=0011'>Test</a></p>
+		
+		<p class='note'>Since every item in <code>d</code> array is a <code>dx,dy</code> pair, while the first argument of <code>Math.atan2()</code> is the <var>y</var> value and the second one the <var>x</var> value, we need to reverse each pair before <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment'>destructuring</a>.</p>
+		
+		<p>We now have the angles of the <code><var>A<sub>0</sub>A<sub>1</sub></var></code>, <code><var>A<sub>1</sub>A<sub>2</sub></var></code>, ... <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code>, ... edges with respect to the horizontal all stored into the <code>α</code> array.</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_edge_angles_comp_a_min.svg' alt='the angles between the horizontal and the edges of the initial polygonal chain'/>
+			<figcaption>the angles between the horizontal and the edges of the initial polygonal chain - closed (left) vs. open (right)</figcaption>
+		</figure>
+		
+		<p>However, that's not exactly what we were after this time. What we actually need now are the angles of the <code><var>A<sub>1</sub>A<sub>0</sub></var></code>, <code><var>A<sub>2</sub>A<sub>1</sub></var></code>, ... <code><var>A<sub>i+1</sub>A<sub>i</sub></var></code>, ... segments with respect to the horizontal. The angle of the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> segments with respect to the horizontal (<code>α<sub>i</sub></code>) is not the same as the angle of the <code><var>A<sub>i+1</sub>A<sub>i</sub></var></code> edge with respect to the horizontal! They are <code>180°</code> away from one another.</p>
+		
+		<p>Does that mean we need to add or subtract <code>180°</code>? Well, it depends. The <code>atan2()</code> function returns values in the <code>(-180°, 180°]</code> interval, so that's where all our <code>α</code> angles are. We want to keep the angle of the <code><var>A<sub>i+1</sub>A<sub>i</sub></var></code> segment with respect to the horizontal within the same interval as well. So, if <code>α<sub>i</sub></code> is positive, then we subtract <code>180°</code>, otherwise (if it's negative or <code>0</code>), we add <code>180°</code>. This means that the angle between the horizontal and the <code><var>A<sub>i+1</sub>A<sub>i</sub></var></code> segment is:</p>
+		
+		<pre><var>β<sub>i</sub></var> = α<sub>i</sub> - (sgn(α<sub>i</sub>) || -1)*180°</pre>
+		
+		<p>The interactive demo below illustrates this. Drag the <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> segment to see how its angle with respect the horizontal (<code>α<sub>i</sub></code>, marked with pink) changes and how that influences the angle of <code><var>A<sub>i+1</sub>A<sub>i</sub></var></code> with respect to the horizontal (<code>β<sub>i</sub></code>, marked with dark blue).</p>
+		
+		<p data-height="570" data-theme-id="0" data-slug-hash="eBaRVV" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="angles of a segment w.r.t. the horizontal (SVG + JS)" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/eBaRVV/">angles of a segment w.r.t. the horizontal (SVG + JS)</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+		
+		<p>Putting this into JavaScript code, we have:</p>
+		
+		<pre>let β = α.map(c => c - (Math.sign(c) || -1)*Math.PI);</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/b963ba42ab2c1e660e6d97787780cbe3?editors=0011'>Test</a>.</p>
+		
+		<p>Good, we now have the <code>β</code> angles we've been after!</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_edge_angles_comp_b_min.svg' alt='the angles we were after'/>
+			<figcaption>the angles between the horizontal and the <code><var>A<sub>i+1</sub>A<sub>i</sub></var></code> segments (<code>β<sub>i</sub></code>)</figcaption>
+		</figure>
+		
 		<h3>circles, tangents, right triangles and congruence</h3>
 		
 		
