@@ -79,11 +79,11 @@
 		
 		<p class='note'>Again, by <code>i-1</code>, we actually mean <code>(i+n-1)%n</code> and by <code>i+1</code> we actually mean <code>(i+1)%n</code> (though it's something we only care about if the polygonal chain is closed).</p>
 		
-		<p>Let's see what this means in the case of our first two polygonal chains. For the closed chain, we have <code>3</code> vertices, <code>3</code> edges and <code>3</code> corners (angles). For the open chain, we have <code>3</code> vertices, <code>2</code> (<code> = 3 - 1</code>) edges and <code>1</code> (<code>= 3 - 2</code>) angle.</p>
+		<p>Let's see what this means in the case of our first two polygonal chains. For the closed chain, we have <code>3</code> vertices, <code>3</code> edges and <code>3</code> corners (angles). For the open chain, we have <code>3</code> vertices, <code>2</code> (<code> = 3 - 1</code>) edges and <code>1</code> (<code>= 3 - 2</code>) corner (angle).</p>
 		
 		<figure>
 			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_n_reg_min.svg' alt='numbering vertices (dark blue), edges (light blue) and angles (purple) for a polygonal chain (closed on the left and open on the right) whose vertex coordinates describe an equilateral triangle'/>
-			<figcaption>numbering vertices (dark blue), edges (light blue) and angles (purple) for a polygonal chain (closed on the left and open on the right) whose vertex coordinates describe an equilateral triangle</figcaption>
+			<figcaption>numbering vertices (purple), edges (orange) and angles (pink) for a polygonal chain (closed on the left and open on the right) whose vertex coordinates describe an equilateral triangle</figcaption>
 		</figure>
 		
 		<p>This is important to understand because some of the variables we have to deal with in the JavaScript code are vertex-related (for example, an array of vertex coordinates), which means they're arrays of length <code>n</code> in both cases. Others are edge-related (for example, an array of edge lengths or an array of edge slopes), which means they're arrays of length <code>n</code> in the <code>&lt;polygon&gt;</code> case and of length <code>n-1</code> in the <code>&lt;polyline&gt;</code> case. Others are corner-related (for example, an array of polygonal chain angles or an array of start or end points of each rounding arc), which means they're arrays of length <code>n</code> in the <code>&lt;polygon&gt;</code> case and of length <code>n-2</code> in the <code>&lt;polyline&gt;</code> case.</p>
@@ -130,7 +130,7 @@ if(!isFinite(R) || R &lt;= 0) return;</pre>
 -25,43.3' 
 '50 ,   0 -25 , -43.3        -25 , 43.3'</pre>
 
-		<p>So, after reading the value of the <code>points</code> attribute, we need to make sure we catch all these possibilities with the regular expression we use to <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split'><code>split()</code></a> the string we get and then, since all the coordinate values are still strings at this point, we convert them to numbers:</p>
+		<p>So, after reading the value of the <code>points</code> attribute, we need to make sure we catch all these possibilities with the regular expression we use to <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split'><code>split()</code></a> the string we get and then, since all the coordinate values are still strings at this point, we convert them to numbers (note that we'll be using <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions'>arrow functions</a> and other ES6 features for our polyfill):</p>
 
 		<pre>let v = _poly.getAttribute('points')
 	.split(/\s*,\s*|\s+/g)
@@ -171,7 +171,7 @@ n = v.length;</pre>
 		
 		<h2>checking for collinearity and eliminating unneeded vertices</h2>
 		
-		<p>We're doing one more check here and that's to see that no three consecutive points are <a href='http://mathworld.wolfram.com/Collinear.html'>collinear</a>. If that happens to be the case, we remove the one in the middle (the second of the three) because we don't really need it - with or without it, our shape is the same. The illustration below shows this:</p>
+		<p>We're doing one more check here before we start working on the rounding and that's to see that no three consecutive points are <a href='http://mathworld.wolfram.com/Collinear.html'>collinear</a>. If that happens to be the case, we remove the one in the middle (the second of the three) because we don't really need it - with or without it, our shape is the same. The illustration below shows this:</p>
 		
 		<figure>
 			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_collin_mid_reg_min.svg' alt='points 1, 2 and 3 are collinear; the one in the middle of these three is not a real vertex, so we can safely remove it'/>
@@ -218,5 +218,115 @@ n-3, n-2, n-1
 		</figure>
 		
 		<p>In the <code>&lt;polygon&gt;</code> case, adding this extra point doesn't modify the shape. The newly added point isn't a new vertex, just a point on the last edge (between the first and the last point) and the segments that start from it aren't two distinct edges, just two parts of the same edge. In the <code>&lt;polyline&gt;</code> case however, the newly added point is a new vertex, even if it's on the same line with the initial endpoints. This is because the initial endpoints aren't connected and, due to the nature of the polyline, this point doesn't get connected to both, only to one of them.</p>
+		
+		<p>Alright, let's see how we can determine three points are collinear. Or almost collinear because sometimes rounding errors come into play. Consider the situation of our test triangle. Its last edge is between points <code>-25,43.3</code> and <code>50,0</code>. If we take the point where this edge intersects the <code><var>y</var></code> axis, this point is <code>0,28.9</code>. Now the <code>43.3</code> and <code>28.9</code> values are rounded so that we don't have write a truckload of decimals. However, this rounding also means that these three points will fail a strict collinearity check, which is why we need to leave a bit of room for error.</p>
+		
+		<p>But what exactly does the collinearity check involve? It involves checking whether the angle between the two edges formed by our three consecutive points is either really close to <code>0°</code> or really close to <code>180°</code>, where "really close" means within error limits. If our threshold error is, let's say <code>1°</code>, then we get a positive for our collinearity check when the the angle between the two edges formed by the three consecutive points is either smaller than <code>1°</code> or larger than <code>180° - 1° = 179°</code>.</p>
+		
+		<p>This means we need to compute the angles of our polygonal chain. We do this using <a href='https://en.wikipedia.org/wiki/Law_of_cosines'>the law of cosines</a>. This requires that we know the edge lengths, so we need to compute these first, before we get to the angles. Let's see how!</p>
+		
+		<p>Consider the generic edge <code>i</code>. This is between vertices <code><var>A<sub>i</sub></var></code> and <code><var>A<sub>i+1</sub></var></code>. We first draw a horizontal line through <code><var>A<sub>i</sub></var></code>, then we project <code><var>A<sub>i+1</sub></var></code> onto the horizontal line we've drawn previously.</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_edge_right_tri_base_min.svg' alt='we draw a horizontal line through point i, then we project point i+1 onto it'/>
+			<figcaption>we draw a horizontal line through <code><var>A<sub>i</sub></var></code>, then we project <code><var>A<sub>i+1</sub></var></code> onto it</figcaption>
+		</figure>
+		
+		<p><code><var>A<sub>i+1</sub>T<sub>i+1</sub></var></code> is perpendicular onto the horizontal, which means that it's a vertical line. This also means that the <code><var>A<sub>i</sub>A<sub>i+1</sub>T<sub>i+1</sub></var></code> triangle we've just created is a right triangle where we know the coordinates of all three vertices.</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_edge_right_tri_d_min.svg' alt='we get a right triangle where we know the coordinates of all three vertices'/>
+			<figcaption><code><var>A<sub>i</sub>T<sub>i+1</sub>A<sub>i+1</sub></var></code> is a right triangle where we know the coordinates of all three vertices</figcaption>
+		</figure>
+		
+			<p>In the right triangle <code><var>A<sub>i</sub>T<sub>i+1</sub>A<sub>i+1</sub></var></code>, the <code><var>T<sub>i+1</sub></var></code> vertex is on the same horizontal line as <code><var>A<sub>i</sub></var></code>, so it has the same <code><var>y</var></code> coordinate (<code>y<sub>i</sub></code>). It's also on the same vertical line as <code><var>A<sub>i+1</sub></var></code>, so it has the same <code><var>x</var></code> coordinate (<code>x<sub>i+1</sur></code>). Since the <code><var>A<sub>i</sub>T<sub>i+1</sub></var></code> segment is a horizontal one, its length is the difference between the <code><var>x</var></code> coordinates of the two points:</p>
+		
+		<pre><var>dx<sub>i</sub></var> = x<sub>i+1</sub> - x<sub>i</sub></pre>
+		
+		<p>Similarly, since the <code><var>T<sub>i+1</sub>A<sub>i+1</sub></var></code> segment is a vertical one, its length is the difference between the <code><var>y</var></code> coordinates of the two points:</p>
+		
+		<pre><var>dy<sub>i</sub></var> = y<sub>i+1</sub> - y<sub>i</sub></pre>
+		
+		<p>Since we compute these coordinate differences between the ends of each edge, that makes them edge-related - we have as many such coordinate differences as edges - that is <code>n</code> in the <code>&lt;polygon&gt;</code> case and <code>n-1</code> in the <code>&lt;polyline&gt;</code> case. We'll be needing these coordinate differences for more than one thing, so we compute them and store them in an array <code>d</code>. Every item in this array is a pair of differences along the two axes.</p>
+		
+		<p>Whether we have a closed or an open polygonal chain, the value of pair <code>i</code> depends on the coordinates of vertex <code>i</code> and on those of vertex <code>i+1</code>.</p>
+		
+		<pre><var>d<sub>i</sub></var> = fn(v<sub>i</sub>, v<sub>i+1</sub>)</pre>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_edge_diff_diagr_min.svg' alt='diagram showing how getting coordinate differences between edge endpoints from vertex coordinates works in the two cases: <polygon> (top) vs. <polyline> (bottom)'/>
+			<figcaption>diagram showing how getting coordinate differences between edge endpoints from vertex coordinates works in the two cases: <code>&lt;polygon&gt;</code> (top) vs. <code>&lt;polyline&gt;</code> (bottom)</figcaption>
+		</figure>
+		
+		<p>Putting all this into code, we start from the 2D array of vertex coordinates <code>v</code>, which we <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map'><code>map()</code></a> to another 2D array of differences <code>d</code>:</p>
+		
+		<pre>let ne = n - T; /* number of edges */
+
+let d = v.slice(0, ne).map((c, i) => {
+	let nxt = v[(i + 1)%n]; /* next vertex coords */
+
+	return [
+		nxt[0] - c[0] /* x difference dx */, 
+		nxt[1] - c[1] /* y difference dy */
+	];
+});</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/bb3e7b893910133f070d9448208f9741?editors=0011'>This Pen</a> checks that the above code works as expected.</p>
+		
+		<p>Next, we need to compute the edge lengths. In order to see how we do that for the generic edge <code>i</code> (<code><var>A<sub>i</sub>A<sub>i+1</sub></var></code>), let's go back to our right triangle:</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_edge_right_tri_l_min.svg' alt='in this right triangle, edge i is the hypotenue'/>
+			<figcaption>in the right triangle <code><var>A<sub>i</sub>A<sub>i+1</sub>T<sub>i+1</sub></var></code>, <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> is the hypotenuse</figcaption>
+		</figure>
+		
+		<p>In this triangle, <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> (<code><var>l<sub>i</sub></var></code>) is the hypotenuse, so we can compute it using the Pythagorean theorem:</p>
+		
+		<pre><var>l<sub>i</sub></var> = √(dx<sub>i</sub><sup>2</sup> + dy<sub>i</sub><sup>2</sup>)</pre>
+		
+		<p>In our JS code, this would be:</p>
+		
+		<pre>let l = d.map(c => Math.hypot(...c));</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/508892035bde4fd3cf68833a850e4a1d?editors=0011'>Test</a>.</p>
+		
+		<p>The law of cosines states that the cosine of the angle <code>θ</code> of a triangle equals the sum of the squares of the two edges that form it (<code>a</code> and <code>b</code>) minus the square of the opposing edge (<code>c</code>), all divided by twice the product between the two adjacent edges (<code>a</code> and <code>b</code>):</p>
+		
+		<pre>cos(<var>θ</var>) = (a<sup>2</sup> + b<sup>2</sup> - <var>c<sup>2</sup></var>)/(2*a*b)</pre>
+		
+		<p>We already know <code>a</code> and <code>b</code> - they're the two polygonal edges that form the angle we want to get. In the <code>&lt;polygon&gt;</code> case, the two edges forming angle <code>i</code> are <code><var>A<sub>i-1</sub>A<sub>i</sub></var></code> (<code>i-1</code>) and <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> (<code>i</code>). In the <code>&lt;polyline&gt;</code> case, the two edges forming angle <code>i</code> are <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> (<code>i</code>) and <code><var>A<sub>i+1</sub>A<sub>i+2</sub></var></code> (<code>i+1</code>).</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_ang_i_min.svg' alt='the edges that form angle i are i-1 and i in the <polygon> case, but i and i+1 in the <polyline> case'/>
+			<figcaption>the edges that form angle <code>i</code> are <code>i-1</code> and <code>i</code> in the <code>&lt;polygon&gt;</code> case (left), but <code>i</code> and <code>i+1</code> in the <code>&lt;polyline&gt;</code> case (right)</figcaption>
+		</figure>
+		
+		<p>In general, given that <code>T</code> is <code>0</code> for a <code>&lt;polygon&gt;</code> and <code>1</code> for a <code>&lt;polyline&gt;</code>, the two edges we want (the <code>a</code> and <code>b</code> in the law of cosines) are <code><var>A<sub>i-1+T</sub>A<sub>i+T</sub></var></code> (<code>i-1+T</code>) and <code><var>A<sub>i+T</sub>A<sub>i+1+T</sub></var></code> (<code>i+T</code>).</p>
+		
+		<p>But what about the edge opposing our angle <code><var>θ</var></code> - edge <code><var>c</var></code>? Well, we don't know it yet, but we can compute it in the same manner as the other two - from the coordinates of its endpoints. These are the start point of the first edge forming our angle (<code><var>A<sub>i-1</sub></var></code> in the <code>&lt;polygon&gt;</code> case and <code><var>A<sub>i</sub></var></code> in the <code>&lt;polyline&gt;</code> case) and the end point of the second edge forming our angle (<code><var>A<sub>i</sub></var></code> in the <code>&lt;polygon&gt;</code> case and <code><var>A<sub>i+1</sub></var></code> in the <code>&lt;polyline&gt;</code> case). This means that, in the general case, our <code>c</code> is the <code><var>A<sub>i-1+T</sub>A<sub>i+1+T</sub></var></code> segment.</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_collin_c_min.svg' alt='the third edge we need to compute angle i using the law of cosines in the <polygon> case (left) and in the <polyline> case (right)'/>
+			<figcaption>the third edge we need to compute angle <code>i</code> using the law of cosines in the <code>&lt;polygon&gt;</code> case (left) and in the <code>&lt;polyline&gt;</code> case (right)</figcaption>
+		</figure>
+		
+		<p>So if the polygonal chain is closed, the angle <code><var>θ<sub>i</sub></var></code> depends on the lengths of edges <code>i-1</code> and <code>i</code> and on the coordinates of vertices <code>i-1</code> and <code>i+1</code>:</p>
+		
+		<pre><var>θ<sub>i</sub></var> = fn(l<sub>i-1</sub>, l<sub>i</sub>, v<sub>i-1</sub>, v<sub>i+1</sub>)</pre>
+		
+		<p>If the polygonal chain is open, the angle <code><var>θ<sub>i</sub></var></code> depends on the lengths of edges <code>i</code> and <code>i+1</code> and on the coordinates of vertices <code>i</code> and <code>i+2</code>:</p>
+		
+		<pre><var>θ<sub>i</sub></var> = fn(l<sub>i</sub>, l<sub>i+1</sub>, v<sub>i</sub>, v<sub>i+2</sub>)</pre>
+		
+		<p>The following diagram illustrates the above:</p>
+		
+		<figure>
+			<img src='' alt=''/>
+			<figcaption>diagram showing how computing angles using the law of cosines from edge lengths and vertex coordinates works in the two cases: <code>&lt;polygon&gt;</code> (top) vs. <code>&lt;polyline&gt;</code> (bottom)</figcaption>
+		</figure>
+		
+		<p>Unifying the two cases, we have:</p>
+		
+		<pre><var>θ<sub>i</sub></var> = fn(l<sub>i-1+T</sub>, l<sub>i+T</sub>, v<sub>i-1+T</sub>, v<sub>i+1+T</sub>)</pre>
 	</body>
 </html>
