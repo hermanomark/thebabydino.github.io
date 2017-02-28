@@ -22,7 +22,7 @@
 		
 		<p>The first <code>&lt;polygon&gt;</code> and <code>&lt;polyline&gt;</code> have the minimum number of coordinate pairs needed to create a polygonal shape (closed in the case of the <code>&lt;polygon&gt;</code> and open in the case of the <code>&lt;polyline&gt;</code>) - three. This is so that we make it easier for ourselves to check computations.</p>
 		
-		<p>For the first closed polygonal chain, we have the following code:</p>
+		<p>For the first closed polygonal chain, we have the following markup:</p>
 		
 		<pre>&lt;svg viewbox='-50 -50 100 100'>
 	&lt;polygon points='50,0 -25,-43.3 -25,43.3' r='10'/>
@@ -33,8 +33,8 @@
 		<p>The coordinates listed in the <code>points</code> attribute describe the vertices of an equilateral triangle. Three vertices, three sets of coordinates, all edges equal, equal angles, all three <code>60°</code> ones. Furthermore, the first vertex (the one at <code>50,0</code>) is on the <code><var>x</var></code> axis, so its <code><var>y</var></code> coordinate is <code>0</code>. All chosen this way just to make our life easier when checking whether our code works correctly or not. For example, at some step, we may need to compute the angles between edges and, we know that, in this particular case, we should always get <code>60°</code> so, if that's not what our code outputs at that step, then there's something wrong with it.</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_ini_test_reg_min.svg' alt='first two polygonal chains we use for testing: the vertices are those of an equilateral triangle, first one of the being on the x axis'/>
-			<figcaption>first two polygonal chains we use for testing: the vertices are those of an equilateral triangle, first one of the being on the <code><var>x</var></code> axis</figcaption>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_ini_test_reg_min.svg' alt='first two polygonal chains we use for testing: the vertices are those of an equilateral triangle, first one of them being on the x axis'/>
+			<figcaption>first two polygonal chains we use for testing: the vertices are those of an equilateral triangle, first one of them being on the <code><var>x</var></code> axis</figcaption>
 		</figure>
 		
 		<p>The other two polygonal chains use a completely random list of coordinates for their <code>points</code> attributes. This is to give us a sense of how things work outside the particular case because certain things may be valid for the particular case, but not for the general case and we shouldn't lose sight of that either.</p>
@@ -44,7 +44,7 @@
 			<figcaption>the other two polygonal chains we use for testing are completely random; the dashed lines denote the possibility of more vertices being in between those they connect</figcaption>
 		</figure>
 		
-		<p>For these elements, we've also set an <code>r</code> attribute - this is the rounding radius. It doesn't do anything at this point, but we'll soon start writing the JavaScript code which fixes that. The value is completely arbitrary, we took it to be <code>10</code> here because it's a nice round number (it's easier to multiply or divide by <code>10</code> than it is by, let's say, <code>7.8</code>) and it's also big enough relative to their sizes for the rounding it produces to be noticeable.</p>
+		<p>For all of these four test elements, we've also set an <code>r</code> attribute - this is the rounding radius. It doesn't do anything at this point, but we'll soon start writing the JavaScript code which fixes that. The value is completely arbitrary, we took it to be <code>10</code> here because it's a nice round number (it's easier to multiply or divide by <code>10</code> than it is by, let's say, <code>7.8</code>) and it's also big enough relative to their sizes for the rounding it produces to be noticeable.</p>
 		
 		<h2>vertex, edge and corner (angle) numbering</h2>
 		
@@ -68,7 +68,7 @@
 		
 		<p>This means that, compared to a <code>&lt;polygon&gt;</code>, a <code>&lt;polyline&gt;</code> with the same <code>points</code> attribute is missing the polygon's last edge (<code>n-1</code>).</p>
 		
-		<p>Now let's move on to corners (angles). These are formed by two consecutive edges meeting at a vertex. In the <code>&lt;polygon&gt;</code> case, we have a corner (angle) at each vertex - that's <code>n</code> corners (angles). In the <code>&lt;polygon&gt;</code> case however, we don't have two edges meeting at the first (<code>0</code>) and last (<code>n-1</code>) vertices - those are endpoints, we have no corners (angles) there. This makes the number of corners (angles) equal to <code>n-2</code> in this situation.</p>
+		<p>Now let's move on to corners (angles). These are formed by two consecutive edges meeting at a vertex. In the <code>&lt;polygon&gt;</code> case, we have one at each vertex - that's <code>n</code> corners (angles). In the <code>&lt;polyline&gt;</code> case however, we don't have two edges meeting at the first (<code>0</code>) and last (<code>n-1</code>) vertices - those are endpoints, we have no corners (angles) there. This makes the number of corners (angles) equal to <code>n-2</code> in this situation.</p>
 		
 		<figure>
 			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_na_min.svg' alt='if the points attribute has n pairs of coordinates, then our polygonal chain has n angles if it is closed and n-2 angles if it is open'/>
@@ -116,10 +116,13 @@ if(!isFinite(R) || R &lt;= 0) return;</pre>
 		
 		<p>Next, we extract the vertex coordinates from the <code>points</code> attribute, checking that they're at least <code>3</code> sets of coordinates, the minimum number to create a polygon (because a polygon has at least 3 vertices, in which case it's a triangle). Now we've written nice and clean <code>points</code> attributes for our test polygons and polylines, which makes them easy to split into sets of coordinates. However, differently formatted and messier versions display the exact same result, SVG is pretty forgiving here.</p>
 		
-		<p>All of the following also result in the exact same <code>&lt;polygon&gt;</code> or <code>&lt;polyline&gt;</code> (note the different comma and space placement and the fact that one even has an extra number at the end):</p>
+		<p>All of the following also result in the exact same <code>&lt;polygon&gt;</code> or <code>&lt;polyline&gt;</code> - note the different comma and space placement, that we may not have any kind of separator before a negative value, that scientific notation is allowed and that we may even have an extra unpaired coordinate at the end:</p>
 
 		<pre>'50,0 -25,-43.3 -25,43.3'
+'50,0-25,-43.3-25,43.3'
 '50 0 -25 -43.3 -25 43.3'
+'50 0-25-43.3-25,43.3'
+'50,0-25,-433e-1-25,.433e2'
 '50 0,-25 -43.3,-25 43.3'
 '50 0 -25,-43.3 -25 43.3'
 '50 0,-25 -43.3 -25,43.3'
@@ -130,13 +133,16 @@ if(!isFinite(R) || R &lt;= 0) return;</pre>
 -25,43.3' 
 '50 ,   0 -25 , -43.3        -25 , 43.3'</pre>
 
-		<p>So, after reading the value of the <code>points</code> attribute, we need to make sure we catch all these possibilities with the regular expression we use to <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split'><code>split()</code></a> the string we get and then, since all the coordinate values are still strings at this point, we convert them to numbers (note that we'll be using <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions'>arrow functions</a> and other ES6 features for our polyfill):</p>
+		<p>So, after reading the value of the <code>points</code> attribute, we need to make sure we catch all these possibilities with the regular expression we use to <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split'><code>split()</code></a> the string we get (though first we must insert a separator before negative values if we don't have one) and then, since all the coordinate values are still strings at this point, we convert them to numbers (note that we'll be using <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions'>arrow functions</a> and other ES6 features for our polyfill):</p>
 
 		<pre>let v = _poly.getAttribute('points')
+	.replace(/(\d)\-/g, `$1 -`)
 	.split(/\s*,\s*|\s+/g)
 	.map(c => +c);</pre>
 
 		<p>This makes sure we get the same array if we have the same coordinates, no matter how the <code>points</code> attribute may have been formatted, as it can be seen in <a href='https://codepen.io/thebabydino/pen/d91ca4e8bcabb2962da6e71ba253ac33?editors=1011'>this Pen</a> (we get something like <code>[x<sub>0</sub>, y<sub>0</sub>, x<sub>1</sub>, y<sub>1</sub>, ...]</code>).</p>
+		
+		<p class='note'>While our code catches all of these situations, you should always put separators even in front of negative-valued coordinates as polygonal chains won't show up in Firefox otherwise (Blink browsers and Edge seem to have no issue with this however).</p>
 
 		<p>Now we check if we have the minimum number of coordinates needed to form a polygon. If not, we exit the function.</p>
 
@@ -175,10 +181,10 @@ n = v.length;</pre>
 		
 		<figure>
 			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_collin_mid_reg_min.svg' alt='points 1, 2 and 3 are collinear; the one in the middle of these three is not a real vertex, so we can safely remove it'/>
-			<figcaption><code>1</code>, <code>2</code> and <code>3</code> are collinear; <code>2</code> isn't a real vertex, we can safely remove it</figcaption>
+			<figcaption><code>1</code>, <code>2</code> and <code>3</code> (first column) are collinear; <code>2</code> isn't a real vertex, we can safely remove it</figcaption>
 		</figure>
 		
-		<p>Points <code>1</code>, <code>2</code> and <code>3</code> are collinear. Point <code>2</code> isn't a real vertex, just a point on the segment between the previous (<code>1</code>) and the next (<code>3</code>) points. Removing it (and shifting the indices of the points that come after it) doesn't alter our shape, but reduces our code and makes our life easier.</p>
+		<p>Points <code>1</code>, <code>2</code> and <code>3</code> (first column) are collinear. Point <code>2</code> isn't a real vertex, just a point on the segment between the previous (<code>1</code>) and the next (<code>3</code>) points. Removing it (and shifting the indices of the points that come after it) doesn't alter our shape, but reduces our code and makes our life easier.</p>
 			
 		<p>If removing a vertex happens to leave us with less than <code>3</code> vertices, then we exit the function.</p>
 		
@@ -228,14 +234,16 @@ n-3, n-2, n-1
 		
 		<p>Now the <code>43.3</code> and <code>28.9</code> values are actually rounded values so that we don't have write a truckload of decimals - you have to admit, values like <code>43.301270189221932338186158537647</code> look ugly and nobody wants to write them by hand or even copy-paste them around, especially since dropping all decimals after the first doesn't visibly affect our shape. Not to mention that putting that long sausage of characters into the SVG figures showing the test triangle would have completely ruined them. However, this rounding also means that these three points will fail a <em>strict</em> collinearity check, which is why we need to leave a bit of room for error.</p>
 		
-		<p>But what exactly does the collinearity check involve? It involves checking whether the angle between the two edges formed by our three consecutive points is either really close to <code>0°</code> or really close to <code>180°</code>, where "really close" means within error limits. If our threshold error is, let's say <code>1°</code>, then we get a positive for our collinearity check when the the angle between the two edges formed by the three consecutive points is either smaller than <code>1°</code> or larger than <code>180° - 1° = 179°</code>.</p>
+		<p>But what exactly does the collinearity check involve? It involves checking whether the angle between the two edges formed by our three consecutive points is either really close to <code>0°</code> or really close to <code>180°</code>, where "really close" means within error limits. If our cutoff angle is, let's say <code>1°</code>, then we get a positive for our collinearity check when the the angle between the two edges formed by the three consecutive points is either smaller than <code>1°</code> or larger than <code>180° - 1° = 179°</code>.</p>
 		
-		<p>This means we need to compute the angles of our polygonal chain. We do this using <a href='https://en.wikipedia.org/wiki/Law_of_cosines'>the law of cosines</a>. This gives us the cosine of an angle of a triangle as a function of the edge lengths of that triangle. Given the shape of the cosine graph on the <code>[0°, 180°]</code> interval, our almost collinearity check reduces to checking that the absolute value of the cosine we get is smaller than the cosine of a cutoff error, as illustrated by the following interactive demo (drag the slider thumb):</p>
+		<p>This means we need to compute the angles of our polygonal chain. We do this using <a href='https://en.wikipedia.org/wiki/Law_of_cosines'>the law of cosines</a>. This gives us the cosine of an angle of a triangle as a function of the edge lengths of that triangle. Given the shape of the cosine graph on the <code>[0°, 180°]</code> interval, our almost collinearity check reduces to checking that the absolute value of the cosine we get is smaller than the cosine of a cutoff angle, as illustrated by the following interactive demo (drag the slider thumb):</p>
 		
 		<p data-height="500" data-theme-id="0" data-slug-hash="ygGbYG" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="cut out parts of cos graph close to ±1" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/ygGbYG/">cut out parts of cos graph close to ±1</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
 		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
 		
-		<p>What we end up doing is discard the values in the hashed area because those angles are really close to either <code>0°</code> or <code>180°</code>. This means discarding the vertices where we have angles that are less than a cutoff error away from <code>0°</code> or <code>180°</code>.</p>
+		<p>The vertical lines represent the angular boundaries beyond which the angle formed by the three points we consider is either almost <code>0°</code> or almost <code>180°</code>. The horizontal lines represent the boundaries beyond which the cosine of our angle in absolute value is greater than the threshold error, where the threshold error is the cosine of our cutoff angle.</p>
+		
+		<p>What we end up doing is discard the values in the hashed area since those angles are really close to either <code>0°</code> or <code>180°</code>. This means discarding the vertices where we have angles that are less than a cutoff angle away from <code>0°</code> or <code>180°</code> and the way we check that is by comparing the value of their cosine in absolute value to the value of the cosine of the cutoff angle (the threshold error).</p>
 		
 		<p class='note'>Note that, even though the cosine function decreases slowly at the ends of the <code>[0°, 180°]</code> interval, we don't really need a large cutoff value to catch rounding errors - a <code>.1°</code> would suffice so that we don't have issues in the case of rounded coordinates for our test triangle.</p>
 		
@@ -287,7 +295,7 @@ let d = v.slice(0, ne).map((c, i) => {
 	];
 });</pre>
 		
-		<p><a href='https://codepen.io/thebabydino/pen/bb3e7b893910133f070d9448208f9741?editors=0011'>This Pen</a> checks that the above code works as expected.</p>
+		<p><a href='https://codepen.io/thebabydino/pen/bb3e7b893910133f070d9448208f9741?editors=0011'>This Pen</a> checks that the above code works as expected - if we have three vertices, then we should have <code>3</code> sets of coordinate differences if the polygonal chain is closed and <code>2</code> sets of coordinate differences if the polygonal chain is open.</p>
 		
 		<p>Next, we need to compute the edge lengths. In order to see how we do that for the generic edge <code>i</code> (<code><var>A<sub>i</sub>A<sub>i+1</sub></var></code>), let's go back to our right triangle:</p>
 		
@@ -304,7 +312,7 @@ let d = v.slice(0, ne).map((c, i) => {
 		
 		<pre>let l = d.map(c => Math.hypot(...c));</pre>
 		
-		<p><a href='https://codepen.io/thebabydino/pen/508892035bde4fd3cf68833a850e4a1d?editors=0011'>Test</a>.</p>
+		<p><a href='https://codepen.io/thebabydino/pen/508892035bde4fd3cf68833a850e4a1d?editors=0011'>This Pen</a> checks that we get equal edge lengths for our test cases where the vertices are those of an equilateral triangle.</p>
 		
 		<p>The law of cosines states that the cosine of the angle <code><var>θ</var></code> of a triangle equals the sum of the squares of the two edges that form it (<code>a</code> and <code>b</code>) minus the square of the opposing edge (<code>c</code>), all divided by twice the product between the two adjacent edges (<code>a</code> and <code>b</code>):</p>
 		
@@ -347,9 +355,13 @@ let d = v.slice(0, ne).map((c, i) => {
 		
 		<p>Putting all of this into JS code, we have:</p>
 		
-		<pre>const CO = Math.cos(Math.PI/720);
+		<pre>const CA = .25; /* cutoff angle in degrees */
 
 function fillet(_poly) {
+	/* threshold error = cosine of cutoff angle */
+	const TE = Math.cos((_poly.hasAttribute('data-ca') ? 
+					 _poly.getAttribute('data-ca') : CA)*Math.PI/180)
+	
 	/* same code a before */
 	
 	let θ = [];
@@ -364,11 +376,13 @@ function fillet(_poly) {
 				/* cosine of current angle from law of cosines */
 				h = (l[i]*l[i] + l[j]*l[j] - c*c)/(2*l[i]*l[j]);
 		
-		/* if current cosine greater than cutoff value */
-		if(Math.abs(h) > CO) {
+		/* if current cosine greater than threshold error */
+		if(Math.abs(h) > TE) {
 			/* remove middle vertex */
 			v.splice(i, 1);
-			n--; /* update number of vertices */
+			/* update number of vertices
+			 * and exit if we're left with less than 3*/
+			if(--n &lt; 3) return;
 			
 			/* remove coord diffs related to removed vertex, 
 			 * introduce those between adjacent vertices */
@@ -381,10 +395,217 @@ function fillet(_poly) {
 			/* decrement index */
 			i = Math.max(i - 2, T - 1);
 			/* to fix previous angle */
-			θ.pop();
+			if(θ.length) θ.pop();
 		}
 		else θ.push(Math.acos(h));
 	}
 }</pre>
+		
+		<p>Since we don't want the threshold error to be set in stone, we've left the option of easily overriding the cutoff angle for each polygonal chain via a <code>data-ca</code> attribute which takes degree values.</p>
+		
+		<p>Also, every time we remove a vertex, we also discard the angle we've computed for the previous vertex if there is one (<code>if(θ.length) θ.pop()</code>) so that we recompute it and get a more accurate value. This is also why we're decrementing the index by <code>2</code> (<code>i - 2</code>), not just by <code>1</code>. Since we're doing this, we don't want to run the risk that during the next iteration, the index is less than the start index (<code>T</code>), which is why we set a lower limit of <code>T - 1</code> on the decremented index.</p>
+		
+		<p>To better understand why we recompute the previous angle if we've removed a vertex, consider the following part of a polygonal chain illustrated below:</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_rem_ini_min.svg' alt='highlighting an almost collinearity situation in a polygonal chain'/>
+			<figcaption>highlighting an almost collinearity situation in a polygonal chain</figcaption>
+		</figure>
+		
+		<p>Our collinearity check reveals that vertices <code><var>A<sub>r-1</sub></var></code>, <code><var>A<sub>r</sub></var></code> and <code><var>A<sub>r+1</sub></var></code> are almost collinear, so we can remove the one in the middle, shift vertex numbering, remove the two edges connected to the removed vertex and replace them with the segment connecting the vertices before and after.</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_rem_fin_min.svg' alt="after removing the vertex we don't need, our angles are slightly different"/>
+			<figcaption>after removing the vertex we don't need, our angles are slightly different</figcaption>
+		</figure>
+		
+		<p>All good, but note how this slighly changes the angles at two vertices before and after the removed point (pale pink before, bright pink after). We haven't yet computed the angle for the vertex after and, when we do that, we'll take into account the new polygonal chain, but we've already computed the one before and we've already added it to the <code>θ</code> array. We can recompute it, but we don't want to add it twice to the array of angles <code>θ</code>, so we pop out the last item in this array and we make the current index of the loop go back one extra step.</p>
+		
+		<p>However, there's one more case to consider. Let's say that the vertex we remove is the last one and that the polygonal chain is closed. Then, the "next" vertex is the first one and we've already computed the angle at that vertex. In fact, it was the first one we've computed - <code>θ[0]</code>. So what we need to do in order to also cover this case is to recompute the first angle (<code>θ[0]</code>) right before we make the loop index go back:</p>
+		
+		<pre>if(!T && i === ne) {
+	dx = v[i - 1][0] - v[k][0];
+	dy = v[i - 1][1] - v[k][1];
+	c = Math.hypot(dx, dy);
+	h = (l[i-1]*l[i-1] + l[0]*l[0] - c*c)/(2*l[i-1]*l[0]);
+	θ[0] = Math.acos(h);
+}</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/60719d964942f94cd6fde3c3fab4b933?editors=0011'>This Pen</a> checks that all angles are <code>60°</code> ones if the vertices of our test polygonal chain are those of an equilateral triangle, maybe with some points on this triangle's edges in between.</p>
+		
+		<p class='note'>Note that the angles in the illustrations above are exaggerated and would correspond to a way larger error margin than we really use. So we may well skip the recomputations altogether as they don't really make that big of a difference. For an almost collinearity situation like that given by rounding errors as in the example seen earlier, the increase in accuracy is of under <code>.03°</code> - in order to get an angle that small, we must divide the circle into <code>12000</code> equal parts.</p>
+		
+		<h2>recap of what we know so far</h2>
+		
+		<p>Now that we got edge cases out of the way, let's see what we have so far:</p>
+		
+		<ul>
+			<li>the rounding radius <code>r</code>, which we've extracted from the <code>r</code> attribute</li>
+			<li>the vertex coordinates (the <code>v</code> array) of the initial polygonal chain, which we've extracted from the <code>points</code> attribute</li>
+			<li>the number (<code>n</code>) of vertices</li>
+			<li>the differences between all the pairs of consecutive vertex coordinates (the <code>d</code> array)</li>
+			<li>the edge lengths (the <code>l</code> array) of our polygonal chain</li>
+			<li>the number (<code>ne</code>) of edges</li>
+			<li>the angles (the <code>θ</code> array) of our polygonal chain</li>
+		</ul>
+		
+		<h2>how rounding corners works</h2>
+		
+		<p>A polygonal chain with rounded corners is equivalent to a path made up of straight line segments (one along each proper edge of the initial polygonal chain) and arcs (one replacing each corner of the initial polygonal chain).</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_path_equiv_rand_min.svg' alt='equivalent paths for polygonal chains with rounded corners where the start and end points for each arc are marked on the figure'/>
+			<figcaption>equivalent paths for polygonal chains with rounded corners where the start and end points for each arc are marked on the figure; note how in the <code>&lt;polygon&gt;</code> case, arc <code>i</code> is at vertex <code>i</code> (and we have <code>n</code> arcs in total), while in the <code>&lt;polyline&gt;</code> case, it's at vertex <code>i+1</code> (and we only have <code>n-2</code> arcs in total, as the first and last vertices are endpoints and we don't have arcs there)</figcaption>
+		</figure>
+		
+		<p>This <code>&lt;path&gt;</code> element's data (<code>d</code>) attribute is made up of:</p>
+
+		<ul>
+			<li>a "move to" (<code>M</code>) command followed by the coordinates of the point where our path starts;
+				<ul>
+					<li>in the <code>&lt;polygon&gt;</code> case, this is the start point of the first arc (<code><var>S<sub>0</sub></var></code>), whose coordinates are <code><var>xs<sub>0</sub></var>,<var>ys<sub>0</sub></var></code> (still unknown at this point);
+					</li>
+					<li>in the <code>&lt;polyline&gt;</code> case, this is the first vertex of the initial <code>&lt;polyline&gt;</code> (<code><var>A<sub>0</sub></var></code>), whose coordinates are <code>x<sub>0</sub>,y<sub>0</sub></code> (which we already have);</li>
+				</ul>
+			</li>
+			<li>an "arc to" (<code>A</code>) command for every <code>i</code>-th arc (where <code>0 &le; i &lt; n</code> in the <code>&lt;polygon&gt;</code> case and <code>0 &le; i &lt; n-2</code> in the <code>&lt;polyline&gt;</code> case); this draws the arc between its start point (<code><var>S<sub>i</sub></var></code>) and its end point (<code><var>E<sub>i</sub></var></code>);</li>
+			<li>a "line to" (<code>L</code>) command for every <code>i</code>-th segment where <code>0 &le; i &lt; n-1</code>, followed by the coordinates point where this line segment ends;
+				<ul>
+					<li>in the <code>&lt;polygon&gt;</code> case, this is the start point of the next arc (<code><var>S<sub>i+1</sub></var></code>), whose coordinates are <code><var>xs<sub>i+1</var></sub>,<var>ys<sub>i+1</var></sub></code>; also, this line segment starts from the end point of the arc we've just drawn (<code><var>E<sub>i</sub></var></code>, of coordinates <code><var>xe<sub>i</var></sub>,<var>ye<sub>i</var></sub></code>);</li>
+					<li>in the <code>&lt;polyline&gt;</code> case, this is either the start point of the next arc (<code><var>S<sub>i+1</sub></var></code>), whose coordinates are <code><var>xs<sub>i+1</var></sub>,<var>ys<sub>i+1</var></sub></code> (still unknown at this point) or the last vertex of the initial <code>&lt;polyline&gt;</code> (<code><var>A<sub>n-1</sub></var></code>), whose coordinates are <code>x<sub>n-1</sub>,y<sub>n-1</sub></code> (which we already have); also, this line segment starts either from the first vertex of the initial <code>&lt;polyline&gt;</code> (<code><var>A<sub>0</sub></var></code>), whose coordinates are <code>x<sub>0</sub>,y<sub>0</sub></code> (which we already have) or from the end point of the arc we've just drawn (<code><var>E<sub>i</sub></var></code>), of coordinates <code><var>xe<sub>i</var></sub>,<var>ye<sub>i</var></sub></code> (still unknown at this point);</li>
+				</ul>
+			</li>
+			<li><strong>only in the <code>&lt;polygon&gt;</code> case</strong>, a "close path" (<code>z</code>) command at the end which connects the end point of the last arc (<code><var>E<sub>n-1</sub></var></code> of coordinates <code><var>xe<sub>n-1</sub></var>,<var>ye<sub>n-1</sub></var></code>) to the start point of our path (also the start point of the first arc <code><var>S<sub>0</sub></var></code>);</li>
+		</ul>
+		
+		<h2>the "arc to" (<code>A</code>) command</h2>
+		
+		<p>Let's take a closer look at the components of an "arc to" command. We have the following:</p>
+
+		<ul>
+			<li>the radius of this arc along the <code><var>x</var></code> axis of its system of coordinates - this is equal to the rounding radius <code>r</code></li>
+			<li>the radius of this arc along the <code><var>y</var></code> axis of its system of coordinates - this is also equal to the rounding radius <code>r</code></li>
+			<li>the rotation of its system of coordinates - this doesn't matter in our case since the radii along the two 2D dimensions (<code>x</code> and <code>y</code>) are equal, so we take it to be <code>0</code> to keep things as simple as possible</li>
+			<li>the large arc flag - this is <code>0</code> in our case since we always take the small arc at a vertex (the one inside the small angle, the one under <code>180°</code></li>
+			<li>the sweep flag <code><var>f<sub>i</sub></var></code> - this is <code>1</code> if the arc goes clockwise between its start and its end point and <code>0</code> otherwise; it's something we need to compute for each arc</li>
+			<li>the <code><var>x</var></code> coordinate of the arc's end point - this is <code><var>xe<sub>i</sub></var></code> for the generic <code>i</code>-th arc</li>
+			<li>the <code><var>y</var></code> coordinate of the arc's end point - this is <code><var>ye<sub>i</sub></var></code> for the generic <code>i</code>-th arc</li>
+		</ul>
+		
+		<h2>path data structure</h2>
+		
+		<p>Knowing all this, our path data is going to look something like this <code>&lt;polygon&gt;</code> case:</p>
+
+		<pre>M <var>xs<sub>0</sub></var>, <var>ys<sub>0</sub></var>
+A r, r, 0, 0, <var>f<sub>0</sub></var>, <var>xe<sub>0</sub></var>, <var>ye<sub>0</sub></var>
+L <var>xs<sub>1</sub></var>, <var>ys<sub>1</sub></var>
+A r, r, 0, 0, <var>f<sub>1</sub></var>, <var>xe<sub>1</sub></var>, <var>ye<sub>1</sub></var>
+...
+L <var>xs<sub>i</sub></var>, <var>ys<sub>i</sub></var>
+A r, r, 0, 0, <var>f<sub>i</sub></var>, <var>xe<sub>i</sub></var>, <var>ye<sub>i</sub></var>
+...
+L <var>xs<sub>n-2</sub></var>, <var>ys<sub>n-2</sub></var>
+A r, r, 0, 0, <var>f<sub>n-2</sub></var>, <var>xe<sub>n-2</sub></var>, <var>ye<sub>n-2</sub></var>
+L <var>xs<sub>n-1</sub></var>, <var>ys<sub>n-1</sub></var>
+A r, r, 0, 0, <var>f<sub>n-1</sub></var>, <var>xe<sub>n-1</sub></var>, <var>ye<sub>n-1</sub></var>
+z</pre>
+		
+		<p>In the <code>&lt;polyline&gt;</code> case, things look a bit different:</p>
+		
+		<pre>M x<sub>0</sub>, y<sub>0</sub>
+L <var>xs<sub>0</sub></var>, <var>ys<sub>0</sub></var>
+A r, r, 0, 0, <var>f<sub>0</sub></var>, <var>xe<sub>0</sub></var>, <var>ye<sub>0</sub></var>
+L <var>xs<sub>1</sub></var>, <var>ys<sub>1</sub></var>
+A r, r, 0, 0, <var>f<sub>1</sub></var>, <var>xe<sub>1</sub></var>, <var>ye<sub>1</sub></var>
+...
+L <var>xs<sub>i</sub></var>, <var>ys<sub>i</sub></var>
+A r, r, 0, 0, <var>f<sub>i</sub></var>, <var>xe<sub>i</sub></var>, <var>ye<sub>i</sub></var>
+...
+L <var>xs<sub>n-3</sub></var>, <var>ys<sub>n-3</sub></var>
+A r, r, 0, 0, <var>f<sub>n-3</sub></var>, <var>xe<sub>n-3</sub></var>, <var>ye<sub>n-3</sub></var>
+L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
+		
+		<p>However, in the end, we still need to get the same three things for each arc <code>i</code>, whether the number of arcs is <code>n</code> (closed polygonal chain) or <code>n-2</code> (open polygonal chain):</p>
+		
+		<ul>
+			<li>whether it goes clockwise or not, which determines the value (<code>1</code> or <code>0</code>) for its sweep flag <code><var>f<sub>i</sub></var></code></li>
+			<li>the coordinates <code><var>xs<sub>i</sub></var>,<var>ys<sub>i</sub></var></code> of its start point <code><var>S<sub>i</sub></var></code></li>
+			<li>the coordinates <code><var>xe<sub>i</sub></var>,<var>ye<sub>i</sub></var></code> of its end point <code><var>E<sub>i</sub></var></code></li>
+		</ul>
+		
+		<h2>getting the sweep flags</h2>
+		
+		<p>For every arc, the value of its sweep flag <code><var>f</var></code> is determined by whether the arc goes clockwise (in which case it's <code>1</code>) or not (in which case it's <code>0</code>).</p>
+		
+		<p>We can get the direction of the arc replacing vertex <code>i</code> by <a href='https://en.wikipedia.org/wiki/Curve_orientation#Orientation_of_a_simple_polygon'>computing the following sum</a>:</p>
+		
+		<pre>(x<sub>i  </sub> - x<sub>i-1</sub>)·(y<sub>i+1</sub> - y<sub>i  </sub>) - 
+(x<sub>i+1</sub> - x<sub>i  </sub>)·(y<sub>i  </sub> - y<sub>i-1</sub>)</pre>
+		
+		<p>But these are the same coordinate differences we've already computed earlier, so our sum becomes:</p>
+		
+		<pre>dx<sub>i-1</sub>dy<sub>i</sub> - dx<sub>i</sub>dy<sub>i-1</sub></pre>
+		
+		<p>If this sum is positive, then the arc goes in the clockwise direction and the sweep flag for the arc we replace vertex <code>i</code> with is <code>1</code>. If it's negative, then the arc goes counterclockwise and the sweep flag is <code>0</code>. But what if it's exactly <code>0</code>? Well, that cannot happen. Half the absolute value of this sum happens to be exactly the area of the triangle formed by the <code>i-1</code>, <code>i</code> and <code>i+1</code> points, which is zero only when these three points are collinear and we've already excluded that situation.</p>
+
+		<p>If the sum is positive, then the sign of the sum is <code>+</code> (the value of the <a href='https://en.wikipedia.org/wiki/Sign_function'>sign function</a> is <code>1</code>) and the corresponding sweep flag is <code>1</code>. If the sum is negative, then the sign of the sum is <code>-</code> (the value of the sign function is <code>-1</code>) and corresponding sweep flag is <code>0</code>.</p>
+				
+		<p>This helps us extract a formula for the sweep flag of the arc replacing the corner at vertex <code>i</code>:</p>
+
+		<pre>.5*(sgn(dx<sub>i-1</sub>dy<sub>i</sub> - dx<sub>i</sub>dy<sub>i-1</sub>) + 1)</pre>
+		
+		<p>We can check that this works for both a positive sum (<code>.5*(1 + 1) = .5*2 = 1</code>) as well as for a negative one (<code>.5*(-1 + 1) = .5*0 = 0</code>).</p>
+		
+		<p>A very important thing to keep in mind is that that arc <code>i</code> replaces vertex <code>i</code> only for a closed polygonal chain. For an open one, it replaces vertex <code>i+1</code>. This is because the array of sweep flags (like all other variables that define an arc, such as the coordinates of its endpoints) is corner-related - we have a sweep flag for each arc, but we have no arcs at the vertices where we don't have corners (the endpoints of a <code>&lt;polyline&gt;</code>).</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_sweep_f_arc_min.svg' alt='the rounding arcs highlighted for the two random polygonal chains: closed (left) vs. open (right)'/>
+			<figcaption>the rounding arcs highlighted for the two random polygonal chains: closed (left) vs. open (right)</figcaption>
+		</figure>
+		
+		<p>This means that, in the <code>&lt;polygon&gt;</code> case, the value of the sweep flag <code><var>f<sub>i</sub></var></code> depends on the coordinate differences <code>d<sub>i</sub></code> (between vertex <code>i+1</code> and vertex <code>i</code>) and <code>d<sub>i-1</sub></code> (between vertex <code>i</code> and vertex <code>i-1</code>):</p>
+		
+		<pre><var>f<sub>i</sub></var> = fn(d<sub>i</sub>, d<sub>i-1</sub>)</pre>
+		
+		<p>However, in the <code>&lt;polyline&gt;</code> case, the value of the sweep flag <code><var>f<sub>i</sub></var></code> depends on the coordinate differences <code>d<sub>i+1</sub></code> (between vertex <code>i+2</code> and vertex <code>i+1</code>) and <code>d<sub>i</sub></code> (between vertex <code>i+1</code> and vertex <code>i</code>):</p>
+		
+		<pre><var>f<sub>i</sub></var> = fn(d<sub>i+1</sub>, d<sub>i</sub>)</pre>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_sweep_f_diagr_min.svg' alt='diagram showing how getting sweep flags from vertex coordinates works in the two cases: polygon vs. polyline'/>
+			<figcaption>diagram showing how getting sweep flags from vertex coordinates works in the two cases: <code>&lt;polygon&gt;</code> (top) vs. <code>&lt;polyline&gt;</code> (bottom)</figcaption>
+		</figure>
+		
+		<p>If <code>T</code> is the type of polygonal chain (<code>0</code> when closed vs. <code>1</code> when open), then the two can be unified:</p>
+		
+		<pre><var>f<sub>i</sub></var> = fn(d<sub>i+T</sub>, d<sub>i-1+T</sub>)</pre>
+		
+		<p>In the <code>&lt;polygon&gt;</code> case, both the index of the current arc and of the coordinate differences corresponding to the edge after the vertex the arc replaces (edge <code>i</code>) go from <code>0</code> all the way through <code>n-1</code> (<code>0 &le; i &lt; n</code>). But in the <code>&lt;polyline&gt;</code> case, the index of the current arc goes from <code>0</code> through <code>n-3</code> (<code>0 &le; i &lt; n-2</code>), while that of the coordinate differences corresponding to the edge after the vertex the arc replaces (edge <code>i+1</code>) goes from <code>1</code> through <code>n-2</code> (<code>1 &le; i &lt; n-1</code>).</p>
+		
+		<p>In the unified case, the index of the current arc goes from <code>0</code> through <code>n-1-2*T</code> (<code>0 &le; i &lt; n-2*T</code>), while that of the edge after the vertex the current arc replaces goes from <code>T</code> through <code>n-1-T</code> (<code>T &le; i &lt; n-T</code>).</p>
+		
+		<p>Now let's code this! What we do here is <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map'><code>map()</code></a> the 2D array of coordinate differences to a 1D array of flags:</p>
+		
+		<pre>let f = d.slice(T).map((c, i) => {
+	/* coord diffs corresp to previous edge */
+	let prv = d[(i + ne - 1 + T)%ne];
+
+	return .5*(Math.sign(prv[0]*c[1] - c[0]*prv[1]) + 1);
+});</pre>
+		
+		<p><a href='https://codepen.io/thebabydino/pen/d71cfc5580d99d1ccbbd67fcf47ee7ae?editors=0011'>This Pen</a> checks that the above bit of JavaScript works as it should.</p>
+		
+		<h2>getting the start and end points of the arcs</h2>
+		
+		<h3>getting coordinates for random point in the plane</h3>
+		
+		<p>Let's take a random point <code><var>P</var></code>, whose coordinates <code><var>xp</var>,<var>yp</var></code> we need to compute. We can consider this point to be on a circle of radius <code>r</code>. Its <code><var>xp</var>,<var>yp</var></code> coordinates depend on the radius of the circle and on where it is on the circle. The measure of where it is on the circle is the angle <code>θ</code> between the radial line <code><var>OP</var></code> and the horizontal (the <code><var>Ox</var></code> axis). The following interactive demo illustrates this (drag point <code><var>P</var></code> to see how its coordinates change as the circle radius and the angle of the radial line change):</p>
+		
+		<p data-height="620" data-theme-id="0" data-slug-hash="KNxXZJ" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="position of point in a plane (drag point)" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/KNxXZJ/">position of point in a plane (drag point)</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+		
+		<p>Consider the following particular case:</p>
+
+		
 	</body>
 </html>
