@@ -316,7 +316,7 @@ let d = v.slice(0, ne).map((c, i) => {
 		
 		<p>The law of cosines states that the cosine of the angle <code><var>θ</var></code> of a triangle equals the sum of the squares of the two edges that form it (<code>a</code> and <code>b</code>) minus the square of the opposing edge (<code>c</code>), all divided by twice the product between the two adjacent edges (<code>a</code> and <code>b</code>):</p>
 		
-		<pre>cos(<var>θ</var>) = (a<sup>2</sup> + b<sup>2</sup> - <var>c<sup>2</sup></var>)/(2*a*b)</pre>
+		<pre>cos(<var>θ</var>) = (a<sup>2</sup> + b<sup>2</sup> - <var>c<sup>2</sup></var>)/(2·a·b)</pre>
 		
 		<p>We already know <code>a</code> and <code>b</code> - they're the two polygonal edges that form the angle we want to get. In the <code>&lt;polygon&gt;</code> case, the two edges forming angle <code>i</code> are <code><var>A<sub>i-1</sub>A<sub>i</sub></var></code> (<code>i-1</code>) and <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> (<code>i</code>). In the <code>&lt;polyline&gt;</code> case, the two edges forming angle <code>i</code> are <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> (<code>i</code>) and <code><var>A<sub>i+1</sub>A<sub>i+2</sub></var></code> (<code>i+1</code>).</p>
 		
@@ -544,7 +544,7 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		
 		<p>But these are the same coordinate differences we've already computed earlier, so our sum becomes:</p>
 		
-		<pre>dx<sub>i-1</sub>dy<sub>i</sub> - dx<sub>i</sub>dy<sub>i-1</sub></pre>
+		<pre>dx<sub>i-1</sub>·dy<sub>i</sub> - dx<sub>i</sub>·dy<sub>i-1</sub></pre>
 		
 		<p>If this sum is positive, then the arc goes in the clockwise direction and the sweep flag for the arc we replace vertex <code>i</code> with is <code>1</code>. If it's negative, then the arc goes counterclockwise and the sweep flag is <code>0</code>. But what if it's exactly <code>0</code>? Well, that cannot happen. Half the absolute value of this sum happens to be exactly the area of the triangle formed by the <code>i-1</code>, <code>i</code> and <code>i+1</code> points, which is zero only when these three points are collinear and we've already excluded that situation.</p>
 
@@ -552,9 +552,9 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 				
 		<p>This helps us extract a formula for the sweep flag of the arc replacing the corner at vertex <code>i</code>:</p>
 
-		<pre>.5*(sgn(dx<sub>i-1</sub>dy<sub>i</sub> - dx<sub>i</sub>dy<sub>i-1</sub>) + 1)</pre>
+		<pre>.5*(sgn(dx<sub>i-1</sub>·dy<sub>i</sub> - dx<sub>i</sub>·dy<sub>i-1</sub>) + 1)</pre>
 		
-		<p>We can check that this works for both a positive sum (<code>.5*(1 + 1) = .5*2 = 1</code>) as well as for a negative one (<code>.5*(-1 + 1) = .5*0 = 0</code>).</p>
+		<p>We can check that this works for both a positive sum (<code>.5·(1 + 1) = .5·2 = 1</code>) as well as for a negative one (<code>.5·(-1 + 1) = .5·0 = 0</code>).</p>
 		
 		<p>A very important thing to keep in mind is that that arc <code>i</code> replaces vertex <code>i</code> only for a closed polygonal chain. For an open one, it replaces vertex <code>i+1</code>. This is because the array of sweep flags (like all other variables that define an arc, such as the coordinates of its endpoints) is corner-related - we have a sweep flag for each arc, but we have no arcs at the vertices where we don't have corners (the endpoints of a <code>&lt;polyline&gt;</code>).</p>
 		
@@ -606,6 +606,56 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		
 		<p>Consider the following particular case:</p>
 
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_pt_coord_pcase_min.svg' alt='particular case of a point in a plane'/>
+			<figcaption>particular case of a point in a plane</figcaption>
+		</figure>
+
+		<p>The <code><var>Q</var></code> and <code><var>R</var></code> points are the projections of our point <code><var>P</var></code> onto the axes of our system of coordinates. This means that <code><var>PQ</var></code> and <code><var>PR</var></code> are perpendicular onto the axes (the <code>∠<var>PQO</var></code> and <code>∠<var>PRO</var></code> angles are <code>90°</code> angles). It also means that the <code><var>OQ</var></code> and <code><var>PR</var></code> segments are equal to <code><var>xp</var></code> (which is the value of <code><var>P</var></code>'s <code><var>x</var></code> coordinate) and that the <code><var>OR</var></code> and <code><var>PQ</var></code> segments are equal to <code><var>yp</var></code> (which is the value of <code><var>P</var></code>'s <code><var>y</var></code> coordinate).</p>
+
+		<p><code><var>PQO</var></code> is a right triangle (since the <code>∠<var>PQO</var></code> angle is a <code>90°</code> angle) where we know the hypotenuse <code><var>OP</var></code> (it's <code>r</code>, the radius of the circle our point <code><var>P</var></code> is on) and the <code>∠<var>QOP</var></code> angle (it's <code>θ</code>).</p>
+
+		<p>The cosine of the <code>∠<var>QOP</var></code> angle (<code>θ</code>) is the ratio between the adjacent <a href='https://en.wikipedia.org/wiki/Cathetus'>cathetus</a> <code><var>OQ</var></code> (<code><var>xp</var></code>) and the hypotenuse <code><var>OP</var></code> (<code>r</code>). This means we have <code>cos(θ) = <var>xp</var>/r</code> and, from here, we get that <code><var>xp</var> = r·cos(θ)</code>.</p>
+
+		<p>Similarly, the sine of the same <code>∠<var>QOP</var></code> angle (<code>θ</code>) is the ratio between the opposing cathetus <code><var>PQ</var></code> (<code><var>yp</var></code>) and the hypotenuse <code><var>OP</var></code> (<code>r</code>). This means we have <code>sin(θ) = <var>yp</var>/r</code> and, from here, we get that <code><var>yp</var> = r·sin(θ)</code>.</p>
+
+		<p>So the <code><var>xp</var>,<var>yp</var></code> coordinates of any point <code><var>P</var></code> on a circle around the origin are:</p>
+
+		<pre><var>xp</var> = r·cos(θ)
+<var>yp</var> = r·sin(θ)</pre>
+
+		<p>Here, <code>r</code> is the radius of the circle and <code>θ</code> is the angle of the radial line connecting the origin to our point <code><var>P</var></code> with respect to the horizontal (both are known).</p>
 		
+		<p>But what about the case when this circle's central point doesn't coincide with the <code>0,0</code> point of the coordinate system? Well, in this case, we need to add up the coordinates of the circle's central point:</p>
+
+		<pre><var>xp</var> = xo + r·cos(θ)
+<var>yp</var> = yo + r·sin(θ)</pre>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_pt_coord_pcase_off_min.svg' alt='particular case of a point in a plane when the central point of the circle it is on is not at the (0,0) point of the coordinate system'/>
+			<figcaption>particular case of a point in a plane when the central point of the circle it's on is not at the <code>0,0</code> point of the coordinate system</figcaption>
+		</figure>
+		
+		<p>This is the situation we're actually interested in because what we do here is take the start and end points of our arcs as being on circles whose central points are the corner points of our initial polygonal chain.</p>
+		
+		<p>Let's consider first the start points:</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_s_pts_on_circ_base_min.svg' alt='start points of arcs relative to vertices of initial polygonal chain'/>
+			<figcaption>start points of arcs relative to vertices of initial polygonal chain</figcaption>
+		</figure>
+
+		<p>So for arc <code>i</code>, the coordinates of its start points can be computed from the <code>x<sub>i+T</sub>,y<sub>i+T</sub></code> coordinates of the the polygonal chain vertex that's being replaced by this arc <code><var>A<sub>i+T</sub></var></code> (<code><var>A<sub>i</sub></var></code> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <code><var>A<sub>i+1</sub></var></code> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>), the radius <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> (<code><var>A<sub>i</sub>S<sub>i</sub></var></code> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <code><var>A<sub>i+1</sub>S<sub>i</sub></var></code> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>) of this circle and the angle of the radial segment <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> with respect to the horizontal. We already know all vertex coordinates, so what we still need to get are the <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> radii and the angles between the horizontal and these radial lines.</p>
+		
+		<h3>angles of radial segments with respect to the horizontal</h3>
+		
+		<p>If we also draw the angles on the previous figure, it looks like this:</p>
+		
+		<figure>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_01_a_fillet_s_pts_on_circ_meas_min.svg' alt='angles of radial segments with respect to the horizontal'/>
+			<figcaption>angles of radial segments <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> with respect to the horizontal</figcaption>
+		</figure>
+				
+		<p>Since the <code><var>S<sub>i</sub></var></code> points are on the <code><var>A<sub>i+T</sub>A<sub>i-1+T</sub></var></code> segments, the angles of the <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> radii with respect to the horizontal are the angles between the horizontal and these <code><var>A<sub>i+T</sub>A<sub>i-1+T</sub></var></code> segments (which are edges of our initial polygonal chain). This means that the array of <code><var>β</var></code> angles we need to get is an edge-related variable - we compute one angle for each edge of the polygonal chain, so we have one less angle computation to do in the <code>&lt;polyline&gt;</code> case (because we have one less edge in this situation).</p>
 	</body>
 </html>
