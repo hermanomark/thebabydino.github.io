@@ -452,7 +452,7 @@ function fillet(_poly) {
 		<p>A polygonal chain with rounded corners is equivalent to a path made up of straight line segments (one along each proper edge of the initial polygonal chain) and arcs (one replacing each corner of the initial polygonal chain).</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_path_equiv_rand_min.svg' alt='equivalent paths for polygonal chains with rounded corners where the start and end points for each arc are marked on the figure'/>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_path_equiv_rnd_min.svg' alt='equivalent paths for polygonal chains with rounded corners where the start and end points for each arc are marked on the figure'/>
 			<figcaption>equivalent paths for polygonal chains with rounded corners where the start and end points for each arc are marked on the figure; note how in the <code>&lt;polygon&gt;</code> case, arc <code>i</code> is at vertex <code>i</code> (and we have <code>n</code> arcs in total), while in the <code>&lt;polyline&gt;</code> case, it's at vertex <code>i+1</code> (and we only have <code>n-2</code> arcs in total, as the first and last vertices are endpoints and we don't have arcs there)</figcaption>
 		</figure>
 		
@@ -557,7 +557,7 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		<p>A very important thing to keep in mind is that that arc <code>i</code> replaces vertex <code>i</code> only for a closed polygonal chain. For an open one, it replaces vertex <code>i+1</code>. This is because the array of sweep flags (like all other variables that define an arc, such as the coordinates of its endpoints) is corner-related - we have a sweep flag for each arc, but we have no arcs at the vertices where we don't have corners (the endpoints of a <code>&lt;polyline&gt;</code>).</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_sweep_f_arc_min.svg' alt='the rounding arcs highlighted for the two random polygonal chains: closed (left) vs. open (right)'/>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_sweep_f_arc_min.svg' alt='the rounding arcs highlighted for the two random polygonal chains: closed (left) vs. open (right)'/>
 			<figcaption>the rounding arcs highlighted for the two random polygonal chains: closed (left) vs. open (right)</figcaption>
 		</figure>
 		
@@ -570,7 +570,7 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		<pre><var>f<sub>i</sub></var> = fn(d<sub>i+1</sub>, d<sub>i</sub>)</pre>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_02_a_svgrr_sweep_f_diagr_min.svg' alt='diagram showing how getting sweep flags from vertex coordinates works in the two cases: polygon vs. polyline'/>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_sweep_f_diagr_min.svg' alt='diagram showing how getting sweep flags from vertex coordinates works in the two cases: polygon vs. polyline'/>
 			<figcaption>diagram showing how getting sweep flags from vertex coordinates works in the two cases: <code>&lt;polygon&gt;</code> (top) vs. <code>&lt;polyline&gt;</code> (bottom)</figcaption>
 		</figure>
 		
@@ -661,37 +661,37 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		<h3>segments connecting replaced vertices to start and end points of corresponding arcs</h3>
 		
 		<p>Every one of our rounding arcs is a part (less than half) of a circle of radius <code>R</code>. This is the rounding radius, which is known, we've read it from the <code>r</code> attribute on our <code>&lt;polygon&gt;</code> or <code>&lt;polyline&gt;</code> element.</p>
-
-		<p><b>NEXT PART UNDER CONSTRUCTION</b></p>
 		
 		<figure>
-			<img src='' alt='each rounding arc is a part of a circle of radius R' />
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_arc_circ_min.svg' alt='each rounding arc is a part of a circle of radius R' />
 			<figcaption>each rounding arc is a part of a circle of radius <code>R</code></figcaption>
 		</figure>
 		
 		<p>The start and end points of an arc are the points where the two consecutive edges of our initial polygon that form the angle we want to replace with this arc <em>touch</em> the circle of radius <code>R</code> (placed inside the angle) that the rounding arc belongs to. This means that these edges are <a href='https://en.wikipedia.org/wiki/Tangent_lines_to_circles'>tangent</a> to this circle at the start and end point of the arc. A radial segment to the point where a tangent line touches the circle is perpendicular onto that tangent line.</p>
 
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_arc_tan_min.svg' alt='' />
-			<figcaption>at the <code>i</code>-th vertex of the initial polygon: the edges meeting there are tangent to the arc that replaces it</figcaption>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_arc_tan_min.svg' alt='the edges meeting at the vertex replaced by arc i (which is vertex i if the polygonal chain is closed and vertex i+1 if the polygonal chain is open) are tangent to the circle this arc is a part of' />
+			<figcaption>the edges meeting at the vertex replaced by arc <code>i</code> (which is vertex <code>i</code> if the polygonal chain is closed and vertex <code>i+1</code> if the polygonal chain is open) are tangent to the circle this arc is a part of</figcaption>
 		</figure>
 		
-		<p>This means that the <code><var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code> triangles are right triangles. Furthermore, they have the same hypotenuse (<code><var>A<sub>i</sub>O<sub>i</sub></var></code>) and their <code><var>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>O<sub>i</sub>E<sub>i</sub></var></code> catheti are equal (as they're both radial segments - <code>r</code>). This makes these two right triangles <a href='https://en.wikipedia.org/wiki/Congruence_(geometry)#Congruence_of_triangles'>congruent</a>, meaning that their <code><var>A<sub>i</sub>S<sub>i</sub></var></code> and <code><var>A<sub>i</sub>E<sub>i</sub></var></code> edges are also equal and that the acute angles <code>∠<var>O<sub>i</sub>A<sub>i</sub>S<sub>i</sub></var></code> and <code>∠<var>O<sub>i</sub>A<sub>i</sub>E<sub>i</sub></var></code> are equal.</p>
+		<p>This means that the <code><var>A<sub>i+T</sub>O<sub>i</sub>S<sub>i</sub></var></code> (<code><var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code> in the <code>&lt;polygon&gt;</code> case and <code><var>A<sub>i+1</sub>O<sub>i</sub>S<sub>i</sub></var></code> in the <code>&lt;polyline&gt;</code> case) and <code><var>A<sub>i+T</sub>O<sub>i</sub>E<sub>i</sub></var></code> (<code><var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code> in the <code>&lt;polygon&gt;</code> case and <code><var>A<sub>i+1</sub>O<sub>i</sub>E<sub>i</sub></var></code> in the <code>&lt;polyline&gt;</code> case) triangles are right triangles.</p>
+		
+		<p>Furthermore, they have the same hypotenuse <code><var>A<sub>i+T</sub>O<sub>i</sub></var></code> and their <code><var>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>O<sub>i</sub>E<sub>i</sub></var></code> catheti are equal (as they're both radial segments - <code>R</code>). This makes our two right triangles <a href='https://en.wikipedia.org/wiki/Congruence_(geometry)#Congruence_of_triangles'>congruent</a>, meaning that their <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> and <code><var>A<sub>i+T</sub>E<sub>i</sub></var></code> edges are also equal and that the acute angles <code>∠<var>O<sub>i</sub>A<sub>i+T</sub>S<sub>i</sub></var></code> and <code>∠<var>O<sub>i</sub>A<sub>i+T</sub>E<sub>i</sub></var></code> are equal.</p>
 
 		<figure>
-			<img alt='' src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/2016_12_a_rpoly_right_tri_congruent.svg' />
-			<figcaption>at the <code>i</code>-th vertex of the initial polygon: the <code><var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code> triangles are congruent right triangles with a common hypotenuse</figcaption>
+			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_arc_tri_min.svg' alt='at the vertex replaced by arc i we have two congruent right triangles with a common hypotenuse'/>
+			<figcaption>the vertex replaced by arc <code>i</code>: the <code><var>A<sub>i+T</sub>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>A<sub>i+T</sub>O<sub>i</sub>E<sub>i</sub></var></code> triangles are congruent right triangles with a common hypotenuse</figcaption>
 		</figure>
 		
 		<p>This is really useful.</p>
 
-		<p>First of all, it means that the <code><var>A<sub>i</sub>O<sub>i</sub></var></code> line is the <a href='https://en.wikipedia.org/wiki/Bisection#Angle_bisector'>angle bisector</a> of the <code>∠<var>A<sub>i-1</sub>A<sub>i</sub>A<sub>i+1</sub></var></code> angle, which we have already computed. Consequently, we can easily get the <code>∠<var>O<sub>i</sub>A<sub>i</sub>S<sub>i</sub></var></code> and <code>∠<var>O<sub>i</sub>A<sub>i</sub>E<sub>i</sub></var></code> angles - they're half the already computed <code>∠<var>A<sub>i-1</sub>A<sub>i</sub>A<sub>i+1</sub></var></code>.</p>
+		<p>First of all, it means that the <code><var>A<sub>i+T</sub>O<sub>i</sub></var></code> line (<code><var>A<sub>i</sub>O<sub>i</sub></var></code> if the polygonal chain is closed and <code><var>A<sub>i+1</sub>O<sub>i</sub></var></code> if the polygonal chain is open) is the <a href='https://en.wikipedia.org/wiki/Bisection#Angle_bisector'>angle bisector</a> of the <code>∠<var>A<sub>i-1+T</sub>A<sub>i+T</sub>A<sub>i+1+T</sub></var></code> angle, which we have already computed, it's <code>θ<sub>i</sub></code>. Consequently, we can easily get the <code>∠<var>O<sub>i</sub>A<sub>i+T</sub>S<sub>i</sub></var></code> and <code>∠<var>O<sub>i</sub>A<sub>i+T</sub>E<sub>i</sub></var></code> angles - they're half of the already computed <code>∠<var>A<sub>i-1+T</sub>A<sub>i+T</sub>A<sub>i+1+T</sub></var></code>, which makes each one of them <code>θ<sub>i</sub>/2</code>.</p>
 		
-		<p>It also means that we need to compute <code><var>A<sub>i</sub>S<sub>i</sub></var></code>. <code><var>A<sub>i</sub>E<sub>i</sub></var></code> has the exact same length, which we denote by <code><var>ρ<sub>i</sub></var></code>. We can compute this from the right triangle <code><var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code>. The tangent of the <code>∠<var>O<sub>i</sub>A<sub>i</sub>S<sub>i</sub></var></code> angle (<code>θ<sub>i</sub>/2</code>) is the opposing cathetus <code><var>O<sub>i</sub>S<sub>i</sub></var></code> (<code>R</code>) over the adjacent one <code><var>A<sub>i</sub>S<sub>i</sub></var></code> (<code><var>ρ<sub>i</sub></var></code>):</p>
+		<p>It also means that we need to compute <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code>. <code><var>A<sub>i+T</sub>E<sub>i</sub></var></code> has the exact same length, which we denote by <code><var>ρ<sub>i</sub></var></code>. We can compute this from the right triangle <code><var>A<sub>i+T</sub>O<sub>i</sub>S<sub>i</sub></var></code>. The tangent of the <code>∠<var>O<sub>i</sub>A<sub>i+T</sub>S<sub>i</sub></var></code> angle (<code>θ<sub>i</sub>/2</code>) is the opposing cathetus <code><var>O<sub>i</sub>S<sub>i</sub></var></code> (<code>R</code>) over the adjacent one <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> (<code><var>ρ<sub>i</sub></var></code>):</p>
 		
 		<pre>tan(θ<sub>i</sub>/2) = R/<var>ρ<sub>i</sub></var></pre>
 		
-		<p>This gives us the radial segment <code><var>A<sub>i</sub>S<sub>i</sub></var></code>:</p>
+		<p>This gives us the radial segment <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code>:</p>
 		
 		<pre><var>ρ<sub>i</sub></var> = R/tan(θ<sub>i</sub>/2)</pre>
 		
@@ -699,11 +699,11 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		
 		<pre>let ρ = θ.map(c => R/Math.tan(.5*c))</pre>
 		
-		<p><a href=''>Test</a>.</p>
+		<p><a href='https://codepen.io/thebabydino/pen/418d9601fd610e1a73312ad3150fe95a?editors=0011'>Test</a>.</p>
 		
 		<h3>angles of radial segments with respect to the horizontal</h3>
 		
-		<p>If we also draw the angles on the previous figure, it looks like this:</p>
+		
 		
 		<figure>
 			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_s_pts_on_circ_meas_min.svg' alt='angles of radial segments with respect to the horizontal'/>
