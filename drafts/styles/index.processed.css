@@ -9,16 +9,11 @@ body {
 	font: 22px/1.45 lato, lucida grande, lucida sans unicode, tahoma, sans-serif;
 }
 
-figure, pre, code {
-	background: hsl(var(--hs), calc(var(--l) - 7%));
-}
-
 figure, pre {
 	padding: .5em;
 	tab-size: 4;
+	background: #f3f3f3;
 }
-
-code { font: 1em monospace; }
 
 pre { font: 1em consolas, monaco, monospace }
 
@@ -29,8 +24,10 @@ img { background: #fff; }
 code {
 	display: inline-block;
 	padding: 2px 4px;
+	font: 1em monospace;
 	font-weight: inherit;
 	white-space: nowrap;
+	background: hsl(var(--hs), calc(var(--l) - 7%));
 }
 
 .note {
