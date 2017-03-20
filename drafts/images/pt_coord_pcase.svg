@@ -1,0 +1,47 @@
+<svg xmlns='http://www.w3.org/2000/svg' 
+		 xmlns:xlink='http://www.w3.org/1999/xlink' 
+		 viewBox='-60 -10 200 100'>
+	<style>
+		svg { font: italic 5px tahoma, arial }
+		tspan, #x, #y, [d] ~ text { font-family: consolas, monospace }
+		[x='-15'] *, [d] + * { font-style: normal }
+		[d], [r] { stroke-width: .5px }
+		svg, [x] + g { fill: #bbc }
+		[d], [r='80'] { fill: none }
+		[d] { stroke: #bbc }
+		[d*=A] { stroke: #ef3491 } /* arc */
+		[d*='L69'] { stroke: #ef9134 } /* radial line */
+		[d*='L69'] + *, g { fill: #804000 } /* radial line text */
+	</style>
+	<path d='M20 0A20 20 0 0 1 17.3 10'/><!--arc-->
+	<text x='9' y='4' fill='#800040'>φ</text><!-- angle label -->
+
+	<g>
+		<text x='-15' y='-2'>O<tspan>(0,0)</tspan></text><!-- origin label -->
+		<path d='M0 85V0H85'/><!-- axes -->	
+		<path d='M0 40H69.3V0' stroke-dasharray='1px'/><!-- guides -->
+		<use xlink:href='#x' y='46'/><!-- secondary x projection label -->
+		<use xlink:href='#y' x='77'/><!-- secondary y projection label -->
+		<text x='87'>x</text><!-- x axis label -->
+		<text y='89'>y</text><!-- y axis label -->
+	</g>
+
+	<circle r='80' stroke='#eec7a0'/><!-- circle -->
+
+	<path d='M0 0L69.3 40'/><!-- radial line -->
+	<text x='32' y='23'>r</text>
+
+	<circle id='p' r='1'/><!-- basic point @ origin -->
+
+	<g>
+		<use xlink:href='#p' x='69.3'/><!-- x proj point -->
+		<text x='68' y='-2'>Q</text><!-- x proj label -->
+		<use xlink:href='#p' y='40'/><!-- y proj point -->
+		<text x='-5' y='41'>R</text><!-- y proj label -->
+		<text x='34' y='-2' id='x'>xp</text><!-- primary x projection label -->
+		<text x='-7' y='21' id='y'>yp</text><!-- primary y projection label -->
+		<text x='71' y='43' fill='#400080'>P<tspan>(xp,yp)</tspan></text><!-- point P label -->
+	</g>
+
+	<use xlink:href='#p' x='69.3' y='40' stroke='#9134ef'/><!-- point P -->
+</svg>

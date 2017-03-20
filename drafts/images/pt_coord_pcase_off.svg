@@ -1,0 +1,50 @@
+<svg xmlns='http://www.w3.org/2000/svg' 
+		 xmlns:xlink='http://www.w3.org/1999/xlink' 
+		 viewBox='-80 -20 280 140'>
+	<style>
+		svg {
+			fill: #bbc;
+			font: italic 5px tahoma, arial
+		}
+		tspan, [d] + *, svg > text + [x] { font: 5px courier, monospace }
+		[d], [r] { stroke-width: .5px }
+		[d], [r='80'] { fill: none }
+		[d] { stroke: #bbc }
+		[d*=A] { stroke: #ef3491 }
+		[d*=A] + * { fill: #800040 }
+		[d] + [d] { stroke-dasharray: 1px }
+		[d*=L] { stroke: #ef9134 }
+		svg > text + [x], [d*=L] + * { fill: #804000 }
+		g + use { stroke: #9134ef }
+		g + use + * { fill: #400080 }
+	</style>
+	<path d='M80 30A20 20 0 0 1 77.3 40'/><!--arc-->
+	<text x='74' y='36'>φ</text>
+	<text x='85' y='27'>r*cos(φ)</text>
+	<text x='132' y='50'>r*sin(φ)</text>
+
+	<g>
+		<path d='M0 95V0H150M60 30h85'/><!-- axes -->	
+		<path d='M129.3 70V30M0 30H60V0'/><!-- guides -->
+		<text x='37' y='27'>O<tspan>(xo,yo)</tspan></text>
+		<text x='-10' y='-3'><tspan>(0,0)</tspan></text>
+		<text x='152'>x</text>
+		<text y='98'>y</text>
+	</g>
+
+	<circle r='80' stroke='#eec7a0' cx='60' cy='30'/><!-- circle -->
+
+	<path d='M60 30L129.3 70'/><!-- radial line -->
+	<text x='90' y='54'>r</text>
+
+	<circle id='p' r='1'/><!-- basic point @ origin -->
+	<use xlink:href='#p' x='60' y='30'/>
+
+	<g>
+		<use xlink:href='#p' x='129.3' y='30'/>
+		<text x='128' y='27'>Q</text>
+	</g>
+
+	<use xlink:href='#p' x='129.3' y='70'/>
+	<text x='131' y='73'>P(xp,yp)</text>
+</svg>

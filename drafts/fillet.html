@@ -30,21 +30,25 @@
 		
 		<p>If we want an open polygonal chain, then we replace <code>polygon</code> with <code>polyline</code> in the code above.</p>
 		
-		<p>The coordinates listed in the <code>points</code> attribute describe the vertices of an equilateral triangle. Three vertices, three sets of coordinates, all edges equal, equal angles, all three <code>60°</code> ones. Furthermore, the first vertex (the one at <code>50,0</code>) is on the <code><var>x</var></code> axis, so its <code><var>y</var></code> coordinate is <code>0</code>. All chosen this way just to make our life easier when checking whether our code works correctly or not. For example, at some step, we may need to compute the angles between edges and, we know that, in this particular case, we should always get <code>60°</code> so, if that's not what our code outputs at that step, then there's something wrong with it.</p>
+		<p>The coordinates listed in the <code>points</code> attribute describe the vertices of an equilateral triangle. Three vertices, three sets of coordinates, all edges equal, equal angles, all three <code>60°</code> ones. Furthermore, the first vertex (the one at <code>50,0</code>) is on the <code><var>x</var></code> axis, so its <code><var>y</var></code> coordinate is <code>0</code>. All chosen this way just to make our life easier when checking whether our code works correctly or not.</p>
+
+		<p>For example, at some step, we may need to compute the angles between edges and, we know that, in this particular case, we should always get <code>60°</code> so, if that's not what our code outputs at that step, then there's something wrong with it.</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_ini_test_reg_min.svg' alt='first two polygonal chains we use for testing: the vertices are those of an equilateral triangle, first one of them being on the x axis'/>
+			<img src='images/ini_test_reg.svg' alt='first two polygonal chains we use for testing: the vertices are those of an equilateral triangle, first one of them being on the x axis'/>
 			<figcaption>first two polygonal chains we use for testing: the vertices are those of an equilateral triangle, first one of them being on the <code><var>x</var></code> axis</figcaption>
 		</figure>
 		
 		<p>The other two polygonal chains use a completely random list of coordinates for their <code>points</code> attributes. This is to give us a sense of how things work outside the particular case because certain things may be valid for the particular case, but not for the general case and we shouldn't lose sight of that either.</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_ini_test_rnd_min.svg' alt='the other two polygonal chains we use for testing are completely random'/>
+			<img src='images/ini_test_rnd.svg' alt='the other two polygonal chains we use for testing are completely random'/>
 			<figcaption>the other two polygonal chains we use for testing are completely random; the dashed lines denote the possibility of more vertices being in between those they connect</figcaption>
 		</figure>
 		
-		<p>For all of these four test elements, we've also set an <code>r</code> attribute - this is the rounding radius. It doesn't do anything at this point, but we'll soon start writing the JavaScript code which fixes that. The value is completely arbitrary, we took it to be <code>10</code> here because it's a nice round number (it's easier to multiply or divide by <code>10</code> than it is by, let's say, <code>7.8</code>) and it's also big enough relative to their sizes for the rounding it produces to be noticeable.</p>
+		<p>For all of these four test elements, we've also set an <code>r</code> attribute - this is the rounding radius. It doesn't do anything at this point, but we'll soon start writing the JavaScript code which fixes that.</p>
+		
+		<p>The value of this rounding radius is completely arbitrary, we took it to be <code>10</code> here because it's a nice round number (it's easier to multiply or divide by <code>10</code> than it is by, let's say, <code>7.8</code>) and it's also big enough relative to their sizes for the rounding it produces to be noticeable.</p>
 		
 		<h2>vertex, edge and corner (angle) numbering</h2>
 		
@@ -53,38 +57,46 @@
 		<p>If we have a <code>points</code> attribute with <code>n</code> pairs of coordinates, then our polygonal chain, whether it's closed (<code>&lt;polygon&gt;</code>) or open (<code>&lt;polyline&gt;</code>) has <code>n</code> vertices: <code>0</code>, <code>1</code>, ... <code>n-1</code>.</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_nv_min.svg' alt='if the points attribute has n pairs of coordinates, then our polygonal chain (closed or open, same thing) also has n vertices'/>
+			<img src='images/nv.svg' alt='if the points attribute has n pairs of coordinates, then our polygonal chain (closed or open, same thing) also has n vertices'/>
 			<figcaption>if the <code>points</code> attribute has <code>n</code> pairs of coordinates, then our polygonal chain (closed or open, doesn't matter) also has <code>n</code> vertices</figcaption>
 		</figure>
 		
-		<p>In the <code>&lt;polygon&gt;</code> case, we also have <code>n</code> edges. However, in the <code>&lt;polyline&gt;</code> case, we don't connect the last vertex (<code>n-1</code>) to the first one (<code>0</code>) anymore, so we have one edge less (compared to a <code>&lt;polygon&gt;</code>, a <code>&lt;polyline&gt;</code> with the same <code>points</code> attribute is missing the polygon's last edge). That's <code>n-1</code> edges for the open polygonal chain with <code>n</code> vertices. In both cases, we take edge <code>0</code> to be the one between vertex <code>0</code> and vertex <code>1</code>, edge <code>1</code> between vertices <code>1</code> and <code>2</code> and so on... <strong>in general, edge <code>i</code> is between vertices <code>i</code> and <code>i+1</code></strong>, where <code>i</code> can be any natural number smaller than the number of edges.</p>
+		<p>In the <code>&lt;polygon&gt;</code> case, we also have <code>n</code> edges. However, in the <code>&lt;polyline&gt;</code> case, we don't connect the last vertex (<code>n-1</code>) to the first one (<code>0</code>) anymore, so we have one edge less (compared to a <code>&lt;polygon&gt;</code>, a <code>&lt;polyline&gt;</code> with the same <code>points</code> attribute is missing the polygon's last edge). That's <code>n-1</code> edges for the open polygonal chain with <code>n</code> vertices.</p>
+
+		<p>In both cases, we take edge <code>0</code> to be the one between vertex <code>0</code> and vertex <code>1</code>, edge <code>1</code> between vertices <code>1</code> and <code>2</code> and so on. In general, edge <code>i</code> is between vertices <code>i</code> and <code>i+1</code>, where <code>i</code> can be any natural number smaller than the number of edges.</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_ne_min.svg' alt='if the points attribute has n pairs of coordinates, then our polygonal chain has n edges if it is closed and n-1 edges if it is open; in general, edge i is between vertices i and i+1 in both cases'/>
+			<img src='images/ne.svg' alt='if the points attribute has n pairs of coordinates, then our polygonal chain has n edges if it is closed and n-1 edges if it is open; in general, edge i is between vertices i and i+1 in both cases'/>
 			<figcaption>if the <code>points</code> attribute has <code>n</code> pairs of coordinates, then our polygonal chain has <code>n</code> edges if it's closed and <code>n-1</code> edges if it's open; in general, edge <code>i</code> is between vertices <code>i</code> and <code>i+1</code> in both cases</figcaption>
 		</figure>
 		
 		<p class='note'>In the <code>&lt;polygon&gt;</code> case, vertex <code>i+1</code> is actually vertex <code>(i+1)%n</code> - that's what's we're going to use in the JavaScript code, but, for now, we're lazy and we just want to write less.</p>
 				
-		<p>Now let's move on to corners (angles). These are formed by two consecutive edges meeting at a vertex. In the <code>&lt;polygon&gt;</code> case, we have one at each vertex - that's <code>n</code> corners (angles). In the <code>&lt;polyline&gt;</code> case however, we don't have two edges meeting at the first (<code>0</code>) and last (<code>n-1</code>) vertices - those are endpoints, we have no corners (angles) there. This makes the number of corners (angles) equal to <code>n-2</code> in this situation.</p>
+		<p>Now let's move on to corners (angles). These are formed by two consecutive edges meeting at a vertex. In the <code>&lt;polygon&gt;</code> case, we have one at each vertex - that's <code>n</code> corners (angles).</p>
+		
+		<p>In the <code>&lt;polyline&gt;</code> case however, we don't have two edges meeting at the first (<code>0</code>) and last (<code>n-1</code>) vertices - those are endpoints, we have no corners (angles) there. This makes the number of corners (angles) equal to <code>n-2</code> in this situation.</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_na_min.svg' alt='if the points attribute has n pairs of coordinates, then our polygonal chain has n angles if it is closed and n-2 angles if it is open'/>
+			<img src='images/na.svg' alt='if the points attribute has n pairs of coordinates, then our polygonal chain has n angles if it is closed and n-2 angles if it is open'/>
 			<figcaption>if the <code>points</code> attribute has <code>n</code> pairs of coordinates, then our polygonal chain has <code>n</code> corners (angles) if it's closed and <code>n-2</code> corners (angles) if it's open; in general, corner (angle) <code>i</code> is between edges <code>i-1</code> and <code>i</code> in the <code>&lt;polygon&gt;</code> case and between edges <code>i</code> and <code>i+1</code> in the <code>&lt;polyline&gt;</code> case</figcaption>
 		</figure>
 		
-		<p>In the <code>&lt;polygon&gt;</code> case, the first corner (<code>0</code>) is formed where edges <code>n-1</code> and <code>0</code> meet at vertex <code>0</code>, second corner (<code>1</code>) is formed where  edges <code>0</code> and <code>1</code> meet at vertex <code>1</code> and, in general, corner <code>i</code> is formed where edges <code>i-1</code> and <code>i</code> meet at vertex <code>i</code>. While in the <code>&lt;polyline&gt;</code> case, the first corner (<code>0</code>) is formed where edges <code>0</code> and <code>1</code> meet at vertex <code>1</code> and, in general, corner <code>i</code> is formed where edges <code>i</code> and <code>i+1</code> meet at vertex <code>i+1</code>, where <code>i</code> can be any natural number smaller than the number of corners (<code>n-2</code>).</p>
+		<p>In the <code>&lt;polygon&gt;</code> case, the first corner (<code>0</code>) is formed where edges <code>n-1</code> and <code>0</code> meet at vertex <code>0</code>, second corner (<code>1</code>) is formed where  edges <code>0</code> and <code>1</code> meet at vertex <code>1</code> and, in general, corner <code>i</code> is formed where edges <code>i-1</code> and <code>i</code> meet at vertex <code>i</code>, where <code>i</code> can be any natural number smaller than the number of corners (<code>n</code>).</p>
+		
+		<p>In the <code>&lt;polyline&gt;</code> case, the first corner (<code>0</code>) is formed where edges <code>0</code> and <code>1</code> meet at vertex <code>1</code> and, in general, corner <code>i</code> is formed where edges <code>i</code> and <code>i+1</code> meet at vertex <code>i+1</code>, where <code>i</code> can be any natural number smaller than the number of corners (<code>n-2</code>).</p>
 		
 		<p class='note'>Again, by <code>i-1</code>, we actually mean <code>(i+n-1)%n</code> and by <code>i+1</code> we actually mean <code>(i+1)%n</code> (though it's something we only care about if the polygonal chain is closed).</p>
 		
-		<p>Let's see what this means in the case of our first two polygonal chains. For the closed chain, we have <code>3</code> vertices, <code>3</code> edges and <code>3</code> corners (angles). For the open chain, we have <code>3</code> vertices, <code>2</code> (<code> = 3 - 1</code>) edges and <code>1</code> (<code>= 3 - 2</code>) corner (angle).</p>
+		<p>Let's see what this means in the case of our first two polygonal chains. For the closed chain, we have <code>3</code> vertices, <code>3</code> edges and <code>3</code> corners (angles). For the open chain, we have <code>3</code> vertices, <code>2</code> (<code>=3-1</code>) edges and <code>1</code> (<code>=3-2</code>) corner (angle).</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_n_reg_min.svg' alt='numbering vertices (dark blue), edges (light blue) and angles (purple) for a polygonal chain (closed on the left and open on the right) whose vertex coordinates describe an equilateral triangle'/>
+			<img src='images/n_reg.svg' alt='numbering vertices (dark blue), edges (light blue) and angles (purple) for a polygonal chain (closed on the left and open on the right) whose vertex coordinates describe an equilateral triangle'/>
 			<figcaption>numbering vertices (purple), edges (orange) and angles (pink) for a polygonal chain (closed on the left and open on the right) whose vertex coordinates describe an equilateral triangle</figcaption>
 		</figure>
 		
-		<p>This is important to understand because some of the variables we have to deal with in the JavaScript code are vertex-related (for example, an array of vertex coordinates), which means they're arrays of length <code>n</code> in both cases. Others are edge-related (for example, an array of edge lengths or an array of edge slopes), which means they're arrays of length <code>n</code> in the <code>&lt;polygon&gt;</code> case and of length <code>n-1</code> in the <code>&lt;polyline&gt;</code> case. Others are corner-related (for example, an array of polygonal chain angles or an array of start or end points of each rounding arc), which means they're arrays of length <code>n</code> in the <code>&lt;polygon&gt;</code> case and of length <code>n-2</code> in the <code>&lt;polyline&gt;</code> case.</p>
+		<p>This is important to understand because some of the variables we have to deal with in the JavaScript code are <strong>vertex-related</strong> (for example, an array of vertex coordinates), which means they're arrays of length <code>n</code> in both cases.</p>
+		<p>Others are <strong>edge-related</strong> (for example, an array of edge lengths or an array of edge slopes), which means they're arrays of length <code>n</code> in the <code>&lt;polygon&gt;</code> case and of length <code>n-1</code> in the <code>&lt;polyline&gt;</code> case.</p>
+		<p>Other variables are <strong>corner-related</strong> (for example, an array of polygonal chain angles or an array of start or end points of each rounding arc), which means they're arrays of length <code>n</code> in the <code>&lt;polygon&gt;</code> case and of length <code>n-2</code> in the <code>&lt;polyline&gt;</code> case.</p>
 		
 		<h2>the start code</h2>
 		
@@ -102,7 +114,7 @@ for(let i = 0; i &lt; NP; i++)
 		
 		<h2>checking rounding radius validity</h2>
 		
-		<p>We read the value of the <code>r</code> attribute, <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Unary_plus'>convert</a> it to a number, then we check that the value we got is a finite, positive (<code>&gt; 0</code>) number. Otherwise, we exit the function.</p>
+		<p>We read the value of the <code>r</code> attribute, <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators#Unary_plus'>convert</a> it to a number, then we check that the value we got is a finite, positive number. Otherwise, we exit the function.</p>
 
 		<pre>const R = +_poly.getAttribute('r');
 
@@ -112,7 +124,7 @@ if(!isFinite(R) || R &lt;= 0) return;</pre>
 		
 		<h2>extracting vertex coordinates and checking their validity</h2>
 		
-		<p>Next, we extract the vertex coordinates from the <code>points</code> attribute, checking that they're at least <code>3</code> sets of coordinates, the minimum number to create a polygon (because a polygon has at least 3 vertices, in which case it's a triangle). Now we've written nice and clean <code>points</code> attributes for our test polygons and polylines, which makes them easy to split into sets of coordinates. However, differently formatted and messier versions display the exact same result, SVG is pretty forgiving here.</p>
+		<p>Next, we extract the vertex coordinates from the <code>points</code> attribute, checking that they're at least <code>3</code> sets of coordinates, the minimum number needed to create a polygon (because a polygon has at least 3 vertices, in which case it's a triangle). Now we've written nice and clean <code>points</code> attributes for our test polygons and polylines, which makes them easy to split into sets of coordinates. However, differently formatted and messier versions display the exact same result, SVG is pretty forgiving here.</p>
 		
 		<p>All of the following also result in the exact same <code>&lt;polygon&gt;</code> or <code>&lt;polyline&gt;</code> - note the different comma and space placement, that we may not have any kind of separator before a negative value, that scientific notation is allowed and that we may even have an extra unpaired coordinate at the end:</p>
 
@@ -140,7 +152,7 @@ if(!isFinite(R) || R &lt;= 0) return;</pre>
 
 		<p>This makes sure we get the same array if we have the same coordinates, no matter how the <code>points</code> attribute may have been formatted, as it can be seen in <a href='https://codepen.io/thebabydino/pen/d91ca4e8bcabb2962da6e71ba253ac33?editors=1011'>this Pen</a> (we get something like <code>[x<sub>0</sub>, y<sub>0</sub>, x<sub>1</sub>, y<sub>1</sub>, ...]</code>).</p>
 		
-		<p class='note'>While our code catches all of these situations, you should always put separators even in front of negative-valued coordinates as polygonal chains won't show up in Firefox otherwise (Blink browsers and Edge seem to have no issue with this however).</p>
+		<p class='note'>While our code catches all of these situations, you should always put separators even in front of negative-valued coordinates as polygonal chains won't show up in Firefox otherwise, even though Blink browsers and Edge seem to have no issue with this and Firefox does accept <em>path data attributes</em> where the separators in front of negative values are missing.</p>
 
 		<p>Now we check if we have the minimum number of coordinates needed to form a polygon. If not, we exit the function.</p>
 
@@ -151,7 +163,7 @@ if(.5*n &lt; 3) return;
  * at the end if we have one */
 n -= n%2;</pre>
 
-		<p>After that, we check that all useful coordinates are finite numbers. If not, we exit the function, otherwise we compact the 1D array of coordinates into a 2D array of <code>x,y</code> pairs of coordinates (so basically, we go from something like <code>[x<sub>0</sub>, y<sub>0</sub>, x<sub>1</sub>, y<sub>1</sub>, ...]</code> to something like <code>[[x<sub>0</sub>, y<sub>0</sub>], [x<sub>1</sub>, y<sub>1</sub>], ...]</code>) using <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce'><code>reduce()</code></a>.</p>
+		<p>After that, we check that all useful coordinates are finite numbers. If not, we exit the function, otherwise we compact the linear array of coordinates into a two-dimensional array of <code>x,y</code> pairs of coordinates (so basically, we go from something like <code>[x<sub>0</sub>, y<sub>0</sub>, x<sub>1</sub>, y<sub>1</sub>, ...]</code> to something like <code>[[x<sub>0</sub>, y<sub>0</sub>], [x<sub>1</sub>, y<sub>1</sub>], ...]</code>) using <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce'><code>reduce()</code></a>.</p>
 
 		<pre>for(let i = 0; i &lt; n; i++)
 	if(!isFinite(v[i])) return;
@@ -169,20 +181,20 @@ n = v.length;</pre>
 		
 		<p>But things are about to change, so we need to get the type of polygonal shape we're dealing with:</p>
 		
-		<pre>const T = +(_poly.localName !== 'polygon');</pre>
+		<pre>let τ = +(_poly.localName !== 'polygon');</pre>
 		
-		<p><code>T</code> is <code>0</code> for a <code>&lt;polygon&gt;</code> element and <code>1</code> for a <code>&lt;polyline&gt;</code>, as it can be tested <a href='https://codepen.io/thebabydino/pen/4b6a361c302c1db1ab4b8bc69c127824?editors=1011'>here</a>.</p>
+		<p><code>τ</code> is <code>0</code> for a <code>&lt;polygon&gt;</code> element and <code>1</code> for a <code>&lt;polyline&gt;</code>, as it can be tested <a href='https://codepen.io/thebabydino/pen/4b6a361c302c1db1ab4b8bc69c127824?editors=1011'>here</a>.</p>
 		
 		<h2>checking for collinearity and eliminating unneeded vertices</h2>
 		
 		<p>We're doing one more check here before we start working on the rounding and that's to see that no three consecutive points are <a href='http://mathworld.wolfram.com/Collinear.html'>collinear</a>. If that happens to be the case, we remove the one in the middle (the second of the three) because we don't really need it - with or without it, our shape is the same. The illustration below shows this:</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_collin_mid_reg_min.svg' alt='points 1, 2 and 3 are collinear; the one in the middle of these three is not a real vertex, so we can safely remove it'/>
-			<figcaption><code>1</code>, <code>2</code> and <code>3</code> (first column) are collinear; <code>2</code> isn't a real vertex, we can safely remove it</figcaption>
+			<img src='images/collin_mid_reg.svg' alt='points 1, 2 and 3 are collinear; the one in the middle of these three is not a real vertex, so we can safely remove it'/>
+			<figcaption><code>1</code>, <code>2</code> and <code>3</code> (first column) are collinear; <code>2</code> (first column) isn't a real vertex, so we can safely remove it and then shift indices (second column)</figcaption>
 		</figure>
 		
-		<p>Points <code>1</code>, <code>2</code> and <code>3</code> (first column) are collinear. Point <code>2</code> isn't a real vertex, just a point on the segment between the previous (<code>1</code>) and the next (<code>3</code>) points. Removing it (and shifting the indices of the points that come after it) doesn't alter our shape, but reduces our code and makes our life easier.</p>
+		<p>Points <code>1</code>, <code>2</code> and <code>3</code> (first column) are collinear. Point <code>2</code> (first column) isn't a real vertex, just a point on the segment between the previous (<code>1</code>) and the next (<code>3</code>) points. Removing it and shifting the indices of the points that come after it doesn't alter our shape, but reduces our code and makes our life easier.</p>
 			
 		<p>If removing a vertex happens to leave us with less than <code>3</code> vertices, then we exit the function.</p>
 		
@@ -217,20 +229,24 @@ n-3, n-2, n-1
 		<p>The following image illustrates this. The first row presents the <code>&lt;polygon&gt;</code> case, while the second one presents the <code>&lt;polyline&gt;</code> case. The first colums shows the initial shapes. The second one shows the result of adding a point collinear with the first and last at the beginning of the list of points. The third one shows the result of adding a point collinear with the first and last at the end of the list of points.</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_collin_end_reg_min.svg' alt='adding a point that is collinear to the first and the last at the beginning or at the end in the <polygon> case (top row, same shape in all cases) vs. in the <polyline> case (bottom row, different shapes); first colum shows the initial polygonal chains, while others show the results of adding a point that is collinear to the first and the last at the beginning (column two) or at the end (column three)'/>
+			<img src='images/collin_end_reg.svg' alt='adding a point that is collinear to the first and the last at the beginning or at the end in the <polygon> case (top row, same shape in all cases) vs. in the <polyline> case (bottom row, different shapes); first colum shows the initial polygonal chains, while others show the results of adding a point that is collinear to the first and the last at the beginning (column two) or at the end (column three)'/>
 			<figcaption>adding a point that's collinear to the first and the last at the beginning or at the end in the <code>&lt;polygon&gt;</code> case (top row, same shape in all cases) vs. in the <code>&lt;polyline&gt;</code> case (bottom row, different shapes); first colum shows the initial polygonal chains, while others show the results of adding a point that's collinear to the first and the last at the beginning (column two) or at the end (column three)</figcaption>
 		</figure>
 		
-		<p>In the <code>&lt;polygon&gt;</code> case, adding this extra point doesn't modify the shape. The newly added point isn't a new vertex, just a point on the last edge (between the first and the last point) and the segments that start from it aren't two distinct edges, just two parts of the same edge. In the <code>&lt;polyline&gt;</code> case however, the newly added point is a new vertex, even if it's on the same line with the initial endpoints. This is because the initial endpoints aren't connected and, due to the nature of the polyline, this point doesn't get connected to both, only to one of them.</p>
+		<p>In the <code>&lt;polygon&gt;</code> case, adding this extra point doesn't modify the shape. The newly added point isn't a new vertex, just a point on an already existing edge and the segments that start from it aren't two distinct edges, just two parts of the same edge.</p>
+		
+		<p>In the <code>&lt;polyline&gt;</code> case however, the newly added point is a new vertex, even if it's on the same line with the initial endpoints. This is because the initial endpoints aren't connected and, due to the nature of the polyline, this point doesn't get connected to both, only to one of them.</p>
 		
 		<p>Alright, let's see how we can determine whether three points are collinear. Or <em>almost</em> collinear because sometimes rounding errors come into play. Consider the situation of our test triangle. Its last edge is between points <code>-25,43.3</code> and <code>50,0</code>. If we take the point where this edge intersects the <code><var>y</var></code> axis, this point is <code>0,28.9</code>.</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_test_tri_y_int_min.svg' alt=''/>
+			<img src='images/test_tri_y_int.svg' alt=''/>
 			<figcaption>the last edge of our test triangle intersects the <code><var>y</var></code> axis at <code>0,28.9</code></figcaption>
 		</figure>		
 		
-		<p>Now the <code>43.3</code> and <code>28.9</code> values are actually rounded values so that we don't have write a truckload of decimals - you have to admit, values like <code>43.301270189221932338186158537647</code> look ugly and nobody wants to write them by hand or even copy-paste them around, especially since dropping all decimals after the first doesn't visibly affect our shape. Not to mention that putting that long sausage of characters into the SVG figures showing the test triangle would have completely ruined them. However, this rounding also means that these three points will fail a <em>strict</em> collinearity check, which is why we need to leave a bit of room for error.</p>
+		<p>Now the <code>43.3</code> and <code>28.9</code> values are actually rounded values so that we don't have write a truckload of decimals - you have to admit, values like <code>43.301270189221932338186158537647</code> look ugly and nobody wants to write them by hand or even copy-paste them around, especially since dropping all decimals after the first doesn't visibly affect our shape. Not to mention that putting that long sausage of characters into the SVG figures showing the test triangle would have completely ruined them.</p>
+
+		<p>However, this rounding also means that these three points will fail a <em>strict</em> collinearity check, which is why we need to leave a bit of room for error.</p>
 		
 		<p>But what exactly does the collinearity check involve? It involves checking whether the angle between the two edges formed by our three consecutive points is either really close to <code>0°</code> or really close to <code>180°</code>, where "really close" means within error limits. If our cutoff angle is, let's say <code>1°</code>, then we get a positive for our collinearity check when the the angle between the two edges formed by the three consecutive points is either smaller than <code>1°</code> or larger than <code>180° - 1° = 179°</code>.</p>
 		
@@ -247,25 +263,25 @@ n-3, n-2, n-1
 		
 		<p>Alright, but getting the cosine requires that we know the edge lengths, so we need to compute these first, before we get to the angles. Let's see how!</p>
 		
-		<p>Consider the generic edge <code>i</code>. This is between vertices <code><var>A<sub>i</sub></var></code> and <code><var>A<sub>i+1</sub></var></code>. We first draw a horizontal line through <code><var>A<sub>i</sub></var></code>, then we project <code><var>A<sub>i+1</sub></var></code> onto the horizontal line we've drawn previously.</p>
+		<p>Consider the generic edge <code>i</code>. This is between vertices <var>A<sub>i</sub></var> and <var>A<sub>i+1</sub></var>. We first draw a horizontal line through <var>A<sub>i</sub></var>, then we project <var>A<sub>i+1</sub></var> onto the horizontal line we've drawn previously.</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_edge_right_tri_base_min.svg' alt='we draw a horizontal line through point i, then we project point i+1 onto it'/>
-			<figcaption>we draw a horizontal line through <code><var>A<sub>i</sub></var></code>, then we project <code><var>A<sub>i+1</sub></var></code> onto it</figcaption>
+			<img src='images/edge_right_tri_base.svg' alt='we draw a horizontal line through point i, then we project point i+1 onto it'/>
+			<figcaption>we draw a horizontal line through <var>A<sub>i</sub></var>, then we project <var>A<sub>i+1</sub></var> onto it</figcaption>
 		</figure>
 		
-		<p><code><var>A<sub>i+1</sub>T<sub>i+1</sub></var></code> is perpendicular onto the horizontal, which means that it's a vertical line. This also means that the <code><var>A<sub>i</sub>A<sub>i+1</sub>T<sub>i+1</sub></var></code> triangle we've just created is a right triangle where we know the coordinates of all three vertices.</p>
+		<p><var>A<sub>i+1</sub>T<sub>i+1</sub></var> is perpendicular onto the horizontal, which means that it's a vertical line. This also means that the <var>A<sub>i</sub>A<sub>i+1</sub>T<sub>i+1</sub></var> triangle we've just created is a right triangle where we know the coordinates of all three vertices.</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_edge_right_tri_d_min.svg' alt='we get a right triangle where we know the coordinates of all three vertices'/>
-			<figcaption><code><var>A<sub>i</sub>T<sub>i+1</sub>A<sub>i+1</sub></var></code> is a right triangle where we know the coordinates of all three vertices</figcaption>
+			<img src='images/edge_right_tri_d.svg' alt='we get a right triangle where we know the coordinates of all three vertices'/>
+			<figcaption><var>A<sub>i</sub>T<sub>i+1</sub>A<sub>i+1</sub></var> is a right triangle where we know the coordinates of all three vertices</figcaption>
 		</figure>
 		
-			<p>In the right triangle <code><var>A<sub>i</sub>T<sub>i+1</sub>A<sub>i+1</sub></var></code>, the <code><var>T<sub>i+1</sub></var></code> vertex is on the same horizontal line as <code><var>A<sub>i</sub></var></code>, so it has the same <code><var>y</var></code> coordinate (<code>y<sub>i</sub></code>). It's also on the same vertical line as <code><var>A<sub>i+1</sub></var></code>, so it has the same <code><var>x</var></code> coordinate (<code>x<sub>i+1</sur></code>). Since the <code><var>A<sub>i</sub>T<sub>i+1</sub></var></code> segment is a horizontal one, its length is the difference between the <code><var>x</var></code> coordinates of the two points:</p>
+			<p>In the right triangle <var>A<sub>i</sub>T<sub>i+1</sub>A<sub>i+1</sub></var>, the <var>T<sub>i+1</sub></var> vertex is on the same horizontal line as <var>A<sub>i</sub></var>, so it has the same <code><var>y</var></code> coordinate (<code>y<sub>i</sub></code>). It's also on the same vertical line as <var>A<sub>i+1</sub></var>, so it has the same <code><var>x</var></code> coordinate (<code>x<sub>i+1</sur></code>). Since the <var>A<sub>i</sub>T<sub>i+1</sub></var> segment is a horizontal one, its length is the difference between the <code><var>x</var></code> coordinates of the two points:</p>
 		
 		<pre><var>dx<sub>i</sub></var> = x<sub>i+1</sub> - x<sub>i</sub></pre>
 		
-		<p>Similarly, since the <code><var>T<sub>i+1</sub>A<sub>i+1</sub></var></code> segment is a vertical one, its length is the difference between the <code><var>y</var></code> coordinates of the two points:</p>
+		<p>Similarly, since the <var>T<sub>i+1</sub>A<sub>i+1</sub></var> segment is a vertical one, its length is the difference between the <code><var>y</var></code> coordinates of the two points:</p>
 		
 		<pre><var>dy<sub>i</sub></var> = y<sub>i+1</sub> - y<sub>i</sub></pre>
 		
@@ -276,13 +292,13 @@ n-3, n-2, n-1
 		<pre><var>d<sub>i</sub></var> = fn(v<sub>i</sub>, v<sub>i+1</sub>)</pre>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_edge_diff_diagr_min.svg' alt='diagram showing how getting coordinate differences between edge endpoints from vertex coordinates works in the two cases: <polygon> (top) vs. <polyline> (bottom)'/>
+			<img src='images/edge_diff_diagr.svg' alt='diagram showing how getting coordinate differences between edge endpoints from vertex coordinates works in the two cases: <polygon> (top) vs. <polyline> (bottom)'/>
 			<figcaption>diagram showing how getting coordinate differences between edge endpoints from vertex coordinates works in the two cases: <code>&lt;polygon&gt;</code> (top) vs. <code>&lt;polyline&gt;</code> (bottom)</figcaption>
 		</figure>
 		
 		<p>Putting all this into code, we start from the 2D array of vertex coordinates <code>v</code>, which we <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map'><code>map()</code></a> to another 2D array of differences <code>d</code>:</p>
 		
-		<pre>let ne = n - T; /* number of edges */
+		<pre>let ne = n - τ; /* number of edges */
 
 let d = v.slice(0, ne).map((c, i) => {
 	let nxt = v[(i + 1)%n]; /* next vertex coords */
@@ -295,14 +311,14 @@ let d = v.slice(0, ne).map((c, i) => {
 		
 		<p><a href='https://codepen.io/thebabydino/pen/bb3e7b893910133f070d9448208f9741?editors=0011'>This Pen</a> checks that the above code works as expected - if we have three vertices, then we should have <code>3</code> sets of coordinate differences if the polygonal chain is closed and <code>2</code> sets of coordinate differences if the polygonal chain is open.</p>
 		
-		<p>Next, we need to compute the edge lengths. In order to see how we do that for the generic edge <code>i</code> (<code><var>A<sub>i</sub>A<sub>i+1</sub></var></code>), let's go back to our right triangle:</p>
+		<p>Next, we need to compute the edge lengths. In order to see how we do that for the generic edge <code>i</code> (<var>A<sub>i</sub>A<sub>i+1</sub></var>), let's go back to our right triangle:</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_edge_right_tri_l_min.svg' alt='in this right triangle, edge i is the hypotenue'/>
-			<figcaption>in the right triangle <code><var>A<sub>i</sub>A<sub>i+1</sub>T<sub>i+1</sub></var></code>, <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> is the hypotenuse</figcaption>
+			<img src='images/edge_right_tri_l.svg' alt='in this right triangle, edge i is the hypotenue'/>
+			<figcaption>in the right triangle <var>A<sub>i</sub>A<sub>i+1</sub>T<sub>i+1</sub></var>, <var>A<sub>i</sub>A<sub>i+1</sub></var> is the hypotenuse</figcaption>
 		</figure>
 		
-		<p>In this triangle, <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> (<code><var>l<sub>i</sub></var></code>) is the hypotenuse, so we can compute it using the Pythagorean theorem:</p>
+		<p>In this triangle, <var>A<sub>i</sub>A<sub>i+1</sub></var> (<code><var>l<sub>i</sub></var></code>) is the hypotenuse, so we can compute it using the Pythagorean theorem:</p>
 		
 		<pre><var>l<sub>i</sub></var> = √(dx<sub>i</sub><sup>2</sup> + dy<sub>i</sub><sup>2</sup>)</pre>
 		
@@ -312,44 +328,44 @@ let d = v.slice(0, ne).map((c, i) => {
 		
 		<p><a href='https://codepen.io/thebabydino/pen/508892035bde4fd3cf68833a850e4a1d?editors=0011'>This Pen</a> checks that we get equal edge lengths for our test cases where the vertices are those of an equilateral triangle.</p>
 		
-		<p>The law of cosines states that the cosine of the angle <code><var>θ</var></code> of a triangle equals the sum of the squares of the two edges that form it (<code>a</code> and <code>b</code>) minus the square of the opposing edge (<code>c</code>), all divided by twice the product between the two adjacent edges (<code>a</code> and <code>b</code>):</p>
+		<p>The law of cosines states that the cosine of the angle <code><var>α</var></code> of a triangle equals the sum of the squares of the two edges that form it (<code>b</code> and <code>c</code>) minus the square of the opposing edge (<code>a</code>), all divided by twice the product between the two adjacent edges (<code>b</code> and <code>c</code>):</p>
 		
-		<pre>cos(<var>θ</var>) = (a<sup>2</sup> + b<sup>2</sup> - <var>c<sup>2</sup></var>)/(2·a·b)</pre>
+		<pre>cos(<var>α</var>) = (b<sup>2</sup> + c<sup>2</sup> - <var>a<sup>2</sup></var>)/(2·b·c)</pre>
 		
-		<p>We already know <code>a</code> and <code>b</code> - they're the two polygonal edges that form the angle we want to get. In the <code>&lt;polygon&gt;</code> case, the two edges forming angle <code>i</code> are <code><var>A<sub>i-1</sub>A<sub>i</sub></var></code> (<code>i-1</code>) and <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> (<code>i</code>). In the <code>&lt;polyline&gt;</code> case, the two edges forming angle <code>i</code> are <code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> (<code>i</code>) and <code><var>A<sub>i+1</sub>A<sub>i+2</sub></var></code> (<code>i+1</code>).</p>
+		<p>We already know <code>b</code> and <code>c</code> - they're the two polygonal edges that form the angle we want to get. In the <code>&lt;polygon&gt;</code> case, the two edges forming angle <code>i</code> are <var>A<sub>i-1</sub>A<sub>i</sub></var> (<code>i-1</code>) and <var>A<sub>i</sub>A<sub>i+1</sub></var> (<code>i</code>). In the <code>&lt;polyline&gt;</code> case, the two edges forming angle <code>i</code> are <var>A<sub>i</sub>A<sub>i+1</sub></var> (<code>i</code>) and <var>A<sub>i+1</sub>A<sub>i+2</sub></var> (<code>i+1</code>).</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_ang_i_min.svg' alt='the edges that form angle i are i-1 and i in the <polygon> case, but i and i+1 in the <polyline> case'/>
+			<img src='images/ang_i.svg' alt='the edges that form angle i are i-1 and i in the <polygon> case, but i and i+1 in the <polyline> case'/>
 			<figcaption>the edges that form angle <code>i</code> are <code>i-1</code> and <code>i</code> in the <code>&lt;polygon&gt;</code> case (left), but <code>i</code> and <code>i+1</code> in the <code>&lt;polyline&gt;</code> case (right)</figcaption>
 		</figure>
 		
-		<p>In general, given that <code>T</code> is <code>0</code> for a <code>&lt;polygon&gt;</code> and <code>1</code> for a <code>&lt;polyline&gt;</code>, the two edges we want (the <code>a</code> and <code>b</code> in the law of cosines) are <code><var>A<sub>i-1+T</sub>A<sub>i+T</sub></var></code> (<code>i-1+T</code>) and <code><var>A<sub>i+T</sub>A<sub>i+1+T</sub></var></code> (<code>i+T</code>).</p>
+		<p>In general, given that <code>τ</code> is <code>0</code> for a <code>&lt;polygon&gt;</code> and <code>1</code> for a <code>&lt;polyline&gt;</code>, the two edges we want (the <code>b</code> and <code>c</code> in the law of cosines) are <var>A<sub>i-1+τ</sub>A<sub>i+τ</sub></var> (<code>i-1+τ</code>) and <var>A<sub>i+τ</sub>A<sub>i+1+τ</sub></var></code> (<code>i+τ</code>).</p>
 		
-		<p>But what about the edge opposing our angle <code><var>θ</var></code> - edge <code><var>c</var></code>? Well, we don't know it yet, but we can compute it in the same manner as the other two - from the coordinates of its endpoints. These are the start point of the first edge forming our angle (<code><var>A<sub>i-1</sub></var></code> in the <code>&lt;polygon&gt;</code> case and <code><var>A<sub>i</sub></var></code> in the <code>&lt;polyline&gt;</code> case) and the end point of the second edge forming our angle (<code><var>A<sub>i</sub></var></code> in the <code>&lt;polygon&gt;</code> case and <code><var>A<sub>i+1</sub></var></code> in the <code>&lt;polyline&gt;</code> case). This means that, in the general case, our <code>c</code> is the <code><var>A<sub>i-1+T</sub>A<sub>i+1+T</sub></var></code> segment.</p>
+		<p>But what about the edge opposing our angle <code><var>α</var></code> - edge <code><var>a</var></code>? Well, we don't know it yet, but we can compute it in the same manner as the other two - from the coordinates of its endpoints. These are the start point of the first edge forming our angle (<var>A<sub>i-1</sub></var> in the <code>&lt;polygon&gt;</code> case and <var>A<sub>i</sub></var> in the <code>&lt;polyline&gt;</code> case) and the end point of the second edge forming our angle (<var>A<sub>i</sub></var> in the <code>&lt;polygon&gt;</code> case and <var>A<sub>i+1</sub></var> in the <code>&lt;polyline&gt;</code> case). This means that, in the general case, our <code><var>a</var></code> is the <var>A<sub>i-1+τ</sub>A<sub>i+1+τ</sub></var> segment.</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_collin_c_min.svg' alt='the third edge we need to compute angle i using the law of cosines in the <polygon> case (left) and in the <polyline> case (right)'/>
+			<img src='images/collin_a.svg' alt='the third edge we need to compute angle i using the law of cosines in the <polygon> case (left) and in the <polyline> case (right)'/>
 			<figcaption>the third edge we need to compute angle <code>i</code> using the law of cosines in the <code>&lt;polygon&gt;</code> case (left) and in the <code>&lt;polyline&gt;</code> case (right)</figcaption>
 		</figure>
 		
-		<p>So if the polygonal chain is closed, the angle <code><var>θ<sub>i</sub></var></code> depends on the lengths of edges <code>i-1</code> and <code>i</code> and on the coordinates of vertices <code>i-1</code> and <code>i+1</code>:</p>
+		<p>So if the polygonal chain is closed, the angle <code><var>α<sub>i</sub></var></code> depends on the lengths of edges <code>i-1</code> and <code>i</code> and on the coordinates of vertices <code>i-1</code> and <code>i+1</code>:</p>
 		
-		<pre><var>θ<sub>i</sub></var> = fn(l<sub>i-1</sub>, l<sub>i</sub>, v<sub>i-1</sub>, v<sub>i+1</sub>)</pre>
+		<pre><var>α<sub>i</sub></var> = fn(l<sub>i-1</sub>, l<sub>i</sub>, v<sub>i-1</sub>, v<sub>i+1</sub>)</pre>
 		
-		<p>If the polygonal chain is open, the angle <code><var>θ<sub>i</sub></var></code> depends on the lengths of edges <code>i</code> and <code>i+1</code> and on the coordinates of vertices <code>i</code> and <code>i+2</code>:</p>
+		<p>If the polygonal chain is open, the angle <code><var>α<sub>i</sub></var></code> depends on the lengths of edges <code>i</code> and <code>i+1</code> and on the coordinates of vertices <code>i</code> and <code>i+2</code>:</p>
 		
-		<pre><var>θ<sub>i</sub></var> = fn(l<sub>i</sub>, l<sub>i+1</sub>, v<sub>i</sub>, v<sub>i+2</sub>)</pre>
+		<pre><var>α<sub>i</sub></var> = fn(l<sub>i</sub>, l<sub>i+1</sub>, v<sub>i</sub>, v<sub>i+2</sub>)</pre>
 		
 		<p>The following diagram illustrates the above:</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_vx_ang_diagr_min.svg' alt='diagram showing how computing angles using the law of cosines from edge lengths and vertex coordinates works in the two cases: <polygon> (top) vs. <polyline> (bottom)'/>
+			<img src='images/vx_ang_diagr.svg' alt='diagram showing how computing angles using the law of cosines from edge lengths and vertex coordinates works in the two cases: <polygon> (top) vs. <polyline> (bottom)'/>
 			<figcaption>diagram showing how computing angles using the law of cosines from edge lengths and vertex coordinates works in the two cases: <code>&lt;polygon&gt;</code> (top) vs. <code>&lt;polyline&gt;</code> (bottom)</figcaption>
 		</figure>
 		
 		<p>Unifying the two cases, we have:</p>
 		
-		<pre><var>θ<sub>i</sub></var> = fn(l<sub>i-1+T</sub>, l<sub>i+T</sub>, v<sub>i-1+T</sub>, v<sub>i+1+T</sub>)</pre>
+		<pre><var>α<sub>i</sub></var> = fn(l<sub>i-1+τ</sub>, l<sub>i+τ</sub>, v<sub>i-1+τ</sub>, v<sub>i+1+τ</sub>)</pre>
 		
 		<p>Putting all of this into JS code, we have:</p>
 		
@@ -362,9 +378,9 @@ function fillet(_poly) {
 	
 	/* same code a before */
 	
-	let θ = [];
+	let α = [];
 	
-	for(let i = T; i &lt; ne; i++) {
+	for(let i = τ; i &lt; ne; i++) {
 		let j = (i - 1 + n)%n /* first edge index */, 
 				k = (i + 1)%n /* second edge index */, 
 				/* third edge endpoint coord differences */
@@ -391,42 +407,42 @@ function fillet(_poly) {
 			ne--; /* update number of edges */
 			
 			/* decrement index */
-			i = Math.max(i - 2, T - 1);
+			i = Math.max(i - 2, τ - 1);
 			/* to fix previous angle */
-			if(θ.length) θ.pop();
+			if(α.length) α.pop();
 		}
-		else θ.push(Math.acos(h));
+		else α.push(Math.acos(h));
 	}
 }</pre>
 		
 		<p>Since we don't want the threshold error to be set in stone, we've left the option of easily overriding the cutoff angle for each polygonal chain via a <code>data-ca</code> attribute which takes degree values.</p>
 		
-		<p>Also, every time we remove a vertex, we also discard the angle we've computed for the previous vertex if there is one (<code>if(θ.length) θ.pop()</code>) so that we recompute it and get a more accurate value. This is also why we're decrementing the index by <code>2</code> (<code>i - 2</code>), not just by <code>1</code>. Since we're doing this, we don't want to run the risk that during the next iteration, the current index is less than the start one (<code>T</code>), which is why we set a lower limit of <code>T - 1</code> on the decremented index.</p>
+		<p>Also, every time we remove a vertex, we also discard the angle we've computed for the previous vertex if there is one (<code>if(α.length) α.pop()</code>) so that we recompute it and get a more accurate value. This is also why we're decrementing the index by <code>2</code> (<code>i-2</code>), not just by <code>1</code>. However, we don't want to run the risk that during the next iteration, the current index is less than the start one (<code>τ</code>), which is why we set a lower limit of <code>τ-1</code> on the decremented index.</p>
 		
 		<p>To better understand why we recompute the previous angle if we've removed a vertex, consider the following part of a polygonal chain illustrated below:</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_rem_ini_min.svg' alt='highlighting an almost collinearity situation in a polygonal chain'/>
+			<img src='images/rem_ini.svg' alt='highlighting an almost collinearity situation in a polygonal chain'/>
 			<figcaption>highlighting an almost collinearity situation in a polygonal chain</figcaption>
 		</figure>
 		
-		<p>Our collinearity check reveals that vertices <code><var>A<sub>r-1</sub></var></code>, <code><var>A<sub>r</sub></var></code> and <code><var>A<sub>r+1</sub></var></code> are almost collinear, so we can remove the one in the middle, shift vertex numbering, remove the two edges connected to the removed vertex and replace them with the segment connecting the vertices before and after.</p>
+		<p>Our collinearity check reveals that vertices <var>A<sub>r-1</sub></var>, <var>A<sub>r</sub></var> and <var>A<sub>r+1</sub></var> are almost collinear, so we can remove the one in the middle, shift vertex numbering, remove the two edges connected to the removed vertex and replace them with the segment connecting the vertices before and after.</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_rem_fin_min.svg' alt="after removing the vertex we don't need, our angles are slightly different"/>
+			<img src='images/rem_fin.svg' alt="after removing the vertex we don't need, our angles are slightly different"/>
 			<figcaption>after removing the vertex we don't need, our angles are slightly different</figcaption>
 		</figure>
 		
-		<p>All good, but note how this slighly changes the angles at two vertices before and after the removed point (pale pink before, bright pink after). We haven't yet computed the angle for the vertex after and, when we do that, we'll take into account the new polygonal chain, but we've already computed the one before and we've already added it to the <code>θ</code> array. We can recompute it, but we don't want to add it twice to the array of angles <code>θ</code>, so we pop out the last item in this array and we make the current index of the loop go back one extra step.</p>
+		<p>All good, but note how this slighly changes the angles at two vertices before and after the removed point (pale pink before, bright pink after). We haven't yet computed the angle for the vertex after and, when we do that, we'll take into account the new polygonal chain, but we've already computed the one before and we've already added it to the <code>α</code> array. We can recompute it, but we don't want to add it twice to the array of angles <code>α</code>, so we pop out the last item in this array and we make the current index of the loop go back one extra step.</p>
 		
-		<p>However, there's one more case to consider. Let's say that the vertex we remove is the last one and that the polygonal chain is closed. Then, the "next" vertex is the first one and we've already computed the angle at that vertex. In fact, it was the first one we've computed - <code>θ[0]</code>. So what we need to do in order to also cover this case is to recompute the first angle (<code>θ[0]</code>) right before we make the loop index go back:</p>
+		<p>However, there's one more case to consider. Let's say that the vertex we remove is the last one and that the polygonal chain is closed. Then, the "next" vertex is the first one and we've already computed the angle at that vertex. In fact, it was the first one we've computed - <code>α[0]</code>. So what we need to do in order to also cover this case is to recompute the first angle (<code>α[0]</code>) right before we make the loop index go back:</p>
 		
-		<pre>if(!T && i === ne) {
+		<pre>if(!τ && i === ne) {
 	dx = v[i - 1][0] - v[k][0];
 	dy = v[i - 1][1] - v[k][1];
 	c = Math.hypot(dx, dy);
 	h = (l[i-1]*l[i-1] + l[0]*l[0] - c*c)/(2*l[i-1]*l[0]);
-	θ[0] = Math.acos(h);
+	α[0] = Math.acos(h);
 }</pre>
 		
 		<p><a href='https://codepen.io/thebabydino/pen/60719d964942f94cd6fde3c3fab4b933?editors=0011'>This Pen</a> checks that all angles are <code>60°</code> ones if the vertices of our test polygonal chain are those of an equilateral triangle, maybe with some points on this triangle's edges in between.</p>
@@ -441,10 +457,11 @@ function fillet(_poly) {
 			<li>the rounding radius <code>r</code>, which we've extracted from the <code>r</code> attribute</li>
 			<li>the vertex coordinates (the <code>v</code> array) of the initial polygonal chain, which we've extracted from the <code>points</code> attribute</li>
 			<li>the number (<code>n</code>) of vertices</li>
+			<li>whether our polygonal chain is closed (<code>τ=0</code>) or open(<code>τ=1</code>)</li>
 			<li>the differences between all the pairs of consecutive vertex coordinates (the <code>d</code> array)</li>
 			<li>the edge lengths (the <code>l</code> array) of our polygonal chain</li>
 			<li>the number (<code>ne</code>) of edges</li>
-			<li>the angles (the <code>θ</code> array) of our polygonal chain</li>
+			<li>the angles (the <code>α</code> array) of our polygonal chain</li>
 		</ul>
 		
 		<h2>how rounding corners works</h2>
@@ -452,7 +469,7 @@ function fillet(_poly) {
 		<p>A polygonal chain with rounded corners is equivalent to a path made up of straight line segments (one along each proper edge of the initial polygonal chain) and arcs (one replacing each corner of the initial polygonal chain).</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_path_equiv_rnd_min.svg' alt='equivalent paths for polygonal chains with rounded corners where the start and end points for each arc are marked on the figure'/>
+			<img src='images/path_equiv_rnd.svg' alt='equivalent paths for polygonal chains with rounded corners where the start and end points for each arc are marked on the figure'/>
 			<figcaption>equivalent paths for polygonal chains with rounded corners where the start and end points for each arc are marked on the figure; note how in the <code>&lt;polygon&gt;</code> case, arc <code>i</code> is at vertex <code>i</code> (and we have <code>n</code> arcs in total), while in the <code>&lt;polyline&gt;</code> case, it's at vertex <code>i+1</code> (and we only have <code>n-2</code> arcs in total, as the first and last vertices are endpoints and we don't have arcs there)</figcaption>
 		</figure>
 		
@@ -461,19 +478,19 @@ function fillet(_poly) {
 		<ul>
 			<li>a "move to" (<code>M</code>) command followed by the coordinates of the point where our path starts;
 				<ul>
-					<li>in the <code>&lt;polygon&gt;</code> case, this is the start point of the first arc (<code><var>S<sub>0</sub></var></code>), whose coordinates are <code><var>xs<sub>0</sub></var>,<var>ys<sub>0</sub></var></code> (still unknown at this point);
+					<li>in the <code>&lt;polygon&gt;</code> case, this is the start point of the first arc (<var>S<sub>0</sub></var>), whose coordinates are <code><var>xs<sub>0</sub></var>,<var>ys<sub>0</sub></var></code> (still unknown at this point);
 					</li>
-					<li>in the <code>&lt;polyline&gt;</code> case, this is the first vertex of the initial <code>&lt;polyline&gt;</code> (<code><var>A<sub>0</sub></var></code>), whose coordinates are <code>x<sub>0</sub>,y<sub>0</sub></code> (which we already have);</li>
+					<li>in the <code>&lt;polyline&gt;</code> case, this is the first vertex of the initial <code>&lt;polyline&gt;</code> (<var>A<sub>0</sub></var>), whose coordinates are <code>x<sub>0</sub>,y<sub>0</sub></code> (which we already have);</li>
 				</ul>
 			</li>
-			<li>an "arc to" (<code>A</code>) command for every <code>i</code>-th arc (where <code>0 &le; i &lt; n</code> in the <code>&lt;polygon&gt;</code> case and <code>0 &le; i &lt; n-2</code> in the <code>&lt;polyline&gt;</code> case); this draws the arc between its start point (<code><var>S<sub>i</sub></var></code>) and its end point (<code><var>E<sub>i</sub></var></code>);</li>
+			<li>an "arc to" (<code>A</code>) command for every <code>i</code>-th arc (where <code>0 &le; i &lt; n</code> in the <code>&lt;polygon&gt;</code> case and <code>0 &le; i &lt; n-2</code> in the <code>&lt;polyline&gt;</code> case); this draws the arc between its start point (<var>S<sub>i</sub></var>) and its end point (<var>E<sub>i</sub></var>);</li>
 			<li>a "line to" (<code>L</code>) command for every <code>i</code>-th segment where <code>0 &le; i &lt; n-1</code>, followed by the coordinates point where this line segment ends;
 				<ul>
-					<li>in the <code>&lt;polygon&gt;</code> case, this is the start point of the next arc (<code><var>S<sub>i+1</sub></var></code>), whose coordinates are <code><var>xs<sub>i+1</var></sub>,<var>ys<sub>i+1</var></sub></code>; also, this line segment starts from the end point of the arc we've just drawn (<code><var>E<sub>i</sub></var></code>, of coordinates <code><var>xe<sub>i</var></sub>,<var>ye<sub>i</var></sub></code>);</li>
-					<li>in the <code>&lt;polyline&gt;</code> case, this is either the start point of the next arc (<code><var>S<sub>i+1</sub></var></code>), whose coordinates are <code><var>xs<sub>i+1</var></sub>,<var>ys<sub>i+1</var></sub></code> (still unknown at this point) or the last vertex of the initial <code>&lt;polyline&gt;</code> (<code><var>A<sub>n-1</sub></var></code>), whose coordinates are <code>x<sub>n-1</sub>,y<sub>n-1</sub></code> (which we already have); also, this line segment starts either from the first vertex of the initial <code>&lt;polyline&gt;</code> (<code><var>A<sub>0</sub></var></code>), whose coordinates are <code>x<sub>0</sub>,y<sub>0</sub></code> (which we already have) or from the end point of the arc we've just drawn (<code><var>E<sub>i</sub></var></code>), of coordinates <code><var>xe<sub>i</var></sub>,<var>ye<sub>i</var></sub></code> (still unknown at this point);</li>
+					<li>in the <code>&lt;polygon&gt;</code> case, this is the start point of the next arc (<var>S<sub>i+1</sub></var>), whose coordinates are <code><var>xs<sub>i+1</var></sub>,<var>ys<sub>i+1</var></sub></code>; also, this line segment starts from the end point of the arc we've just drawn (<var>E<sub>i</sub></var>, of coordinates <code><var>xe<sub>i</var></sub>,<var>ye<sub>i</var></sub></code>);</li>
+					<li>in the <code>&lt;polyline&gt;</code> case, this is either the start point of the next arc (<var>S<sub>i+1</sub></var>), whose coordinates are <code><var>xs<sub>i+1</var></sub>,<var>ys<sub>i+1</var></sub></code> (still unknown at this point) or the last vertex of the initial <code>&lt;polyline&gt;</code> (<var>A<sub>n-1</sub></var>), whose coordinates are <code>x<sub>n-1</sub>,y<sub>n-1</sub></code> (which we already have); also, this line segment starts either from the first vertex of the initial <code>&lt;polyline&gt;</code> (<var>A<sub>0</sub></var>), whose coordinates are <code>x<sub>0</sub>,y<sub>0</sub></code> (which we already have) or from the end point of the arc we've just drawn (<var>E<sub>i</sub></var>), of coordinates <code><var>xe<sub>i</var></sub>,<var>ye<sub>i</var></sub></code> (still unknown at this point);</li>
 				</ul>
 			</li>
-			<li><strong>only in the <code>&lt;polygon&gt;</code> case</strong>, a "close path" (<code>z</code>) command at the end which connects the end point of the last arc (<code><var>E<sub>n-1</sub></var></code> of coordinates <code><var>xe<sub>n-1</sub></var>,<var>ye<sub>n-1</sub></var></code>) to the start point of our path (also the start point of the first arc <code><var>S<sub>0</sub></var></code>);</li>
+			<li><strong>only in the <code>&lt;polygon&gt;</code> case</strong>, a "close path" (<code>z</code>) command at the end which connects the end point of the last arc (<var>E<sub>n-1</sub></var> of coordinates <code><var>xe<sub>n-1</sub></var>,<var>ye<sub>n-1</sub></var></code>) to the start point of our path (also the start point of the first arc <var>S<sub>0</sub></var>);</li>
 		</ul>
 		
 		<h2>the "arc to" (<code>A</code>) command</h2>
@@ -527,8 +544,8 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		
 		<ul>
 			<li>whether it goes clockwise or not, which determines the value (<code>1</code> or <code>0</code>) for its sweep flag <code><var>f<sub>i</sub></var></code></li>
-			<li>the coordinates <code><var>xs<sub>i</sub></var>,<var>ys<sub>i</sub></var></code> of its start point <code><var>S<sub>i</sub></var></code></li>
-			<li>the coordinates <code><var>xe<sub>i</sub></var>,<var>ye<sub>i</sub></var></code> of its end point <code><var>E<sub>i</sub></var></code></li>
+			<li>the coordinates <code><var>xs<sub>i</sub></var>,<var>ys<sub>i</sub></var></code> of its start point <var>S<sub>i</sub></var></li>
+			<li>the coordinates <code><var>xe<sub>i</sub></var>,<var>ye<sub>i</sub></var></code> of its end point <var>E<sub>i</sub></var></li>
 		</ul>
 		
 		<h2>sweep flags</h2>
@@ -557,7 +574,7 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		<p>A very important thing to keep in mind is that that arc <code>i</code> replaces vertex <code>i</code> only for a closed polygonal chain. For an open one, it replaces vertex <code>i+1</code>. This is because the array of sweep flags (like all other variables that define an arc, such as the coordinates of its endpoints) is corner-related - we have a sweep flag for each arc, but we have no arcs at the vertices where we don't have corners (the endpoints of a <code>&lt;polyline&gt;</code>).</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_sweep_f_arc_min.svg' alt='the rounding arcs highlighted for the two random polygonal chains: closed (left) vs. open (right)'/>
+			<img src='images/sweep_f_arc.svg' alt='the rounding arcs highlighted for the two random polygonal chains: closed (left) vs. open (right)'/>
 			<figcaption>the rounding arcs highlighted for the two random polygonal chains: closed (left) vs. open (right)</figcaption>
 		</figure>
 		
@@ -570,13 +587,13 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		<pre><var>f<sub>i</sub></var> = fn(d<sub>i+1</sub>, d<sub>i</sub>)</pre>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_sweep_f_diagr_min.svg' alt='diagram showing how getting sweep flags from vertex coordinates works in the two cases: polygon vs. polyline'/>
+			<img src='images/sweep_f_diagr.svg' alt='diagram showing how getting sweep flags from vertex coordinates works in the two cases: polygon vs. polyline'/>
 			<figcaption>diagram showing how getting sweep flags from vertex coordinates works in the two cases: <code>&lt;polygon&gt;</code> (top) vs. <code>&lt;polyline&gt;</code> (bottom)</figcaption>
 		</figure>
 		
 		<p>If <code>T</code> is the type of polygonal chain (<code>0</code> when closed vs. <code>1</code> when open), then the two can be unified:</p>
 		
-		<pre><var>f<sub>i</sub></var> = fn(d<sub>i+T</sub>, d<sub>i-1+T</sub>)</pre>
+		<pre><var>f<sub>i</sub></var> = fn(d<sub>i+τ</sub>, d<sub>i-1+τ</sub>)</pre>
 		
 		<p>In the <code>&lt;polygon&gt;</code> case, both the index of the current arc and of the coordinate differences corresponding to the edge after the vertex the arc replaces (edge <code>i</code>) go from <code>0</code> all the way through <code>n-1</code> (<code>0 &le; i &lt; n</code>). But in the <code>&lt;polyline&gt;</code> case, the index of the current arc goes from <code>0</code> through <code>n-3</code> (<code>0 &le; i &lt; n-2</code>), while that of the coordinate differences corresponding to the edge after the vertex the arc replaces (edge <code>i+1</code>) goes from <code>1</code> through <code>n-2</code> (<code>1 &le; i &lt; n-1</code>).</p>
 		
@@ -597,7 +614,7 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		
 		<h3>coordinates for random point in 2D</h3>
 		
-		<p>Let's take a random point <code><var>P</var></code>, whose coordinates <code><var>xp</var>,<var>yp</var></code> we need to compute. We can consider this point to be on a circle of radius <code>r</code>. Its <code><var>xp</var>,<var>yp</var></code> coordinates depend on the radius of the circle and on where it is on the circle. The measure of where it is on the circle is the angle <code>φ</code> between the radial line <code><var>OP</var></code> and the horizontal (the <code><var>Ox</var></code> axis). The following interactive demo illustrates this (drag point <code><var>P</var></code> to see how its coordinates change as the circle radius and the angle of the radial line change):</p>
+		<p>Let's take a random point <var>P</var>, whose coordinates <code><var>xp</var>,<var>yp</var></code> we need to compute. We can consider this point to be on a circle of radius <code>r</code>. Its <code><var>xp</var>,<var>yp</var></code> coordinates depend on the radius of the circle and on where it is on the circle. The measure of where it is on the circle is the angle between the radial line <var>OP</var> and the horizontal (the <code><var>x</var></code> axis). The following interactive demo illustrates this (drag point <var>P</var> to see how its coordinates change as the circle radius and the angle of the radial line change):</p>
 		
 		<p data-height="620" data-theme-id="0" data-slug-hash="KNxXZJ" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="position of point in a plane (drag point)" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/KNxXZJ/">position of point in a plane (drag point)</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
 		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
@@ -605,24 +622,24 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		<p>Consider the following particular case:</p>
 
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_pt_coord_pcase_min.svg' alt='particular case of a point in a plane'/>
+			<img src='images/pt_coord_pcase.svg' alt='particular case of a point in a plane'/>
 			<figcaption>particular case of a point in a plane</figcaption>
 		</figure>
 
-		<p>The <code><var>Q</var></code> and <code><var>R</var></code> points are the projections of our point <code><var>P</var></code> onto the axes of our system of coordinates. This means that <code><var>PQ</var></code> and <code><var>PR</var></code> are perpendicular onto the axes (the <code>∠<var>PQO</var></code> and <code>∠<var>PRO</var></code> angles are <code>90°</code> angles). It also means that the <code><var>OQ</var></code> and <code><var>PR</var></code> segments are equal to <code><var>xp</var></code> (which is the value of <code><var>P</var></code>'s <code><var>x</var></code> coordinate) and that the <code><var>OR</var></code> and <code><var>PQ</var></code> segments are equal to <code><var>yp</var></code> (which is the value of <code><var>P</var></code>'s <code><var>y</var></code> coordinate).</p>
+		<p>The <var>Q</var> and <var>R</var> points are the projections of our point <var>P</var> onto the axes of our system of coordinates. This means that <var>PQ</var> and <var>PR</var> are perpendicular onto the axes (the <var>∠PQO</var> and <var>∠PRO</var> angles are <code>90°</code> angles). It also means that the <var>OQ</var> and <var>PR</var> segments are equal to <code><var>xp</var></code> (which is the value of <var>P</var>'s <code><var>x</var></code> coordinate) and that the <var>OR</var> and <var>PQ</var> segments are equal to <code><var>yp</var></code> (which is the value of <var>P</var>'s <code><var>y</var></code> coordinate).</p>
 
-		<p><code><var>PQO</var></code> is a right triangle (since the <code>∠<var>PQO</var></code> angle is a <code>90°</code> angle) where we know the hypotenuse <code><var>OP</var></code> (it's <code>r</code>, the radius of the circle our point <code><var>P</var></code> is on) and the <code>∠<var>QOP</var></code> angle (it's <code>φ</code>).</p>
+		<p><var>PQO</var> is a right triangle (since the <var>∠PQO</var> angle is a <code>90°</code> angle) where we know the hypotenuse <var>OP</var> (it's <code>r</code>, the radius of the circle our point <var>P</var> is on) and the <var>∠QOP</var> angle (it's <code>φ</code>).</p>
 
-		<p>The cosine of the <code>∠<var>QOP</var></code> angle (<code>φ</code>) is the ratio between the adjacent <a href='https://en.wikipedia.org/wiki/Cathetus'>cathetus</a> <code><var>OQ</var></code> (<code><var>xp</var></code>) and the hypotenuse <code><var>OP</var></code> (<code>r</code>). This means we have <code>cos(φ) = <var>xp</var>/r</code> and, from here, we get that <code><var>xp</var> = r·cos(φ)</code>.</p>
+		<p>The cosine of the <var>∠QOP</var> angle (<code>φ</code>) is the ratio between the adjacent <a href='https://en.wikipedia.org/wiki/Cathetus'>cathetus</a> <var>OQ</var> (<code><var>xp</var></code>) and the hypotenuse <var>OP</var> (<code>r</code>). This means we have <code>cos(φ) = <var>xp</var>/r</code> and, from here, we get that <code><var>xp</var> = r·cos(φ)</code>.</p>
 
-		<p>Similarly, the sine of the same <code>∠<var>QOP</var></code> angle (<code>φ</code>) is the ratio between the opposing cathetus <code><var>PQ</var></code> (<code><var>yp</var></code>) and the hypotenuse <code><var>OP</var></code> (<code>r</code>). This means we have <code>sin(φ) = <var>yp</var>/r</code> and, from here, we get that <code><var>yp</var> = r·sin(φ)</code>.</p>
+		<p>Similarly, the sine of the same <var>∠QOP</var> angle (<code>φ</code>) is the ratio between the opposing cathetus <var>PQ</var> (<code><var>yp</var></code>) and the hypotenuse <var>OP</var> (<code>r</code>). This means we have <code>sin(φ) = <var>yp</var>/r</code> and, from here, we get that <code><var>yp</var> = r·sin(φ)</code>.</p>
 
-		<p>So the <code><var>xp</var>,<var>yp</var></code> coordinates of any point <code><var>P</var></code> on a circle around the origin are:</p>
+		<p>So the <code><var>xp</var>,<var>yp</var></code> coordinates of any point <var>P</var> on a circle around the origin are:</p>
 
 		<pre><var>xp</var> = r·cos(φ)
 <var>yp</var> = r·sin(φ)</pre>
 
-		<p>Here, <code>r</code> is the radius of the circle and <code>θ</code> is the angle of the radial line connecting the origin to our point <code><var>P</var></code> with respect to the horizontal (both are known).</p>
+		<p>Here, <code>r</code> is the radius of the circle and <code>α</code> is the angle of the radial line connecting the origin to our point <var>P</var> with respect to the horizontal (both are known).</p>
 		
 		<p>But what about the case when this circle's central point doesn't coincide with the <code>0,0</code> point of the coordinate system? Well, in this case, we need to add up the coordinates of the circle's central point:</p>
 
@@ -630,7 +647,7 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 <var>yp</var> = yo + r·sin(φ)</pre>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_pt_coord_pcase_off_min.svg' alt='particular case of a point in a plane when the central point of the circle it is on is not at the (0,0) point of the coordinate system'/>
+			<img src='images/pt_coord_pcase_off.svg' alt='particular case of a point in a plane when the central point of the circle it is on is not at the (0,0) point of the coordinate system'/>
 			<figcaption>particular case of a point in a plane when the central point of the circle it's on is not at the <code>0,0</code> point of the coordinate system</figcaption>
 		</figure>
 		
@@ -639,77 +656,175 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		<p>Let's consider first the start points:</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_s_pts_on_circ_base_min.svg' alt='start points of arcs relative to vertices of initial polygonal chain'/>
+			<img src='images/arc_s_on_circ_base.svg' alt='start points of arcs relative to vertices of initial polygonal chain'/>
 			<figcaption>start points of arcs relative to vertices of initial polygonal chain</figcaption>
 		</figure>
 
-		<p>So for arc <code>i</code>, the coordinates of its start point can be computed from the <code>x<sub>i+T</sub>,y<sub>i+T</sub></code> coordinates of the the polygonal chain vertex that's being replaced by this arc <code><var>A<sub>i+T</sub></var></code> (<code><var>A<sub>i</sub></var></code> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <code><var>A<sub>i+1</sub></var></code> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>), the radius <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> (<code><var>A<sub>i</sub>S<sub>i</sub></var></code> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <code><var>A<sub>i+1</sub>S<sub>i</sub></var></code> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>) of this circle and the angle of the radial segment <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> with respect to the horizontal.</p>
+		<p>So for arc <code>i</code>, the coordinates of its start point can be computed from the <code>x<sub>i+τ</sub>,y<sub>i+τ</sub></code> coordinates of the the polygonal chain vertex that's being replaced by this arc <var>A<sub>i+τ</sub></var> (<var>A<sub>i</sub></var> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <var>A<sub>i+1</sub></var> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>), the radius <var>A<sub>i+τ</sub>S<sub>i</sub></var> (<var>A<sub>i</sub>S<sub>i</sub></var> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <var>A<sub>i+1</sub>S<sub>i</sub></var> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>) of this circle and the angle of the radial segment <var>A<sub>i+τ</sub>S<sub>i</sub></var> with respect to the horizontal.</p>
 		
-		<p>We already know all vertex coordinates, so what we still need to get are the <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> radii and the angles between the horizontal and these radial lines. Since the <code><var>S<sub>i</sub></var></code> points are on the <code><var>A<sub>i+T</sub>A<sub>i-1+T</sub></var></code> segments (<code><var>A<sub>i</sub>A<sub>i-1</sub></var></code> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <code><var>A<sub>i+1</sub>A<sub>i</sub></var></code> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>), the angles of the <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> radii with respect to the horizontal are the angles between the horizontal and these <code><var>A<sub>i+T</sub>A<sub>i-1+T</sub></var></code> segments (which are edges of our initial polygonal chain).</p>
+		<p>We already know all vertex coordinates, so what we still need to get are the <var>A<sub>i+τ</sub>S<sub>i</sub></var> radii and the angles between the horizontal and these radial lines.</p>
 		
 		<p>Now let's see the end points:</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_e_pts_on_circ_base.svg' alt='end points of arcs relative to vertices of initial polygonal chain'/>
+			<img src='images/arc_e_on_circ_base.svg' alt='end points of arcs relative to vertices of initial polygonal chain'/>
 			<figcaption>end points of arcs relative to vertices of initial polygonal chain</figcaption>
 		</figure>
 		
-		<p>For arc <code>i</code>, the coordinates of its end point can be computed from the <code>x<sub>i+T</sub>,y<sub>i+T</sub></code> coordinates of the the polygonal chain vertex that's being replaced by this arc <code><var>A<sub>i+T</sub></var></code> (<code><var>A<sub>i</sub></var></code> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <code><var>A<sub>i+1</sub></var></code> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>), the radius <code><var>A<sub>i+T</sub>E<sub>i</sub></var></code> (<code><var>A<sub>i</sub>E<sub>i</sub></var></code> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <code><var>A<sub>i+1</sub>E<sub>i</sub></var></code> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>) of this circle and the angle of the radial segment <code><var>A<sub>i+T</sub>E<sub>i</sub></var></code> with respect to the horizontal.</p>
+		<p>For arc <code>i</code>, the coordinates of its end point can be computed from the <code>x<sub>i+τ</sub>,y<sub>i+τ</sub></code> coordinates of the the polygonal chain vertex that's being replaced by this arc <var>A<sub>i+τ</sub></var> (<var>A<sub>i</sub></var> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <var>A<sub>i+1</sub></var> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>), the radius <var>A<sub>i+τ</sub>E<sub>i</sub></var> (<var>A<sub>i</sub>E<sub>i</sub></var> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <var>A<sub>i+1</sub>E<sub>i</sub></var> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>) of this circle and the angle of the radial segment <var>A<sub>i+τ</sub>E<sub>i</sub></var> with respect to the horizontal.</p>
 		
-		<p>Just like in the start point case, what we still need to compute are the <code><var>A<sub>i+T</sub>E<sub>i</sub></var></code> radii and the angles between the horizontal and these radial lines. Since the <code><var>E<sub>i</sub></var></code> points are on the <code><var>A<sub>i+T</sub>A<sub>i+1+T</sub></var></code> segments (<code><var>A<sub>i</sub>A<sub>i+1</sub></var></code> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <code><var>A<sub>i+1</sub>A<sub>i+2</sub></var></code> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>), the angles of the <code><var>A<sub>i+T</sub>E<sub>i</sub></var></code> radii with respect to the horizontal are the angles between the horizontal and the <code><var>A<sub>i+T</sub>A<sub>i+1+T</sub></var></code> edges of our initial polygonal chain.</p>
+		<p>Just like in the start point case, what we still need to compute are the <var>A<sub>i+τ</sub>E<sub>i</sub></var> radii and the angles between the horizontal and these radial lines.</p>
 		
 		<h3>segments connecting replaced vertices to start and end points of corresponding arcs</h3>
 		
 		<p>Every one of our rounding arcs is a part (less than half) of a circle of radius <code>R</code>. This is the rounding radius, which is known, we've read it from the <code>r</code> attribute on our <code>&lt;polygon&gt;</code> or <code>&lt;polyline&gt;</code> element.</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_arc_circ_min.svg' alt='each rounding arc is a part of a circle of radius R' />
+			<img src='images/arc_circ.svg' alt='each rounding arc is a part of a circle of radius R' />
 			<figcaption>each rounding arc is a part of a circle of radius <code>R</code></figcaption>
 		</figure>
 		
 		<p>The start and end points of an arc are the points where the two consecutive edges of our initial polygon that form the angle we want to replace with this arc <em>touch</em> the circle of radius <code>R</code> (placed inside the angle) that the rounding arc belongs to. This means that these edges are <a href='https://en.wikipedia.org/wiki/Tangent_lines_to_circles'>tangent</a> to this circle at the start and end point of the arc. A radial segment to the point where a tangent line touches the circle is perpendicular onto that tangent line.</p>
 
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_arc_tan_min.svg' alt='the edges meeting at the vertex replaced by arc i (which is vertex i if the polygonal chain is closed and vertex i+1 if the polygonal chain is open) are tangent to the circle this arc is a part of' />
+			<img src='images/arc_tan.svg' alt='the edges meeting at the vertex replaced by arc i (which is vertex i if the polygonal chain is closed and vertex i+1 if the polygonal chain is open) are tangent to the circle this arc is a part of' />
 			<figcaption>the edges meeting at the vertex replaced by arc <code>i</code> (which is vertex <code>i</code> if the polygonal chain is closed and vertex <code>i+1</code> if the polygonal chain is open) are tangent to the circle this arc is a part of</figcaption>
 		</figure>
 		
-		<p>This means that the <code><var>A<sub>i+T</sub>O<sub>i</sub>S<sub>i</sub></var></code> (<code><var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var></code> in the <code>&lt;polygon&gt;</code> case and <code><var>A<sub>i+1</sub>O<sub>i</sub>S<sub>i</sub></var></code> in the <code>&lt;polyline&gt;</code> case) and <code><var>A<sub>i+T</sub>O<sub>i</sub>E<sub>i</sub></var></code> (<code><var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var></code> in the <code>&lt;polygon&gt;</code> case and <code><var>A<sub>i+1</sub>O<sub>i</sub>E<sub>i</sub></var></code> in the <code>&lt;polyline&gt;</code> case) triangles are right triangles.</p>
+		<p>This means that the <var>A<sub>i+τ</sub>O<sub>i</sub>S<sub>i</sub></var> (<var>A<sub>i</sub>O<sub>i</sub>S<sub>i</sub></var> in the <code>&lt;polygon&gt;</code> case and <var>A<sub>i+1</sub>O<sub>i</sub>S<sub>i</sub></var> in the <code>&lt;polyline&gt;</code> case) and <var>A<sub>i+τ</sub>O<sub>i</sub>E<sub>i</sub></var> (<var>A<sub>i</sub>O<sub>i</sub>E<sub>i</sub></var> in the <code>&lt;polygon&gt;</code> case and <var>A<sub>i+1</sub>O<sub>i</sub>E<sub>i</sub></var> in the <code>&lt;polyline&gt;</code> case) triangles are right triangles.</p>
 		
-		<p>Furthermore, they have the same hypotenuse <code><var>A<sub>i+T</sub>O<sub>i</sub></var></code> and their <code><var>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>O<sub>i</sub>E<sub>i</sub></var></code> catheti are equal (as they're both radial segments - <code>R</code>). This makes our two right triangles <a href='https://en.wikipedia.org/wiki/Congruence_(geometry)#Congruence_of_triangles'>congruent</a>, meaning that their <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> and <code><var>A<sub>i+T</sub>E<sub>i</sub></var></code> edges are also equal and that the acute angles <code>∠<var>O<sub>i</sub>A<sub>i+T</sub>S<sub>i</sub></var></code> and <code>∠<var>O<sub>i</sub>A<sub>i+T</sub>E<sub>i</sub></var></code> are equal.</p>
+		<p>Furthermore, they have the same hypotenuse <var>A<sub>i+τ</sub>O<sub>i</sub></var> and their <var>O<sub>i</sub>S<sub>i</sub></var> and <var>O<sub>i</sub>E<sub>i</sub></var> catheti are equal (as they're both radial segments - <code>R</code>). This makes our two right triangles <a href='https://en.wikipedia.org/wiki/Congruence_(geometry)#Congruence_of_triangles'>congruent</a>, meaning that their <var>A<sub>i+τ</sub>S<sub>i</sub></var> and <var>A<sub>i+τ</sub>E<sub>i</sub></var> edges are also equal and that the acute angles <var>∠O<sub>i</sub>A<sub>i+τ</sub>S<sub>i</sub></var> and <var>∠O<sub>i</sub>A<sub>i+τ</sub>E<sub>i</sub></var> are equal.</p>
 
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_arc_tri_min.svg' alt='at the vertex replaced by arc i we have two congruent right triangles with a common hypotenuse'/>
-			<figcaption>the vertex replaced by arc <code>i</code>: the <code><var>A<sub>i+T</sub>O<sub>i</sub>S<sub>i</sub></var></code> and <code><var>A<sub>i+T</sub>O<sub>i</sub>E<sub>i</sub></var></code> triangles are congruent right triangles with a common hypotenuse</figcaption>
+			<img src='images/arc_tri.svg' alt='at the vertex replaced by arc i we have two congruent right triangles with a common hypotenuse'/>
+			<figcaption>the vertex replaced by arc <code>i</code>: the <var>A<sub>i+τ</sub>O<sub>i</sub>S<sub>i</sub></var> and <var>A<sub>i+τ</sub>O<sub>i</sub>E<sub>i</sub></var> triangles are congruent right triangles with a common hypotenuse</figcaption>
 		</figure>
 		
 		<p>This is really useful.</p>
 
-		<p>First of all, it means that the <code><var>A<sub>i+T</sub>O<sub>i</sub></var></code> line (<code><var>A<sub>i</sub>O<sub>i</sub></var></code> if the polygonal chain is closed and <code><var>A<sub>i+1</sub>O<sub>i</sub></var></code> if the polygonal chain is open) is the <a href='https://en.wikipedia.org/wiki/Bisection#Angle_bisector'>angle bisector</a> of the <code>∠<var>A<sub>i-1+T</sub>A<sub>i+T</sub>A<sub>i+1+T</sub></var></code> angle, which we have already computed, it's <code>θ<sub>i</sub></code>. Consequently, we can easily get the <code>∠<var>O<sub>i</sub>A<sub>i+T</sub>S<sub>i</sub></var></code> and <code>∠<var>O<sub>i</sub>A<sub>i+T</sub>E<sub>i</sub></var></code> angles - they're half of the already computed <code>∠<var>A<sub>i-1+T</sub>A<sub>i+T</sub>A<sub>i+1+T</sub></var></code>, which makes each one of them <code>θ<sub>i</sub>/2</code>.</p>
+		<p>First of all, it means that the <var>A<sub>i+τ</sub>O<sub>i</sub></var> line (<var>A<sub>i</sub>O<sub>i</sub></var> if the polygonal chain is closed and <var>A<sub>i+1</sub>O<sub>i</sub></var> if the polygonal chain is open) is the <a href='https://en.wikipedia.org/wiki/Bisection#Angle_bisector'>angle bisector</a> of the <var>∠A<sub>i-1+τ</sub>A<sub>i+τ</sub>A<sub>i+1+τ</sub></var> angle, which we have already computed, it's <code>α<sub>i</sub></code>. Consequently, we can easily get the <var>∠O<sub>i</sub>A<sub>i+τ</sub>S<sub>i</sub></var> and <var>∠O<sub>i</sub>A<sub>i+τ</sub>E<sub>i</sub></var> angles - they're half of the already computed <var>∠A<sub>i-1+τ</sub>A<sub>i+τ</sub>A<sub>i+1+τ</sub></var>, which makes each one of them <code>α<sub>i</sub>/2</code>.</p>
 		
-		<p>It also means that we need to compute <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code>. <code><var>A<sub>i+T</sub>E<sub>i</sub></var></code> has the exact same length, which we denote by <code><var>ρ<sub>i</sub></var></code>. We can compute this from the right triangle <code><var>A<sub>i+T</sub>O<sub>i</sub>S<sub>i</sub></var></code>. The tangent of the <code>∠<var>O<sub>i</sub>A<sub>i+T</sub>S<sub>i</sub></var></code> angle (<code>θ<sub>i</sub>/2</code>) is the opposing cathetus <code><var>O<sub>i</sub>S<sub>i</sub></var></code> (<code>R</code>) over the adjacent one <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> (<code><var>ρ<sub>i</sub></var></code>):</p>
+		<p>It also means that we need to compute <var>A<sub>i+τ</sub>S<sub>i</sub></var>. <var>A<sub>i+τ</sub>E<sub>i</sub></var> has the exact same length, which we denote by <code><var>ρ<sub>i</sub></var></code>. We can compute this from the right triangle <var>A<sub>i+τ</sub>O<sub>i</sub>S<sub>i</sub></var>. The tangent of the <var>∠O<sub>i</sub>A<sub>i+τ</sub>S<sub>i</sub></var> angle (<code>α<sub>i</sub>/2</code>) is the opposing cathetus <var>O<sub>i</sub>S<sub>i</sub></var> (<code>R</code>) over the adjacent one <var>A<sub>i+τ</sub>S<sub>i</sub></var> (<code><var>ρ<sub>i</sub></var></code>):</p>
 		
-		<pre>tan(θ<sub>i</sub>/2) = R/<var>ρ<sub>i</sub></var></pre>
+		<pre>tan(α<sub>i</sub>/2) = R/<var>ρ<sub>i</sub></var></pre>
 		
-		<p>This gives us the radial segment <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code>:</p>
+		<p>This gives us the radial segment <var>A<sub>i+τ</sub>S<sub>i</sub></var>:</p>
 		
-		<pre><var>ρ<sub>i</sub></var> = R/tan(θ<sub>i</sub>/2)</pre>
+		<pre><var>ρ<sub>i</sub></var> = R/tan(α<sub>i</sub>/2)</pre>
 		
 		<p>Translating this into JavaScript code, we have:</p>
 		
-		<pre>let ρ = θ.map(c => R/Math.tan(.5*c))</pre>
+		<pre>let ρ = α.map(c => R/Math.tan(.5*c))</pre>
 		
 		<p><a href='https://codepen.io/thebabydino/pen/418d9601fd610e1a73312ad3150fe95a?editors=0011'>Test</a>.</p>
 		
-		<h3>angles of radial segments with respect to the horizontal</h3>
+		<h3>angles between horizontal and segments connecting replaced vertices to arc start/ end points</h3>
 		
-		
+		<p>Let's see the angles of the segments connecting the replaced vertices (<code>T</code>, .... <code>i-1</code>, <code>i</code>, <code>i+1</code>, ... <code>n-1-T</code>, where <code>T</code> is <code>0</code> if the polygonal chain is closed and <code>1</code> otherwise) to the start points:</p>
 		
 		<figure>
-			<img src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/2017/17_03_a_svgrr_s_pts_on_circ_meas_min.svg' alt='angles of radial segments with respect to the horizontal'/>
-			<figcaption>angles of radial segments <code><var>A<sub>i+T</sub>S<sub>i</sub></var></code> with respect to the horizontal</figcaption>
+			<img src='images/arc_s_on_circ_meas.svg' alt='angles of radial segments to arc start points with respect to the horizontal'/>
+			<figcaption>angles of radial segments <var>A<sub>i+τ</sub>S<sub>i</sub></var> with respect to the horizontal</figcaption>
 		</figure>
 				
-		<p>The array of <code><var>β</var></code> angles we need to get is an edge-related variable - we compute one angle for each edge of the polygonal chain, so we have one less angle computation to do in the <code>&lt;polyline&gt;</code> case (because we have one less edge in this situation).</p>
+		<p>Since the <var>S<sub>i</sub></var> points are on the <var>A<sub>i+τ</sub>A<sub>i-1+τ</sub></var> segments (<var>A<sub>i</sub>A<sub>i-1</sub></var> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <var>A<sub>i+1</sub>A<sub>i</sub></var> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>), the angles of the <var>A<sub>i+τ</sub>S<sub>i</sub></var> radii with respect to the horizontal are the angles between the horizontal and these <var>A<sub>i+τ</sub>A<sub>i-1+τ</sub></var> segments (which are edges of our initial polygonal chain).</p>
+		
+		<p>So the angles we want are the angles formed at every vertex between the horizontal and the edge before that vertex if there is an edge before that vertex because, in the case when the polygonal chain is open, we don't have an edge before the first vertex <var>A<sub>0</sub></var>.</p>
+		
+		<p>The array of <code><var>δ</var></code> angles we need to get is an edge-related variable - we compute one angle for each edge of the polygonal chain, so we have one less angle computation to do in the <code>&lt;polyline&gt;</code> case (because we have one less edge in this situation).</p>
+		
+		<p>Also, in the <code>&lt;polyline&gt;</code> case, we only use the first <code>n-2</code> of these angles. We don't need <code><var>δ<sub>n-2</sub></var></code> in this situation since this is the angle of the <var>A<sub>n-1</sub>A<sub>n-2</sub></var> edge and we don't have a start point of an arc on that edge, only the end point of the last arc (arc <code>n-3</code>, replacing vertex <code>n-2</code>) and this arc end point is then connected to the end point of the polyline, last vertex <var>A<sub>n-1</sub></var>.</p>
+		
+		<p>Moving on to the endpoints, we can see the angles marked on the following figure:</p>
+		
+		<figure>
+			<img src='images/arc_e_on_circ_meas.svg' alt='angles of radial segments to arc end points with respect to the horizontal'/>
+			<figcaption>angles of radial segments <var>A<sub>i+τ</sub>E<sub>i</sub></var> with respect to the horizontal</figcaption>
+		</figure>
+		
+		<p>Since the <var>E<sub>i</sub></var> points are on the <var>A<sub>i+τ</sub>A<sub>i+1+τ</sub></var> segments (<var>A<sub>i</sub>A<sub>i+1</sub></var> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <var>A<sub>i+1</sub>A<sub>i+2</sub></var> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>), the angles of the <var>A<sub>i+τ</sub>E<sub>i</sub></var> radii with respect to the horizontal are the angles between the horizontal and the <var>A<sub>i+τ</sub>A<sub>i+1+τ</sub></var> edges of our initial polygonal chain.</p>
+		
+		<p>In this case, the angles we want are the angles formed at every vertex between the horizontal and the edge after that vertex. Again, that's only if there is an edge after that vertex because, in the case when the polygonal chain is open, we don't have an edge after the last vertex <var>A<sub>n-1</sub></var>.</p>
+		
+		<p>The array of <code><var>γ</var></code> angles we need to get here is also an edge-related variable - we compute one angle for each edge of the polygonal chain, so we have one less angle computation to do in the <code>&lt;polyline&gt;</code> case since we don't connect the last vertex to the first one in this situation.</p>
+		
+		<p>Since the array of edge angles <code><var>γ</var></code> is edge-related, but the array where we store the coordinates of the arcs' endpoints is corner-related, this means that, in the <code>&lt;polyline&gt;</code> case, we only use the last <code>n-2</code> of the edge angles. We don't need <code><var>γ<sub>0</sub></var></code> in this situation since this is the angle of the <var>A<sub>0</sub>A<sub>1</sub></var> edge and we don't have an end point of an arc on that edge, only the start point of the first arc (arc <code>0</code>, replacing vertex <code>1</code>) and this arc start point is then connected to the start point of the polyline, first vertex <var>A<sub>0</sub></var>.</p>
+		
+		<p>A very important thing to notice from the previous two illustrations is that <code><var>γ<sub>i</sub></var></code> (the angle between the horizontal and the <var>A<sub>i</sub>A<sub>i+1</sub></var> segment) and <code><var>δ<sub>i</sub></var></code> (the angle between the horizontal and the <var>A<sub>i+1</sub>A<sub>i</sub></var> segment, which is basically the same segment as <var>A<sub>i</sub>A<sub>i+1</sub></var>, only going in the other direction) are <a href='https://en.wikipedia.org/wiki/Transversal_(geometry)#Consecutive_interior_angles'>consecutive interior angles</a> (because all horizontal lines are parallel with one another) and therefore, their absolute values add up to <code>180°</code> (which makes them <a href='https://en.wikipedia.org/wiki/Angle#Supplementary_angle'>supplementary</a>).</p>
+		
+		<figure>
+			<img src='' alt=''/>
+			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
+		</figure>
+		
+		<p>If we also take into account their signs (one goes clockwise, so its sign is <code>+</code>, the other one goes in the opposite direction, so its sign is <code>-</code>), we see that they are <code>180°</code> apart. Subtracting <code>180°</code> from the positive one gives us the negative one, while adding <code>180°</code> to the negative one gives us the positive one.</p>
+		
+		<!--<p>If we draw another horizontal line through the middle of our <var>A<sub>i</sub>A<sub>i+1</sub></var></code> segment, we create <a href='https://en.wikipedia.org/wiki/Transversal_(geometry)#Corresponding_angles'>corresponding angles</a>:</p>
+		
+		<figure>
+			<img src='' alt=''/>
+			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
+		</figure>-->
+		
+		<p>The interactive demo below illustrates this. Drag the <var>A<sub>i</sub>A<sub>i+1</sub></var> segment to see how its angle with respect the horizontal (<code>γ<sub>i</sub></code>, marked with pink) changes and how that influences the angle of <var>A<sub>i+1</sub>A<sub>i</sub></var> with respect to the horizontal (<code>δ<sub>i</sub></code>, marked with dark blue).</p>
+		
+		<p data-height="570" data-theme-id="0" data-slug-hash="eBaRVV" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="angles of a segment w.r.t. the horizontal (SVG + JS)" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/eBaRVV/">angles of a segment w.r.t. the horizontal (SVG + JS)</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+		
+		<p>Knowing that we have this relation between the two means that, if we get <code><var>γ<sub>i</sub></var></code>, then we can easily get <code><var>δ<sub>i</sub></var></code> as well.</p>
+		
+		<p>In order to compute <code><var>γ<sub>i</sub></var></code>, let's get back to our right triangle <var>A<sub>i</sub>T<sub>i+1</sub>A<sub>i+1</sub></var>:</p>
+		
+		<figure>
+			<img src='' alt=''/>
+			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
+		</figure>
+		
+		<p>In this right triangle, the tangent of the <var>∠T<sub>i+1</sub>A<sub>i</sub>A<sub>i+1</sub></var> angle (<code><var>γ<sub>i</sub></var></code>) is the ratio between the opposing cathetus <var>T<sub>i+1</sub>A<sub>i+1</sub></var> (<code>dy<sub>i</sub></code>) and the adjacent cathetus <var>A<sub>i</sub>T<sub>i+1</sub></var> (<code>dx<sub>i</sub></code>).</p>
+		
+		<pre>tan(<var>γ<sub>i</sub></var>) = dy<sub>i</sub>/dx<sub>i</sub></pre>
+		
+		<p>This means that we can get this angle <code><var>γ<sub>i</sub></var></code> (which is also the angle of the <var>A<sub>i</sub>A<sub>i+1</sub></var> edge) from the values of the <code>dx<sub>i</sub></code> and <code>dy<sub>i</sub></code> differences that we now know (the <code>d</code> array) using <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/atan2'><code>Math.atan2()</code></a>:</p>
+		
+		<pre>let γ = d.map(c => Math.atan2(...c.reverse()));</pre>
+		
+		<p><a href=''>Test</a>.</p>
+		
+		<p class='note'>The <code>reverse()</code> function mutates the array, but we don't care about this here since we won't need the pairs of coordinates in the <code>dx,dy</code> order again anyway (only in the <code>dy,dx</code> order we have them now after reversion them, but we'll get to that soon).</p>
+		
+		<p>In general, the tangent of an angle between the horizontal and a segment (doesn't matter whether acute, obtuse, positive, negative) is the ratio between the oriented projections of this segment onto the vertical and horizontal lines passing through that point. The figure below illustrates this for the <code><var>γ<sub>i</sub></var></code> angle of the <var>A<sub>i</sub>A<sub>i+1</sub></var> segment with respect to the horizontal.</p>
+		
+		<figure>
+			<img src='' alt=''/>
+			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
+		</figure>
+		
+		<p>Now let's see how things look in the case of the <code><var>δ<sub>i</sub></var></code> angle of the <var>A<sub>i+1</sub>A<sub>i</sub></var> segment with respect to the horizontal.</p>
+		
+		<figure>
+			<img src='' alt=''/>
+			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
+		</figure>
+		
+		<p>In this case, the projections are oriented in the opposite direction, which gives us that the tangent of the angle <code><var>δ<sub>i</sub></var></code> between the horizontal and the <var>A<sub>i+1</sub>A<sub>i</sub></var> segment is the ratio between <code>-dy<sub>i</sub></code> and <code>-dx<sub>i</sub></code>:</p>
+		
+		<pre>tan(<var>δ<sub>i</sub></var>) = -dy<sub>i</sub>/-dx<sub>i</sub></pre>
+		
+		<p>Wait a second, that's the same ratio as before because the minus signs cancel each other! Does that mean we get the same angle as before and wouldn't that be wrong since <code><var>γ<sub>i</sub></var></code> and <code><var>δ<sub>i</sub></var></code> must have opposite signs? Well, while the ratio is the same, the oriented projections have different signs, so we don't get the same angle if we compute it with the <code>Math.atan2()</code> function, which takes these projections as separate arguments (and not just the ratio as one argument the way <code>Math.atan()</code> does):</p>
+		
+		<pre>let δ = d.map(c => Math.atan2(...c.map(c => -c)));</pre>
+		
+		<p>Note that now we didn't need to reverse the pairs of coordinate differences because we've already done that when we computed the <code>γ</code> array.</p>
+		
+		<p><a href=''>This Pen</a> checks that the angles we got look right.</p>
+		
+		<h3>coordinates for start and end points of arcs</h3>
+		
+		<p>And we're finally here! The following figure illustrates how we compute the start point of arc <code>i</code>:</p>
+		
+		<figure>
+			<img src='' alt=''/>
+			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
+		</figure>
 	</body>
 </html>

@@ -1,27 +1,42 @@
 body {
+	--hs: 0, 0%;
+	--l: 100%;
+	overflow-x: hidden;
 	margin: 0 auto;
-	max-width: 57em;
-	font: 1.25em/1.5 trebuchet ms, verdana, sans-serif;
+	padding: 0 .5em;
+	max-width: 900px;
+	background: hsl(var(--hs), var(--l));
+	font: 22px/1.45 lato, lucida grande, lucida sans unicode, tahoma, sans-serif;
+}
+
+figure, pre, code {
+	background: hsl(var(--hs), calc(var(--l) - 7%));
 }
 
 figure, pre {
 	padding: .5em;
-	background: #f3f3f3;
+	tab-size: 4;
 }
 
+code { font: 1em monospace; }
+
+pre { font: 1em consolas, monaco, monospace }
+
 figcaption { text-align: center; }
+
+img { background: #fff; }
 
 code {
 	display: inline-block;
 	padding: 2px 4px;
-	background: #f3f3f3;
-	font: 1.05em courier;
+	font-weight: inherit;
+	white-space: nowrap;
 }
 
-var { font-family: times new roman, serif }
-
 .note {
+	--hs: 54, 100%;
+	--l: 90%;
 	border: solid 2px orange;
 	padding: .5em;
-	background: lemonchiffon;
+	background: hsl(var(--hs), var(--l));
 }

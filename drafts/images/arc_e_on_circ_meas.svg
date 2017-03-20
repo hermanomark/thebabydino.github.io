@@ -1,0 +1,126 @@
+<svg xmlns='http://www.w3.org/2000/svg' 
+		 xmlns:xlink='http://www.w3.org/1999/xlink' 
+		 viewBox='-35 -20 80 40'>
+	<style>
+		[d], [r] {
+			stroke: #bbc;
+			stroke-width: .3px
+		}
+		[d] { fill: none }
+		[d*=h] { stroke-width: .1px }
+		[d*=h] + [d] ~ [d] { stroke: #ef9134 }
+		[x] {
+			fill: #400080;
+			font: italic 2px tahoma, arial
+		}
+		tspan { font-size: .5em }
+		[r^='2'], [r^='6'] { fill: none }
+		[x] {  }
+		[r*='.3'] { fill: #c7a0ee }
+		[r] { stroke-width: .15px }
+		[id*=m] [x], [r] ~ [x] { fill: #800040 }
+		#b * { fill: #ef3491 }
+		[id*=m] [d], [r='.35'] {
+			marker-end: url(#b);
+			stroke: #ef3491;
+			stroke-width: .1px
+		}
+		[r='.35'] { stroke: #9134ef }
+		g + [x] {
+			fill: #804000;
+			font: 2px consolas, monospace
+		}
+		#m0 g { filter: url(#f) }
+	</style>
+	<filter id='f'>
+		<feColorMatrix values='.3 .3 .3 0 0 .3 .3 .3 0 0 .3 .3 .3 0 0 0 0 0 1 0'/>
+	</filter>
+	<marker id='b' viewBox='0 -4 8 8' refX='8' 
+					markerWidth='9' markerHeight='9' 
+					orient='auto'>
+		<path d='M8 0 0-4V4'/>
+	</marker>
+	<g id='m0'>
+		<path d='M-16-15A9 9 0 0 1-16.3-12.8'/>
+		<text x='-18.5' y='-13.7'>α<tspan>0</tspan></text>
+		<g>
+			<path d='M24-15A9 9 0 0 1 23.7-12.8'/>
+			<text x='21.5' y='-13.7'>α<tspan>0</tspan></text>
+		</g>
+		<path d='M-24 5A6 6 0 0 0-28.5-.8'/>
+		<text x='-28' y='3'>α<tspan>n-1</tspan></text>
+	</g>
+	<text x='-31.5' y='-4'>n-1</text>
+	<path d='M-30 5h10'/>
+	<path d='M-28 5.8L-30 5L-25-15L-22.6-14.35'/>
+	<path d='M15-15
+					 L17.35-14.35
+					 M12 5.8
+					 L10 5
+					 M-28 5.8
+					 A2.5 2.5 0 0 1-29.5 2.9
+					 L-25.6-12.6
+					 A2.5 2.5 0 0 1-22.6-14.35'/>
+	<g id='g'>
+		<path d='M25-5
+						 L35 15'/>
+		<g id='m1'>
+			<path d='M38-10A3 3 0 0 1 32.3-8.7'/>
+			<path d='M30-5A5 5 0 0 1 27.2-.5'/>
+			<path d='M38 15A3 3 0 0 0 32.2 13.9'/>
+			<text x='34' y='-8'>α<tspan>i-1</tspan></text>
+			<text x='27.5' y='-3'>α<tspan>i</tspan></text>
+			<text x='34' y='14'>α<tspan>i+1</tspan></text>
+		</g>
+		<text x='29' y='2'>i</text>
+		<path d='M15-15h10
+					 	 M35-10h10
+						 M25-5h10
+						 M35 15h10'/>
+		<path d='M28.35-11.6
+						 L35-10
+						 L25-5
+						 M35 15
+						 L28.9 12.6'/>
+		<path d='M28.35-11.6
+						 A2.5 2.5 0 0 1 29-7
+						 L27.2-6.1
+						 A2.5 2.5 0 0 0 26.1-2.8
+						 L32.1 9.1
+						 A2.5 2.5 0 0 1 28.9 12.6'/>
+		<path d='M17.35-14.35
+						 L28.35-11.6
+						 M28.9 12.6
+						 L12 5.8' 
+					stroke-dasharray='.3'/>
+		<text x='13.5' y='-15.6'>A<tspan>0</tspan></text>
+		<text x='34' y='-11'>A<tspan>i-1</tspan></text>
+		<text x='22.8' y='-5'>A<tspan>i</tspan></text>
+		<text x='31.5' y='16'>A<tspan>i+1</tspan></text>
+		<text x='8.3' y='6.2'>A<tspan>n-1</tspan></text>
+		<circle r='6.8' cx='35' cy='-10'/>
+		<circle r='2.5' cx='25' cy='-5'/>
+		<circle r='6.6' cx='35' cy='15'/>
+		<circle r='.3' cx='15' cy='-15'/>
+		<circle r='.3' cx='35' cy='-10'/>
+		<circle r='.3' cx='25' cy='-5'/>
+		<circle r='.3' cx='35' cy='15'/>
+		<circle r='.3' cx='10' cy='5'/>
+		<circle r='.35' cx='29' cy='-7'/>
+		<circle r='.35' cx='26.1' cy='-2.8'/>
+		<circle r='.35' cx='28.9' cy='12.6'/>
+	</g>
+	<use xlink:href='#g' x='-40'/>
+	<circle r='2.5' cx='-25' cy='-15'/>
+	<circle r='2.2' cx='-30' cy='5'/>
+	<circle r='.35' cx='-29.5' cy='2.9'/>
+	<circle r='.35' cx='-22.6' cy='-14.35'/>
+	<text x='29' y='-5.2'>E<tspan>i-2</tspan></text>
+	<text id='a' x='24' y='-1'>E<tspan>i-1</tspan></text>
+	<text id='c' x='26.5' y='14'>E<tspan>i</tspan></text>
+	<text x='-23' y='-12'>E<tspan>0</tspan></text>
+	<use xlink:href='#a' x='-35' y='-4.2'/>
+	<use xlink:href='#c' x='-42' y='-15'/>
+	<text x='-14.5' y='14'>E<tspan>i+1</tspan></text>
+	<text x='-32.5' y='2.5'>E<tspan>n-1</tspan></text>
+</svg>
