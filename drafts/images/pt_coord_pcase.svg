@@ -5,7 +5,7 @@
 		svg { font: italic 5px tahoma, arial }
 		tspan, #x, #y, [d] ~ text { font-family: consolas, monospace }
 		[x='-15'] *, [d] + * { font-style: normal }
-		[d], [r] { stroke-width: .5px }
+		[d], [r] { stroke-width: .7px }
 		svg, [x] + g { fill: #bbc }
 		[d], [r='80'] { fill: none }
 		[d] { stroke: #bbc }
@@ -14,7 +14,7 @@
 		[d*='L69'] + *, g { fill: #804000 } /* radial line text */
 	</style>
 	<path d='M20 0A20 20 0 0 1 17.3 10'/><!--arc-->
-	<text x='9' y='4' fill='#800040'>φ</text><!-- angle label -->
+	<text x='12' y='5' fill='#800040'>θ</text><!-- angle label -->
 
 	<g>
 		<text x='-15' y='-2'>O<tspan>(0,0)</tspan></text><!-- origin label -->

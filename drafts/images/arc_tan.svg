@@ -5,14 +5,14 @@
 		[d], [r] {
 			fill: #c7a0ee;
 			stroke: #bbc;
-			stroke-width: .6px
+			stroke-width: .45px
 		}
 		[d], [r*='2'] { fill: none }
 		[d] + [d] {
 			stroke: #ef9134;
-			stroke-width: 1px
+			stroke-width: .7px
 		}
-		[x] { font: italic 7px tahoma, arial }
+		[x] { font: italic 4.5px tahoma, arial }
 		tspan { font-size: .5em }
 		[x] { fill: #400080 }
 		[r*='3'] { stroke: #9134ef }
@@ -23,7 +23,7 @@
 		use ~ [r] { stroke: none }
 		[d] + [x] {
 			fill: grey;
-			font: 7px consolas, monospace
+			font: 6px consolas, monospace
 		}
 	</style>
 	<!-- vertex labels -->
@@ -69,7 +69,7 @@
 	<!-- arc start/ end labels -->
 	<text id='c' x='-13' y='-25'>S<tspan>i</tspan></text>
 	<text id='f' x='2'>O<tspan>i</tspan></text>
-	<text id='d' x='-30' y='17'>E<tspan>i</tspan></text>
+	<text id='d' x='-29' y='17'>E<tspan>i</tspan></text>
 	<use xlink:href='#c' x='108' y='20'/>
 	<use xlink:href='#f' x='60'/>
 	<use xlink:href='#d' x='80' y='13'/>

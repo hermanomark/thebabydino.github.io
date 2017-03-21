@@ -2,7 +2,7 @@
 		 xmlns:xlink='http://www.w3.org/1999/xlink' 
 		 viewBox='-45 -35 180 90'>
 	<style>
-		[d], [r] { stroke-width: .6px }
+		[d], [r] { stroke-width: .45px }
 		[d] { stroke: #ef9134 }
 		[r] {
 			fill: #c7a0ee;
@@ -12,11 +12,11 @@
 		use + [d] { stroke: grey }
 		[d] + [d*=A] {
 			stroke: #eec7a0;
-			stroke-width: 1px
+			stroke-width: .7px
 		}
 		[x] {
 			fill: #400080;
-			font: italic 6px tahoma, arial
+			font: italic 4.5px tahoma, arial
 		}
 		tspan { font-size: .5em }
 		[r] ~ [x] { fill: #804000 }

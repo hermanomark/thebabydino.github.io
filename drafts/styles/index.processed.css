@@ -15,7 +15,10 @@ figure, pre {
 	background: #f3f3f3;
 }
 
-pre { font: 1em consolas, monaco, monospace }
+pre {
+	overflow-x: scroll;
+	font: 1em consolas, monaco, monospace
+}
 
 figcaption { text-align: center; }
 

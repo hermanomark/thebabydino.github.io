@@ -1,0 +1,73 @@
+<svg xmlns='http://www.w3.org/2000/svg' 
+		 xmlns:xlink='http://www.w3.org/1999/xlink' 
+		 viewBox='-23 -3 40 20'>
+	<style>
+		[d] {
+			fill: none;
+			stroke: #bbc;
+			stroke-width: .15px
+		}
+		#b * { fill: #ef3491 } /* arc arrow */
+		#b + * {
+			stroke: #ef3491;
+			marker-end: url(#b)
+		} /* arc */
+		#b + * + * { fill: #800040 }
+		#c + *, [y] + [r] {
+			stroke-width: .1px;
+		}
+		[id] * { fill: #ef9134 }
+		#c + * + * {
+			marker-start: url(#a);
+		}
+		[d] + [d] {
+			stroke: #ef9134;
+			marker-end: url(#c);
+		}
+		[d*='5V'] { opacity: .5 }
+		[r] { fill: #c7a0ee }
+		[y] + [r] { stroke: #9134ef }
+		[r] + [y] { fill: #400080 }
+		[y] {
+			fill: #804000;
+			font: italic 1px tahoma, arial
+		}
+		[y] :nth-child(odd), [y] * * {
+			font-size: .5em
+		}
+		[y] > :nth-child(2n), [id] + *, [id] + * + * {
+			font-family: consolas, monospace
+		}
+		[y] > :nth-child(2n), #a + *, #a + * + * { font-style: normal }
+	</style>
+	<marker id='b' viewBox='0 -4 8 8' refX='7' 
+					markerWidth='5' markerHeight='5' 
+					orient='auto'>
+		<path d='M8 0 0-4V4'/>
+	</marker>
+	<path d='M-7 0A3 3 0 0 1-8.3 2.5'/>
+	<text x='-8.5' y='1'>γ<tspan>i</tspan></text>
+	
+	<marker id='c' viewBox='0 -4 8 8' refX='7' 
+					markerWidth='5' markerHeight='5'
+					orient='auto'>
+		<path d='M8 0 0-4V4'/>
+	</marker>
+	<path d='M-10 19V15H0V0H5' stroke-dasharray='.1'/><!-- axes -->
+	<path d='M-10 15V0H0'/><!-- projections -->
+	<path d='M-10 0L0 15'/><!-- initial edge -->
+	<circle r='.2'/>
+	<circle r='.2' cx='-10' cy='15'/>
+	<marker id='a' viewBox='-8 -4 8 8' refX='-7' 
+					markerWidth='5' markerHeight='5'
+					orient='auto'>
+		<path d='M-8 0 0-4V4'/>
+	</marker>
+	<text x='-6' y='-.5'>dx<tspan>i</tspan></text>
+	<text x='-11.8' y='8'>dy<tspan>i</tspan></text>
+	
+	<circle r='.2' cx='-10'/><!-- a i -->
+	<text x='-14.5' y='-.5'>A<tspan>i</tspan><tspan>(x<tspan>i</tspan>,y<tspan>i</tspan>)</tspan></text>
+	<circle r='.2' cy='15'/><!-- a i+1 -->
+	<text y='16'>A<tspan>i+1</tspan><tspan>(x<tspan>i+1</tspan>,y<tspan>i+1</tspan>)</tspan></text>
+</svg>

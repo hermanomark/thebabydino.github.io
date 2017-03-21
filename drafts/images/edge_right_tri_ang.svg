@@ -1,0 +1,60 @@
+<svg xmlns='http://www.w3.org/2000/svg' 
+		 xmlns:xlink='http://www.w3.org/1999/xlink' 
+		 viewBox='-23 -3 40 20'>
+	<style>
+		[d*=H] { stroke: #bbc } /* horizontal line */
+		[d] {
+			fill: none;
+			stroke-width: .15px
+		}
+		#b * { fill: #ef3491 }
+		[d*=A] {
+			stroke: #ef3491;
+			marker-end: url(#b)
+		}
+		[d] + [d] { stroke: #ef9134 } /* edge */
+		[y] {
+			fill: #804000;
+			font: italic 1px tahoma, arial
+		}
+		[y] :nth-child(odd), [y] * * {
+			font-size: .5em
+		}
+		[y] > :nth-child(2n), [x] + [x], [d] + [x] {
+			font-family: consolas, monospace
+		}
+		[y] > :nth-child(2n), [x] + [x] { font-style: normal }
+		[d] + [y] { fill: #800040 }
+		[r] + [y] { fill: #400080 }
+		[y] + [r] {
+			fill: #c7a0ee;
+			stroke: #9134ef;
+			stroke-width: .1px
+		}
+		[d] + [r] { fill: #9134ef }
+		[d*=v] { stroke: #eec7a0 } /* perpendicular */
+		[r='.1'] { fill: #eec7a0 }
+	</style>
+	<marker id='b' viewBox='0 -4 8 8' refX='7' 
+					markerWidth='5' markerHeight='5' 
+					orient='auto'>
+		<path d='M8 0 0-4V4'/>
+	</marker>
+	<path d='M-7 0A3 3 0 0 1-8.3 2.5'/>
+	<circle r='.1' cx='.5' cy='.5'/><!-- perpendicular dot -->
+	<path d='M0 0v15M1 0v1h-1'/><!-- perpendicular -->
+	
+	<text x='-8.5' y='1'>γ<tspan>i</tspan></text>
+	<text x='-6' y='-.5'>dx<tspan>i</tspan></text>
+	<text x='.5' y='8'>dy<tspan>i</tspan></text>
+	
+	<path d='M-10 0H5'/><!-- horizontal line -->
+	<path d='M-10 0L0 15'/><!-- initial edge -->
+	
+	<circle r='.2'/><!-- t i+1 -->
+	<text y='-.5'>T<tspan>i+1</tspan><tspan>(x<tspan>i+1</tspan>,y<tspan>i</tspan>)</tspan></text>
+	<circle r='.2' cx='-10'/><!-- a i -->
+	<text x='-14.5' y='-.5'>A<tspan>i</tspan><tspan>(x<tspan>i</tspan>,y<tspan>i</tspan>)</tspan></text>
+	<circle r='.2' cy='15'/><!-- a i+1 -->
+	<text y='16'>A<tspan>i+1</tspan><tspan>(x<tspan>i+1</tspan>,y<tspan>i+1</tspan>)</tspan></text>
+</svg>

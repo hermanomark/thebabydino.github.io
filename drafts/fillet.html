@@ -301,7 +301,7 @@ n-3, n-2, n-1
 		<pre>let ne = n - τ; /* number of edges */
 
 let d = v.slice(0, ne).map((c, i) => {
-	let nxt = v[(i + 1)%n]; /* next vertex coords */
+	let nxτ = v[(i + 1)%n]; /* next vertex coords */
 
 	return [
 		nxt[0] - c[0] /* x difference dx */, 
@@ -591,19 +591,19 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 			<figcaption>diagram showing how getting sweep flags from vertex coordinates works in the two cases: <code>&lt;polygon&gt;</code> (top) vs. <code>&lt;polyline&gt;</code> (bottom)</figcaption>
 		</figure>
 		
-		<p>If <code>T</code> is the type of polygonal chain (<code>0</code> when closed vs. <code>1</code> when open), then the two can be unified:</p>
+		<p>If <code>τ</code> is the type of polygonal chain (<code>0</code> when closed vs. <code>1</code> when open), then the two can be unified:</p>
 		
 		<pre><var>f<sub>i</sub></var> = fn(d<sub>i+τ</sub>, d<sub>i-1+τ</sub>)</pre>
 		
 		<p>In the <code>&lt;polygon&gt;</code> case, both the index of the current arc and of the coordinate differences corresponding to the edge after the vertex the arc replaces (edge <code>i</code>) go from <code>0</code> all the way through <code>n-1</code> (<code>0 &le; i &lt; n</code>). But in the <code>&lt;polyline&gt;</code> case, the index of the current arc goes from <code>0</code> through <code>n-3</code> (<code>0 &le; i &lt; n-2</code>), while that of the coordinate differences corresponding to the edge after the vertex the arc replaces (edge <code>i+1</code>) goes from <code>1</code> through <code>n-2</code> (<code>1 &le; i &lt; n-1</code>).</p>
 		
-		<p>In the unified case, the index of the current arc goes from <code>0</code> through <code>n-1-2·T</code> (<code>0 &le; i &lt; n-2·T</code>), while that of the edge after the vertex the current arc replaces goes from <code>T</code> through <code>n-1-T</code> (<code>T &le; i &lt; n-T</code>).</p>
+		<p>In the unified case, the index of the current arc goes from <code>0</code> through <code>n-1-2·τ</code> (<code>0 &le; i &lt; n-2·τ</code>), while that of the edge after the vertex the current arc replaces goes from <code>τ</code> through <code>n-1-τ</code> (<code>τ &le; i &lt; n-τ</code>).</p>
 		
 		<p>Now let's code this! What we do here is <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map'><code>map()</code></a> the 2D array of coordinate differences to a 1D array of flags:</p>
 		
-		<pre>let f = d.slice(T).map((c, i) => {
+		<pre>let f = d.slice(τ).map((c, i) => {
 	/* coord diffs corresp to previous edge */
-	let prv = d[(i + ne - 1 + T)%ne];
+	let prv = d[(i + ne - 1 + τ)%ne];
 
 	return .5*(Math.sign(prv[0]*c[1] - c[0]*prv[1]) + 1);
 });</pre>
@@ -628,23 +628,23 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 
 		<p>The <var>Q</var> and <var>R</var> points are the projections of our point <var>P</var> onto the axes of our system of coordinates. This means that <var>PQ</var> and <var>PR</var> are perpendicular onto the axes (the <var>∠PQO</var> and <var>∠PRO</var> angles are <code>90°</code> angles). It also means that the <var>OQ</var> and <var>PR</var> segments are equal to <code><var>xp</var></code> (which is the value of <var>P</var>'s <code><var>x</var></code> coordinate) and that the <var>OR</var> and <var>PQ</var> segments are equal to <code><var>yp</var></code> (which is the value of <var>P</var>'s <code><var>y</var></code> coordinate).</p>
 
-		<p><var>PQO</var> is a right triangle (since the <var>∠PQO</var> angle is a <code>90°</code> angle) where we know the hypotenuse <var>OP</var> (it's <code>r</code>, the radius of the circle our point <var>P</var> is on) and the <var>∠QOP</var> angle (it's <code>φ</code>).</p>
+		<p><var>PQO</var> is a right triangle (since the <var>∠PQO</var> angle is a <code>90°</code> angle) where we know the hypotenuse <var>OP</var> (it's <code>r</code>, the radius of the circle our point <var>P</var> is on) and the <var>∠QOP</var> angle (it's <code>θ</code>).</p>
 
-		<p>The cosine of the <var>∠QOP</var> angle (<code>φ</code>) is the ratio between the adjacent <a href='https://en.wikipedia.org/wiki/Cathetus'>cathetus</a> <var>OQ</var> (<code><var>xp</var></code>) and the hypotenuse <var>OP</var> (<code>r</code>). This means we have <code>cos(φ) = <var>xp</var>/r</code> and, from here, we get that <code><var>xp</var> = r·cos(φ)</code>.</p>
+		<p>The cosine of the <var>∠QOP</var> angle (<code>θ</code>) is the ratio between the adjacent <a href='https://en.wikipedia.org/wiki/Cathetus'>cathetus</a> <var>OQ</var> (<code><var>xp</var></code>) and the hypotenuse <var>OP</var> (<code>r</code>). This means we have <code>cos(θ) = <var>xp</var>/r</code> and, from here, we get that <code><var>xp</var> = r·cos(θ)</code>.</p>
 
-		<p>Similarly, the sine of the same <var>∠QOP</var> angle (<code>φ</code>) is the ratio between the opposing cathetus <var>PQ</var> (<code><var>yp</var></code>) and the hypotenuse <var>OP</var> (<code>r</code>). This means we have <code>sin(φ) = <var>yp</var>/r</code> and, from here, we get that <code><var>yp</var> = r·sin(φ)</code>.</p>
+		<p>Similarly, the sine of the same <var>∠QOP</var> angle (<code>θ</code>) is the ratio between the opposing cathetus <var>PQ</var> (<code><var>yp</var></code>) and the hypotenuse <var>OP</var> (<code>r</code>). This means we have <code>sin(θ) = <var>yp</var>/r</code> and, from here, we get that <code><var>yp</var> = r·sin(θ)</code>.</p>
 
 		<p>So the <code><var>xp</var>,<var>yp</var></code> coordinates of any point <var>P</var> on a circle around the origin are:</p>
 
-		<pre><var>xp</var> = r·cos(φ)
-<var>yp</var> = r·sin(φ)</pre>
+		<pre><var>xp</var> = r·cos(θ)
+<var>yp</var> = r·sin(θ)</pre>
 
 		<p>Here, <code>r</code> is the radius of the circle and <code>α</code> is the angle of the radial line connecting the origin to our point <var>P</var> with respect to the horizontal (both are known).</p>
 		
 		<p>But what about the case when this circle's central point doesn't coincide with the <code>0,0</code> point of the coordinate system? Well, in this case, we need to add up the coordinates of the circle's central point:</p>
 
-		<pre><var>xp</var> = xo + r·cos(φ)
-<var>yp</var> = yo + r·sin(φ)</pre>
+		<pre><var>xp</var> = xo + r·cos(θ)
+<var>yp</var> = yo + r·sin(θ)</pre>
 		
 		<figure>
 			<img src='images/pt_coord_pcase_off.svg' alt='particular case of a point in a plane when the central point of the circle it is on is not at the (0,0) point of the coordinate system'/>
@@ -660,7 +660,7 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 			<figcaption>start points of arcs relative to vertices of initial polygonal chain</figcaption>
 		</figure>
 
-		<p>So for arc <code>i</code>, the coordinates of its start point can be computed from the <code>x<sub>i+τ</sub>,y<sub>i+τ</sub></code> coordinates of the the polygonal chain vertex that's being replaced by this arc <var>A<sub>i+τ</sub></var> (<var>A<sub>i</sub></var> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <var>A<sub>i+1</sub></var> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>), the radius <var>A<sub>i+τ</sub>S<sub>i</sub></var> (<var>A<sub>i</sub>S<sub>i</sub></var> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <var>A<sub>i+1</sub>S<sub>i</sub></var> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>) of this circle and the angle of the radial segment <var>A<sub>i+τ</sub>S<sub>i</sub></var> with respect to the horizontal.</p>
+		<p>So for arc <code>i</code>, the coordinates of its start point can be computed from the <code>x<sub>i+τ</sub>,y<sub>i+τ</sub></code> coordinates of the the polygonal chain vertex that's being replaced by this arc <var>A<sub>i+τ</sub></var> (<var>A<sub>i</sub></var> in the <code>&lt;polygon&gt;</code> case when <code>τ = 0</code> and <var>A<sub>i+1</sub></var> in the <code>&lt;polyline&gt;</code> case when <code>τ = 1</code>), the radius <var>A<sub>i+τ</sub>S<sub>i</sub></var> (<var>A<sub>i</sub>S<sub>i</sub></var> in the <code>&lt;polygon&gt;</code> case when <code>τ = 0</code> and <var>A<sub>i+1</sub>S<sub>i</sub></var> in the <code>&lt;polyline&gt;</code> case when <code>τ = 1</code>) of this circle and the angle of the radial segment <var>A<sub>i+τ</sub>S<sub>i</sub></var> with respect to the horizontal.</p>
 		
 		<p>We already know all vertex coordinates, so what we still need to get are the <var>A<sub>i+τ</sub>S<sub>i</sub></var> radii and the angles between the horizontal and these radial lines.</p>
 		
@@ -671,7 +671,7 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 			<figcaption>end points of arcs relative to vertices of initial polygonal chain</figcaption>
 		</figure>
 		
-		<p>For arc <code>i</code>, the coordinates of its end point can be computed from the <code>x<sub>i+τ</sub>,y<sub>i+τ</sub></code> coordinates of the the polygonal chain vertex that's being replaced by this arc <var>A<sub>i+τ</sub></var> (<var>A<sub>i</sub></var> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <var>A<sub>i+1</sub></var> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>), the radius <var>A<sub>i+τ</sub>E<sub>i</sub></var> (<var>A<sub>i</sub>E<sub>i</sub></var> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <var>A<sub>i+1</sub>E<sub>i</sub></var> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>) of this circle and the angle of the radial segment <var>A<sub>i+τ</sub>E<sub>i</sub></var> with respect to the horizontal.</p>
+		<p>For arc <code>i</code>, the coordinates of its end point can be computed from the <code>x<sub>i+τ</sub>,y<sub>i+τ</sub></code> coordinates of the the polygonal chain vertex that's being replaced by this arc <var>A<sub>i+τ</sub></var> (<var>A<sub>i</sub></var> in the <code>&lt;polygon&gt;</code> case when <code>τ = 0</code> and <var>A<sub>i+1</sub></var> in the <code>&lt;polyline&gt;</code> case when <code>τ = 1</code>), the radius <var>A<sub>i+τ</sub>E<sub>i</sub></var> (<var>A<sub>i</sub>E<sub>i</sub></var> in the <code>&lt;polygon&gt;</code> case when <code>τ = 0</code> and <var>A<sub>i+1</sub>E<sub>i</sub></var> in the <code>&lt;polyline&gt;</code> case when <code>τ = 1</code>) of this circle and the angle of the radial segment <var>A<sub>i+τ</sub>E<sub>i</sub></var> with respect to the horizontal.</p>
 		
 		<p>Just like in the start point case, what we still need to compute are the <var>A<sub>i+τ</sub>E<sub>i</sub></var> radii and the angles between the horizontal and these radial lines.</p>
 		
@@ -720,16 +720,16 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		
 		<h3>angles between horizontal and segments connecting replaced vertices to arc start/ end points</h3>
 		
-		<p>Let's see the angles of the segments connecting the replaced vertices (<code>T</code>, .... <code>i-1</code>, <code>i</code>, <code>i+1</code>, ... <code>n-1-T</code>, where <code>T</code> is <code>0</code> if the polygonal chain is closed and <code>1</code> otherwise) to the start points:</p>
+		<p>Let's see the angles of the segments connecting the replaced vertices (<code>τ</code>, .... <code>i-1</code>, <code>i</code>, <code>i+1</code>, ... <code>n-1-τ</code>, where <code>τ</code> is <code>0</code> if the polygonal chain is closed and <code>1</code> otherwise) to the start points:</p>
 		
 		<figure>
 			<img src='images/arc_s_on_circ_meas.svg' alt='angles of radial segments to arc start points with respect to the horizontal'/>
 			<figcaption>angles of radial segments <var>A<sub>i+τ</sub>S<sub>i</sub></var> with respect to the horizontal</figcaption>
 		</figure>
 				
-		<p>Since the <var>S<sub>i</sub></var> points are on the <var>A<sub>i+τ</sub>A<sub>i-1+τ</sub></var> segments (<var>A<sub>i</sub>A<sub>i-1</sub></var> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <var>A<sub>i+1</sub>A<sub>i</sub></var> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>), the angles of the <var>A<sub>i+τ</sub>S<sub>i</sub></var> radii with respect to the horizontal are the angles between the horizontal and these <var>A<sub>i+τ</sub>A<sub>i-1+τ</sub></var> segments (which are edges of our initial polygonal chain).</p>
+		<p>Since the <var>S<sub>i</sub></var> points are on the <var>A<sub>i+τ</sub>A<sub>i-1+τ</sub></var> segments (<var>A<sub>i</sub>A<sub>i-1</sub></var> in the <code>&lt;polygon&gt;</code> case when <code>τ = 0</code> and <var>A<sub>i+1</sub>A<sub>i</sub></var> in the <code>&lt;polyline&gt;</code> case when <code>τ = 1</code>), the angles of the <var>A<sub>i+τ</sub>S<sub>i</sub></var> radii with respect to the horizontal are the angles between the horizontal and these <var>A<sub>i+τ</sub>A<sub>i-1+τ</sub></var> segments (which are edges of our initial polygonal chain).</p>
 		
-		<p>So the angles we want are the angles formed at every vertex between the horizontal and the edge before that vertex if there is an edge before that vertex because, in the case when the polygonal chain is open, we don't have an edge before the first vertex <var>A<sub>0</sub></var>.</p>
+		<p>So the angles we want are the angles formed at every vertex between the horizontal and the edge <em>before</em> that vertex. That's if there is an edge before that vertex because, in the case when the polygonal chain is open, we don't have an edge before the first vertex <var>A<sub>0</sub></var>.</p>
 		
 		<p>The array of <code><var>δ</var></code> angles we need to get is an edge-related variable - we compute one angle for each edge of the polygonal chain, so we have one less angle computation to do in the <code>&lt;polyline&gt;</code> case (because we have one less edge in this situation).</p>
 		
@@ -742,19 +742,19 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 			<figcaption>angles of radial segments <var>A<sub>i+τ</sub>E<sub>i</sub></var> with respect to the horizontal</figcaption>
 		</figure>
 		
-		<p>Since the <var>E<sub>i</sub></var> points are on the <var>A<sub>i+τ</sub>A<sub>i+1+τ</sub></var> segments (<var>A<sub>i</sub>A<sub>i+1</sub></var> in the <code>&lt;polygon&gt;</code> case when <code>T = 0</code> and <var>A<sub>i+1</sub>A<sub>i+2</sub></var> in the <code>&lt;polyline&gt;</code> case when <code>T = 1</code>), the angles of the <var>A<sub>i+τ</sub>E<sub>i</sub></var> radii with respect to the horizontal are the angles between the horizontal and the <var>A<sub>i+τ</sub>A<sub>i+1+τ</sub></var> edges of our initial polygonal chain.</p>
+		<p>Since the <var>E<sub>i</sub></var> points are on the <var>A<sub>i+τ</sub>A<sub>i+1+τ</sub></var> segments (<var>A<sub>i</sub>A<sub>i+1</sub></var> in the <code>&lt;polygon&gt;</code> case when <code>τ = 0</code> and <var>A<sub>i+1</sub>A<sub>i+2</sub></var> in the <code>&lt;polyline&gt;</code> case when <code>τ = 1</code>), the angles of the <var>A<sub>i+τ</sub>E<sub>i</sub></var> radii with respect to the horizontal are the angles between the horizontal and the <var>A<sub>i+τ</sub>A<sub>i+1+τ</sub></var> edges of our initial polygonal chain.</p>
 		
-		<p>In this case, the angles we want are the angles formed at every vertex between the horizontal and the edge after that vertex. Again, that's only if there is an edge after that vertex because, in the case when the polygonal chain is open, we don't have an edge after the last vertex <var>A<sub>n-1</sub></var>.</p>
+		<p>In this case, the angles we want are the angles formed at every vertex between the horizontal and the edge <em>after</em> that vertex. Again, that's only if there is an edge after that vertex because, in the case when the polygonal chain is open, we don't have an edge after the last vertex <var>A<sub>n-1</sub></var>.</p>
 		
 		<p>The array of <code><var>γ</var></code> angles we need to get here is also an edge-related variable - we compute one angle for each edge of the polygonal chain, so we have one less angle computation to do in the <code>&lt;polyline&gt;</code> case since we don't connect the last vertex to the first one in this situation.</p>
 		
-		<p>Since the array of edge angles <code><var>γ</var></code> is edge-related, but the array where we store the coordinates of the arcs' endpoints is corner-related, this means that, in the <code>&lt;polyline&gt;</code> case, we only use the last <code>n-2</code> of the edge angles. We don't need <code><var>γ<sub>0</sub></var></code> in this situation since this is the angle of the <var>A<sub>0</sub>A<sub>1</sub></var> edge and we don't have an end point of an arc on that edge, only the start point of the first arc (arc <code>0</code>, replacing vertex <code>1</code>) and this arc start point is then connected to the start point of the polyline, first vertex <var>A<sub>0</sub></var>.</p>
+		<p>Since the array of edge angles <code><var>γ</var></code> is edge-related, but the array where we store the coordinates of the arcs' endpoints is corner-related, this means that, in the <code>&lt;polyline&gt;</code> case, we only use the last <code>n-2</code> of the edge angles. We don't need <code><var>γ<sub>0</sub></var></code> in this situation since this is the angle of the <var>A<sub>0</sub>A<sub>1</sub></var> edge and we don't have an end point of an arc on that edge, only the start point of the first arc (arc <code>0</code>, replacing vertex <code>1</code>), which is connected to the start point of the polyline, first vertex <var>A<sub>0</sub></var>.</p>
 		
 		<p>A very important thing to notice from the previous two illustrations is that <code><var>γ<sub>i</sub></var></code> (the angle between the horizontal and the <var>A<sub>i</sub>A<sub>i+1</sub></var> segment) and <code><var>δ<sub>i</sub></var></code> (the angle between the horizontal and the <var>A<sub>i+1</sub>A<sub>i</sub></var> segment, which is basically the same segment as <var>A<sub>i</sub>A<sub>i+1</sub></var>, only going in the other direction) are <a href='https://en.wikipedia.org/wiki/Transversal_(geometry)#Consecutive_interior_angles'>consecutive interior angles</a> (because all horizontal lines are parallel with one another) and therefore, their absolute values add up to <code>180°</code> (which makes them <a href='https://en.wikipedia.org/wiki/Angle#Supplementary_angle'>supplementary</a>).</p>
 		
 		<figure>
-			<img src='' alt=''/>
-			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
+			<img src='images/edge_arcs.svg' alt='angles γi and δi'/>
+			<figcaption>angles <code><var>γ<sub>i</sub></var></code> and <code><var>δ<sub>i</sub></var></code></figcaption>
 		</figure>
 		
 		<p>If we also take into account their signs (one goes clockwise, so its sign is <code>+</code>, the other one goes in the opposite direction, so its sign is <code>-</code>), we see that they are <code>180°</code> apart. Subtracting <code>180°</code> from the positive one gives us the negative one, while adding <code>180°</code> to the negative one gives us the positive one.</p>
@@ -766,9 +766,9 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
 		</figure>-->
 		
-		<p>The interactive demo below illustrates this. Drag the <var>A<sub>i</sub>A<sub>i+1</sub></var> segment to see how its angle with respect the horizontal (<code>γ<sub>i</sub></code>, marked with pink) changes and how that influences the angle of <var>A<sub>i+1</sub>A<sub>i</sub></var> with respect to the horizontal (<code>δ<sub>i</sub></code>, marked with dark blue).</p>
+		<p>The interactive demo below illustrates this. Drag the <var>A<sub>i</sub>A<sub>i+1</sub></var> segment to see how its angle with respect the horizontal (<code>γ<sub>i</sub></code>, marked with pink) changes and how that influences the angle of <var>A<sub>i+1</sub>A<sub>i</sub></var> with respect to the horizontal (<code>δ<sub>i</sub></code>, marked with green).</p>
 		
-		<p data-height="570" data-theme-id="0" data-slug-hash="eBaRVV" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="angles of a segment w.r.t. the horizontal (SVG + JS)" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/eBaRVV/">angles of a segment w.r.t. the horizontal (SVG + JS)</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+		<p data-height="630" data-theme-id="0" data-slug-hash="eBaRVV" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="angles of a segment w.r.t. the horizontal (SVG + JS)" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/eBaRVV/">angles of a segment w.r.t. the horizontal (SVG + JS)</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
 		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
 		
 		<p>Knowing that we have this relation between the two means that, if we get <code><var>γ<sub>i</sub></var></code>, then we can easily get <code><var>δ<sub>i</sub></var></code> as well.</p>
@@ -776,8 +776,8 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		<p>In order to compute <code><var>γ<sub>i</sub></var></code>, let's get back to our right triangle <var>A<sub>i</sub>T<sub>i+1</sub>A<sub>i+1</sub></var>:</p>
 		
 		<figure>
-			<img src='' alt=''/>
-			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
+			<img src='images/edge_right_tri_ang.svg' alt='getting γi from a right triangle'/>
+			<figcaption><code><var>γ<sub>i</sub></var></code> in the right triangle <var>A<sub>i</sub>T<sub>i+1</sub>A<sub>i+1</sub></var></figcaption>
 		</figure>
 		
 		<p>In this right triangle, the tangent of the <var>∠T<sub>i+1</sub>A<sub>i</sub>A<sub>i+1</sub></var> angle (<code><var>γ<sub>i</sub></var></code>) is the ratio between the opposing cathetus <var>T<sub>i+1</sub>A<sub>i+1</sub></var> (<code>dy<sub>i</sub></code>) and the adjacent cathetus <var>A<sub>i</sub>T<sub>i+1</sub></var> (<code>dx<sub>i</sub></code>).</p>
@@ -788,22 +788,22 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		
 		<pre>let γ = d.map(c => Math.atan2(...c.reverse()));</pre>
 		
-		<p><a href=''>Test</a>.</p>
+		<p><a href='https://codepen.io/thebabydino/pen/89bd96f8a280bfaeaa64011a8219717b?editors=0011'>This pen</a> checks that we got the correct values this way.</p>
 		
-		<p class='note'>The <code>reverse()</code> function mutates the array, but we don't care about this here since we won't need the pairs of coordinates in the <code>dx,dy</code> order again anyway (only in the <code>dy,dx</code> order we have them now after reversion them, but we'll get to that soon).</p>
+		<p class='note'>The <code>reverse()</code> function mutates the array, but that's exactly what we want here since we won't need the pairs of coordinates in the <code>dx,dy</code> order again anyway (only in the <code>dy,dx</code> order we have them now after reversing them, but we'll get to that soon).</p>
 		
-		<p>In general, the tangent of an angle between the horizontal and a segment (doesn't matter whether acute, obtuse, positive, negative) is the ratio between the oriented projections of this segment onto the vertical and horizontal lines passing through that point. The figure below illustrates this for the <code><var>γ<sub>i</sub></var></code> angle of the <var>A<sub>i</sub>A<sub>i+1</sub></var> segment with respect to the horizontal.</p>
+		<p>In general, the tangent of an angle between the horizontal and a segment (doesn't matter whether this angle is acute, obtuse, positive, negative) is the ratio between the oriented projections of this segment onto the vertical and horizontal lines passing through the start point of this segment. The figure below illustrates this for the <code><var>γ<sub>i</sub></var></code> angle of the <var>A<sub>i</sub>A<sub>i+1</sub></var> segment with respect to the horizontal.</p>
 		
 		<figure>
-			<img src='' alt=''/>
-			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
+			<img src='images/edge_orient_proj_dir.svg' alt=''/>
+			<figcaption>the oriented projections of the <var>A<sub>i</sub>A<sub>i+1</sub></var> segment</figcaption>
 		</figure>
 		
 		<p>Now let's see how things look in the case of the <code><var>δ<sub>i</sub></var></code> angle of the <var>A<sub>i+1</sub>A<sub>i</sub></var> segment with respect to the horizontal.</p>
 		
 		<figure>
-			<img src='' alt=''/>
-			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
+			<img src='images/edge_orient_proj_rev.svg' alt=''/>
+			<figcaption>the oriented projections of <var>A<sub>i+1</sub>A<sub>i</sub></var> compared to <var>A<sub>i</sub>A<sub>i+1</sub></var></figcaption>
 		</figure>
 		
 		<p>In this case, the projections are oriented in the opposite direction, which gives us that the tangent of the angle <code><var>δ<sub>i</sub></var></code> between the horizontal and the <var>A<sub>i+1</sub>A<sub>i</sub></var> segment is the ratio between <code>-dy<sub>i</sub></code> and <code>-dx<sub>i</sub></code>:</p>
@@ -816,7 +816,7 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		
 		<p>Note that now we didn't need to reverse the pairs of coordinate differences because we've already done that when we computed the <code>γ</code> array.</p>
 		
-		<p><a href=''>This Pen</a> checks that the angles we got look right.</p>
+		<p><a href='https://codepen.io/thebabydino/pen/dc5a81d05905ae7119fcdbc8e9aeb37e?editors=0011'>This Pen</a> checks that the angles we got look right.</p>
 		
 		<h3>coordinates for start and end points of arcs</h3>
 		

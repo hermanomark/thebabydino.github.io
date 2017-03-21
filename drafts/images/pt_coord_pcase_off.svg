@@ -4,10 +4,10 @@
 	<style>
 		svg {
 			fill: #bbc;
-			font: italic 5px tahoma, arial
+			font: italic 7px tahoma, arial
 		}
-		tspan, [d] + *, svg > text + [x] { font: 5px courier, monospace }
-		[d], [r] { stroke-width: .5px }
+		tspan, [d] + *, svg > text + [x] { font: 7px consolas, monospace }
+		[d], [r] { stroke-width: .7px }
 		[d], [r='80'] { fill: none }
 		[d] { stroke: #bbc }
 		[d*=A] { stroke: #ef3491 }
@@ -19,14 +19,14 @@
 		g + use + * { fill: #400080 }
 	</style>
 	<path d='M80 30A20 20 0 0 1 77.3 40'/><!--arc-->
-	<text x='74' y='36'>φ</text>
-	<text x='85' y='27'>r*cos(φ)</text>
-	<text x='132' y='50'>r*sin(φ)</text>
+	<text x='74' y='36'>θ</text>
+	<text x='85' y='27'>r*cos(θ)</text>
+	<text x='131' y='50'>r*sin(θ)</text>
 
 	<g>
 		<path d='M0 95V0H150M60 30h85'/><!-- axes -->	
 		<path d='M129.3 70V30M0 30H60V0'/><!-- guides -->
-		<text x='37' y='27'>O<tspan>(xo,yo)</tspan></text>
+		<text x='29' y='27'>O<tspan>(xo,yo)</tspan></text>
 		<text x='-10' y='-3'><tspan>(0,0)</tspan></text>
 		<text x='152'>x</text>
 		<text y='98'>y</text>
