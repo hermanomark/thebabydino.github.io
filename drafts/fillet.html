@@ -469,7 +469,7 @@ function fillet(_poly) {
 		<p>A polygonal chain with rounded corners is equivalent to a path made up of straight line segments (one along each proper edge of the initial polygonal chain) and arcs (one replacing each corner of the initial polygonal chain).</p>
 		
 		<figure>
-			<img src='images/path_equiv_rnd.svg' alt='equivalent paths for polygonal chains with rounded corners where the start and end points for each arc are marked on the figure'/>
+			<img src='images/path_equiv_vs_orig_rnd.svg' alt='equivalent paths for polygonal chains with rounded corners where the start and end points for each arc are marked on the figure'/>
 			<figcaption>equivalent paths for polygonal chains with rounded corners where the start and end points for each arc are marked on the figure; note how in the <code>&lt;polygon&gt;</code> case, arc <code>i</code> is at vertex <code>i</code> (and we have <code>n</code> arcs in total), while in the <code>&lt;polyline&gt;</code> case, it's at vertex <code>i+1</code> (and we only have <code>n-2</code> arcs in total, as the first and last vertices are endpoints and we don't have arcs there)</figcaption>
 		</figure>
 		
@@ -878,27 +878,27 @@ let s = ρ.map((c, i) =>
 
 		<p>If our polygonal chain is closed, then our path data looks something like this:</p>
 
-		<pre><strong>M</strong> <strong><var>xs<sub>0</sub></var>, <var>ys<sub>0</sub></var>
-A R, R, , 0, 0, <var>f<sub>0</sub></var>, <var>xe<sub>0</sub></var>, <var>ye<sub>0</sub></var>
+		<pre><strong>M</strong> <strong>xs<sub>0</sub>, ys<sub>0</sub>
+A R, R, , 0, 0, f<sub>0</sub>, xe<sub>0</sub>, ye<sub>0</sub>
 ...
-L <var>xs<sub>i</sub></var>, <var>ys<sub>i</sub></var>
-A R, R, , 0, 0, <var>f<sub>i</sub></var>, <var>xe<sub>i</sub></var>, <var>ye<sub>i</sub></var>
+L xs<sub>i</sub>, ys<sub>i</sub>
+A R, R, , 0, 0, f<sub>i</sub>, xe<sub>i</sub>, ye<sub>i</sub>
 ...
-L <var>xs<sub>n-1</sub></var>, <var>ys<sub>n-1</sub></var>
-A R, R, , 0, 0, <var>f<sub>n-1</sub></var>, <var>xe<sub>n-1</sub></var>, <var>ye<sub>n-1</sub></var></strong>
+L xs<sub>n-1</sub>, ys<sub>n-1</sub>
+A R, R, , 0, 0, f<sub>n-1</sub>, xe<sub>n-1</sub>, ye<sub>n-1</sub></strong>
 z</pre>
 		
 		<p>However, if our polygonal chain is open, things change a bit:</p>
 		
 		<pre><strong>M</strong> x<sub>0</sub>, y<sub>0</sub>
-L <strong><var>xs<sub>0</sub></var>, <var>ys<sub>0</sub></var>
-A R, R, , 0, 0, <var>f<sub>0</sub></var>, <var>xe<sub>0</sub></var>, <var>ye<sub>0</sub></var>
+L <strong>xs<sub>0</sub>, ys<sub>0</sub>
+A R, R, , 0, 0, f<sub>0</sub>, xe<sub>0</sub>, ye<sub>0</sub>
 ...
-L <var>xs<sub>i</sub></var>, <var>ys<sub>i</sub></var>
-A R, R, , 0, 0, <var>f<sub>i</sub></var>, <var>xe<sub>i</sub></var>, <var>ye<sub>i</sub></var>
+L xs<sub>i</sub>, ys<sub>i</sub>
+A R, R, , 0, 0, f<sub>i</sub>, xe<sub>i</sub>, ye<sub>i</sub>
 ...
-L <var>xs<sub>n-3</sub></var>, <var>ys<sub>n-3</sub></var>
-A R, R, , 0, 0, <var>f<sub>n-3</sub></var>, <var>xe<sub>n-3</sub></var>, <var>ye<sub>n-3</sub></var></strong>
+L xs<sub>n-3</sub>, ys<sub>n-3</sub>
+A R, R, , 0, 0, f<sub>n-3</sub>, xe<sub>n-3</sub>, ye<sub>n-3</sub></strong>
 L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 
 		<p>In both cases, we start with a "move to" (<code>M</code>) command.</p>
@@ -926,6 +926,38 @@ pd += τ ? v[n - 1] : 'z';
 
 		<p>However, just generating this path data doesn't do anything. We need to create a <code>&lt;path&gt;</code> element, append it right next to our initial polygonal chain and set this path data to its <code>d</code> attribute.</p>
 
+		<pre>const NS_URI = 'http://www.w3.org/2000/svg';
 
+let _path = document.createElementNS(NS_URI, 'path');
+_path.setAttribute('d', pd);
+	
+let _up = _poly.parentNode;
+_up.insertBefore(_path, _poly);
+</pre>
+
+		<p>The initial polygonal chain element and this <code>&lt;path&gt;</code> element are one on top of each other, so we tweak the <code>opacity</code> of the polygonal chain in the CSS and set a few very obvious styles for the <code>&lt;path&gt;</code> to check that everything looks right:</p>
+		
+		<pre>[points] { opacity: .35 }
+path {
+	fill: none;
+	stroke: #ef9134
+}</pre>
+		
+		<p>Looks like we're almost done!</p>
+		
+		<p data-height="401" data-theme-id="0" data-slug-hash="634638a63bd469abb3d3a83a93e52074" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="[NMAR] round poly(gon|line) corners - fillet step #15" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/634638a63bd469abb3d3a83a93e52074/">[NMAR] round poly(gon|line) corners - fillet step #15</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+
+		<p>Now the question is: can we be sure it works in all situations? Let's see some more random polygonal chains:</p>
+
+		DEMO EMBED
+
+		<p>It looks like it works for random plain convex polygons, for concave polygons, for self intersecting polygons, so can there still be a situation when it fails?</p>
+		
+		<p>Sadly, yes, so we're not done yet!</p>
+
+		<h2>the large radius problem</h2>
+		
+		<p>Let's consider the original SVG code we had for our first test polygon (the equilateral triangle) and let's increase the rounding radius (<code>r</code> attribute) to something like <code>35</code> or <code>53</code>. Now the result doesn't look right anymore and the same happens for other polygons when we increase their rounding radii beyond a certain value.</p>
 	</body>
 </html>
