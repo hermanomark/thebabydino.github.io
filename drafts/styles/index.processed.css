@@ -17,7 +17,8 @@ figure, pre {
 
 pre {
 	overflow-x: scroll;
-	font: 1em consolas, monaco, monospace
+	font: 1em consolas, monaco, monospace;
+	tab-size: 4;
 }
 
 figcaption { text-align: center; }
