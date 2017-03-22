@@ -498,8 +498,8 @@ function fillet(_poly) {
 		<p>Let's take a closer look at the components of an "arc to" command. We have the following:</p>
 
 		<ul>
-			<li>the radius of this arc along the <code><var>x</var></code> axis of its system of coordinates - this is equal to the rounding radius <code>r</code></li>
-			<li>the radius of this arc along the <code><var>y</var></code> axis of its system of coordinates - this is also equal to the rounding radius <code>r</code></li>
+			<li>the radius of this arc along the <code><var>x</var></code> axis of its system of coordinates - this is equal to the rounding radius <code>R</code></li>
+			<li>the radius of this arc along the <code><var>y</var></code> axis of its system of coordinates - this is also equal to the rounding radius <code>R</code></li>
 			<li>the rotation of its system of coordinates - this doesn't matter in our case since the radii along the two 2D dimensions (<code>x</code> and <code>y</code>) are equal, so we take it to be <code>0</code> to keep things as simple as possible</li>
 			<li>the large arc flag - this is <code>0</code> in our case since we always take the small arc at a vertex (the one inside the small angle, the one under <code>180°</code></li>
 			<li>the sweep flag <code><var>f<sub>i</sub></var></code> - this is <code>1</code> if the arc goes clockwise between its start and its end point and <code>0</code> otherwise; it's something we need to compute for each arc</li>
@@ -509,35 +509,35 @@ function fillet(_poly) {
 		
 		<h2>path data structure</h2>
 		
-		<p>Knowing all this, our path data is going to look something like this <code>&lt;polygon&gt;</code> case:</p>
+		<p>Knowing all this, our path data is going to look something like this for the <code>&lt;polygon&gt;</code> case:</p>
 
 		<pre>M <var>xs<sub>0</sub></var>, <var>ys<sub>0</sub></var>
-A r, r, 0, 0, <var>f<sub>0</sub></var>, <var>xe<sub>0</sub></var>, <var>ye<sub>0</sub></var>
+A R, R, , 0, 0, <var>f<sub>0</sub></var>, <var>xe<sub>0</sub></var>, <var>ye<sub>0</sub></var>
 L <var>xs<sub>1</sub></var>, <var>ys<sub>1</sub></var>
-A r, r, 0, 0, <var>f<sub>1</sub></var>, <var>xe<sub>1</sub></var>, <var>ye<sub>1</sub></var>
+A R, R, , 0, 0, <var>f<sub>1</sub></var>, <var>xe<sub>1</sub></var>, <var>ye<sub>1</sub></var>
 ...
 L <var>xs<sub>i</sub></var>, <var>ys<sub>i</sub></var>
-A r, r, 0, 0, <var>f<sub>i</sub></var>, <var>xe<sub>i</sub></var>, <var>ye<sub>i</sub></var>
+A R, R, , 0, 0, <var>f<sub>i</sub></var>, <var>xe<sub>i</sub></var>, <var>ye<sub>i</sub></var>
 ...
 L <var>xs<sub>n-2</sub></var>, <var>ys<sub>n-2</sub></var>
-A r, r, 0, 0, <var>f<sub>n-2</sub></var>, <var>xe<sub>n-2</sub></var>, <var>ye<sub>n-2</sub></var>
+A R, R, , 0, 0, <var>f<sub>n-2</sub></var>, <var>xe<sub>n-2</sub></var>, <var>ye<sub>n-2</sub></var>
 L <var>xs<sub>n-1</sub></var>, <var>ys<sub>n-1</sub></var>
-A r, r, 0, 0, <var>f<sub>n-1</sub></var>, <var>xe<sub>n-1</sub></var>, <var>ye<sub>n-1</sub></var>
+A R, R, , 0, 0, <var>f<sub>n-1</sub></var>, <var>xe<sub>n-1</sub></var>, <var>ye<sub>n-1</sub></var>
 z</pre>
 		
 		<p>In the <code>&lt;polyline&gt;</code> case, things look a bit different:</p>
 		
 		<pre>M x<sub>0</sub>, y<sub>0</sub>
 L <var>xs<sub>0</sub></var>, <var>ys<sub>0</sub></var>
-A r, r, 0, 0, <var>f<sub>0</sub></var>, <var>xe<sub>0</sub></var>, <var>ye<sub>0</sub></var>
+A R, R, , 0, 0, <var>f<sub>0</sub></var>, <var>xe<sub>0</sub></var>, <var>ye<sub>0</sub></var>
 L <var>xs<sub>1</sub></var>, <var>ys<sub>1</sub></var>
-A r, r, 0, 0, <var>f<sub>1</sub></var>, <var>xe<sub>1</sub></var>, <var>ye<sub>1</sub></var>
+A R, R, , 0, 0, <var>f<sub>1</sub></var>, <var>xe<sub>1</sub></var>, <var>ye<sub>1</sub></var>
 ...
 L <var>xs<sub>i</sub></var>, <var>ys<sub>i</sub></var>
-A r, r, 0, 0, <var>f<sub>i</sub></var>, <var>xe<sub>i</sub></var>, <var>ye<sub>i</sub></var>
+A R, R, , 0, 0, <var>f<sub>i</sub></var>, <var>xe<sub>i</sub></var>, <var>ye<sub>i</sub></var>
 ...
 L <var>xs<sub>n-3</sub></var>, <var>ys<sub>n-3</sub></var>
-A r, r, 0, 0, <var>f<sub>n-3</sub></var>, <var>xe<sub>n-3</sub></var>, <var>ye<sub>n-3</sub></var>
+A R, R, , 0, 0, <var>f<sub>n-3</sub></var>, <var>xe<sub>n-3</sub></var>, <var>ye<sub>n-3</sub></var>
 L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		
 		<p>However, in the end, we still need to get the same three things for each arc <code>i</code>, whether the number of arcs is <code>n</code> (closed polygonal chain) or <code>n-2</code> (open polygonal chain):</p>
@@ -820,11 +820,112 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		
 		<h3>coordinates for start and end points of arcs</h3>
 		
-		<p>And we're finally here! The following figure illustrates how we compute the start point of arc <code>i</code>:</p>
+		<p>And we're finally here! The following figure illustrates how we compute the coordinates of the start point of our arcs:</p>
 		
 		<figure>
-			<img src='' alt=''/>
-			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
+			<img src='images/arc_s_comp.svg' alt=''/>
+			<figcaption>how to get the coordinates of the start points of our arcs</figcaption>
 		</figure>
+
+		<p>There's a lot going on in the above illustration, but the main idea is that we get the coordinates of start point <var>S<sub>i</sub></var> from those of the original vertex that the arc it starts (arc <code>i</code>) replaces, which is vertex <var>A<sub>i+τ</sub></var> (<var>A<sub>i</sub></var> in the <code>&lt;polygon&gt;</code> case and <var>A<sub>i+1</sub></var> in the <code>&lt;polyline&gt;</code> case), from the length of the <var>A<sub>i+τ</sub>S<sub>i</sub></var> segment (<code>ρ<sub>i</sub></code>) and from the angle of this segment with respect to the horizontal (<code>δ<sub>i-1+τ</sub></code>):</p>
+
+		<pre><var>xs<sub>i</sub></var> = x<sub>i+τ</sub> + ρ<sub>i</sub>·cos(δ<sub>i-1+τ</sub>)
+<var>ys<sub>i</sub></var> = y<sub>i+τ</sub> + ρ<sub>i</sub>·sin(δ<sub>i-1+τ</sub>)</pre>
+
+		<p>Putting this into JavaScript code, we have:</p>
+
+		<pre>let s = ρ.map((c, i) => {
+	let x = v[i + τ][0] + c*Math.cos(δ[(i - 1 + τ + ne)%ne]), 
+		y = v[i + τ][1] + c*Math.sin(δ[(i - 1 + τ + ne)%ne]);
+	
+	return [x, y];
+});</pre>
+
+		<p>The above code <a href='https://codepen.io/thebabydino/pen/eb90c6583973522609dcc3bdc0782cf1?editors=0011'>works</a>, but it's a bit repetitive, so let's <a href='https://codepen.io/thebabydino/pen/664ac53caa5cb39290ca05636de3e25c?editors=0011'>iron that out</a>:</p>
+
+		<pre>const HF = ['cos', 'sin'];
+
+let s = ρ.map((c, i) => 
+			  v[i + τ].map((k, j) => 
+			  			   k + c*Math[HF[j]](δ[(i - 1 + τ + ne)%ne)));</pre>
+		
+		<p>Now let's move on to the end points. The following illustration shows how their coordinates can be computed:</p>
+
+		<figure>
+			<img src='images/arc_e_comp.svg' alt=''/>
+			<figcaption>how to get the coordinates of the end points of our arcs</figcaption>
+		</figure>
+
+		<p>For arc <code>i</code>, we get the coordinates of end point <var>E<sub>i</sub></var> from those of the original vertex that the arc it ends replaces, which is vertex <var>A<sub>i+τ</sub></var> (<var>A<sub>i</sub></var> in the <code>&lt;polygon&gt;</code> case and <var>A<sub>i+1</sub></var> in the <code>&lt;polyline&gt;</code> case), from the length of the <var>A<sub>i+τ</sub>E<sub>i</sub></var> segment (<code>ρ<sub>i</sub></code>) and from the angle of this segment with respect to the horizontal (<code>γ<sub>i+τ</sub></code>):</p>
+
+		<pre><var>xe<sub>i</sub></var> = x<sub>i+τ</sub> + ρ<sub>i</sub>·cos(γ<sub>i+τ</sub>)
+<var>ye<sub>i</sub></var> = y<sub>i+τ</sub> + ρ<sub>i</sub>·sin(γ<sub>i+τ</sub>)</pre>
+
+		<p>This means we have the following JavaScript code to <a href='https://codepen.io/thebabydino/pen/5556496a29163ce8d0ef4138e4bc56d1?editors=0011'>compute these coordinates</a>:</p>
+
+		<pre>let e = ρ.map((c, i) => 
+			  v[i + τ].map((k, j) => 
+			  			   k + c*Math[HF[j]](γ[(i + τ + ne)%ne)));</pre>
+		
+		<h2>creating the path data</h2>
+
+		<p>Now that we have all we need in order to generate our path data, let's see how we do that.</p>
+
+		<figure>
+			<img src='images/path_equiv_rnd.svg' alt=''/>
+			<figcaption>equivalent paths vs. original polygonal chains</figcaption>
+		</figure>
+
+		<p>If our polygonal chain is closed, then our path data looks something like this:</p>
+
+		<pre><strong>M</strong> <strong><var>xs<sub>0</sub></var>, <var>ys<sub>0</sub></var>
+A R, R, , 0, 0, <var>f<sub>0</sub></var>, <var>xe<sub>0</sub></var>, <var>ye<sub>0</sub></var>
+...
+L <var>xs<sub>i</sub></var>, <var>ys<sub>i</sub></var>
+A R, R, , 0, 0, <var>f<sub>i</sub></var>, <var>xe<sub>i</sub></var>, <var>ye<sub>i</sub></var>
+...
+L <var>xs<sub>n-1</sub></var>, <var>ys<sub>n-1</sub></var>
+A R, R, , 0, 0, <var>f<sub>n-1</sub></var>, <var>xe<sub>n-1</sub></var>, <var>ye<sub>n-1</sub></var></strong>
+z</pre>
+		
+		<p>However, if our polygonal chain is open, things change a bit:</p>
+		
+		<pre><strong>M</strong> x<sub>0</sub>, y<sub>0</sub>
+L <strong><var>xs<sub>0</sub></var>, <var>ys<sub>0</sub></var>
+A R, R, , 0, 0, <var>f<sub>0</sub></var>, <var>xe<sub>0</sub></var>, <var>ye<sub>0</sub></var>
+...
+L <var>xs<sub>i</sub></var>, <var>ys<sub>i</sub></var>
+A R, R, , 0, 0, <var>f<sub>i</sub></var>, <var>xe<sub>i</sub></var>, <var>ye<sub>i</sub></var>
+...
+L <var>xs<sub>n-3</sub></var>, <var>ys<sub>n-3</sub></var>
+A R, R, , 0, 0, <var>f<sub>n-3</sub></var>, <var>xe<sub>n-3</sub></var>, <var>ye<sub>n-3</sub></var></strong>
+L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
+
+		<p>In both cases, we start with a "move to" (<code>M</code>) command.</p>
+
+		<p>In the <code>&lt;polygon&gt;</code> case, we go straight to the start point of the first arc (<code>xs<sub>0</sub>,ys<sub>0</sub></code>). In the <code>&lt;polyline&gt;</code> case, we go to the first vertex of our original polygon (<code>x<sub>0</sub>,y<sub>0</sub></code>) and from there, using the "line to" (<code>L</code>) command, we draw a line to the start point of the first arc (<code>xs<sub>0</sub>,ys<sub>0</sub></code>).</p>
+
+		<p>From this point on, we have a big chunk that's a gain common drawing all the arcs of our equivalent path (<code>n</code> of them in the <code>&lt;polygon&gt;</code> case and <code>n-2</code> in the <code>&lt;polyline&gt;</code> case) and connecting these arcs with straight lines (from the end point of one to the start point of the next).</p>
+
+		<p>From the end point of the last arc of our equivalent path (<code>xe<sub>n-1</sub>,ye<sub>n-1</sub></code> if the polygonal chain is closed and <code>xe<sub>n-3</sub>,ye<sub>n-3</sub></code> if it's open) things are again a bit different. In the <code>&lt;polygon&gt;</code> case, we just close the path (the <code>z</code> command). In the <code>&lt;polyline&gt;</code> case, we go to the last vertex of our original polygon (<code>x<sub>n-1</sub>,y<sub>n-1</sub></code>) and we don't close the path.</p>
+
+		<p>So the JavaScript code that generates our path data is:</p>
+
+		<pre>/* number of angles of original polygonal chain */
+let na = n - 2*τ;
+
+/* the path data */
+let pd = 'M' + τ ? v[0] + 'L' : '';
+
+for(let i = 0; i < na; i++) {
+	pd += (i ? 'L' : '') + s[i] + 'A' + [R, R, 0, 0, f[i], ...e[i]]
+}
+
+pd += τ ? v[n - 1] : 'z';
+		</pre>
+
+		<p>However, just generating this path data doesn't do anything. We need to create a <code>&lt;path&gt;</code> element, append it right next to our initial polygonal chain and set this path data to its <code>d</code> attribute.</p>
+
+
 	</body>
 </html>

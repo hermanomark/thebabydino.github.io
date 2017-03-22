@@ -2,8 +2,8 @@
 		 xmlns:xlink='http://www.w3.org/1999/xlink' 
 		 viewBox='-40 -20 80 40'>
 	<style>
-		[d], [r] {
-			fill: #c7a0ee;
+		[d] {
+			fill: none;
 			stroke: #bbc;
 			stroke-width: .3px
 		}
@@ -14,7 +14,11 @@
 			font: italic 2px tahoma, arial
 		}
 		tspan { font-size: .5em }
-		[r] { stroke-width: .2px }
+		[r] {
+			fill: #c7a0ee;
+			stroke: #9134ef;
+			stroke-width: .2px
+		}
 		[r='.4'] { stroke: #ef3491 }
 		[r] ~ [x] { fill: #800040 }
 	</style>
