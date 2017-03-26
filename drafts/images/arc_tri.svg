@@ -47,7 +47,7 @@
 					 A25 25 0 0 1 59 25.5'/>
 	
 	<!-- vertex arc meas -->
-	<text id='a' x='-26' y='-2'>γ<tspan>i</tspan></text>
+	<text id='a' x='-26' y='-2'>φ<tspan>i</tspan></text>
 	<path d='M-27.7-14.5
 					 A7 7 0 0 1-27.4-9.3
 					 M-24.5-8.3
@@ -56,7 +56,7 @@
 					 A16 16 0 0 0 108.25 39.1
 					 M106 37.1
 					 A19 19 0 0 0 102.4 42.9'/>
-	<text x='23' y='-25'>γ<tspan>i</tspan> = θ<tspan>i</tspan>/2</text>
+	<text x='23' y='-25'>φ<tspan>i</tspan> = α<tspan>i</tspan>/2</text>
 	<use xlink:href='#a' y='-9'/>
 	<use xlink:href='#a' x='132' y='38'/>
 	<use xlink:href='#a' x='125' y='41'/>

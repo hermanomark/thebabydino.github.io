@@ -1,0 +1,53 @@
+<svg xmlns='http://www.w3.org/2000/svg' 
+		 xmlns:xlink='http://www.w3.org/1999/xlink' 
+		 viewBox='-10 -10 50 30'>
+	<style>
+		[d] {
+			fill: none;
+			stroke: #bbc;
+			stroke-width: .2px
+		}
+		[d*=A] { stroke: #ef9134 }
+		* { 
+			fill: #400080;
+			font: italic 1.3px tahoma, arial
+		}
+		tspan { font-size: .5em }
+		[r] + *, use ~ * {
+			fill: #804000;
+			font: 1.3px consolas, monospace
+		}
+		g ~ * { fill: #800040 }
+		use ~ * {
+			fill: grey;
+			font-size: 1.7px
+		}
+		[r] {
+			fill: #c7a0ee;
+			stroke: #9134ef;
+			stroke-width: .13px
+		}
+		[r*='6'] { stroke: #ef3491 }
+	</style>
+	<g id='g'>
+		<path d='M32.2-8.6 25-5 35 15 15.5 7.2'/>
+		<path d='M32.2-8.6
+						 A8 8 0 0 0 28.6 2.2
+						 L25.6-3.9
+						 A8 8 0 0 1 15.5 7.2'/>
+		<circle r='.2' cx='25' cy='-5'/>
+		<circle r='.2' cx='35' cy='15'/>
+		<circle r='.26' cx='28.6' cy='2.2'/>
+		<circle r='.26' cx='25.6' cy='-3.9'/>
+		<text x='31' y='6'>i</text>
+		<text x='23.5' y='-5'>A<tspan>i</tspan></text>
+		<text x='35.5' y='16'>A<tspan>i+1</tspan></text>
+	</g>
+	<text x='29' y='2'>E<tspan>i-1</tspan></text>
+	<text x='24' y='-3'>S<tspan>i</tspan></text>
+	<text x='4' y='2'>E<tspan>i</tspan></text>
+	<text x='-1.5' y='-3'>S<tspan>i+1</tspan></text>	
+	<use xlink:href='#g' x='-25'/>
+	<text x='16' y='-8'>polyline</text>
+	<text x='-9' y='-8'>polygon</text>
+</svg>
