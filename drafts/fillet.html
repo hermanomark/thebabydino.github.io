@@ -1157,7 +1157,19 @@ pd += τ ? 'L' + v[n - 1] : 'z';</pre>
 
 		<h2>copying the look of initial polygonal chains</h2>
 
-		<p>Before we remove the original polygonal chains and leave just the path equivalents of the polygons with rounded corners, we need to mak sure they're styled the same way.</p>
+		<p>Before we remove the original polygonal chains and leave just the path equivalents with rounded corners, we need to make sure they look the same way.</p>
+
+		<p>The first thing that comes to mind here is to copy the attributes of the initial polygonal chain to the equivalent path. This takes care of everything that's been set via presentation attributes, via id, class, attribute selectors or via inline styles.</p>
+
+		<p>I've been in doubt whether to do this for all attributes or exclude the <code>points</code> and <code>r</code> ones. I eventually decided not to exclude them for a few reasons.</p>
+
+		<p>First of all, excluding them might break styles set via attribute selectors because there may be some rule set that looks like this:</p>
+
+		<pre>[points][r] { /* styles */ }</pre>
+
+		<p>Secondly, since I'm removing the initial polygonal chains, I don't exactly dislike the idea of still having the information in those attributes. And finally, while they have the downside of adding to the markup, their presence doesn't do any harm.</p>
+
+		<p>However, what copying all attributes doesn't cover is styles set using the <code>polygon</code> or <code>polyline</code> selectors.</p>
 
 		<h2>final words</h2>
 	</body>
