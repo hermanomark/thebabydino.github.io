@@ -958,7 +958,7 @@ path {
 		
 		<p>Sadly, yes, so we're not done yet!</p>
 
-		<h2>the large radius problem</h2>
+		<h2>the big radius problem</h2>
 		
 		<p>Let's consider the original SVG code we had for our first test polygon (the equilateral triangle) and let's increase the rounding radius (<code>r</code> attribute) to something like <code>35</code> or <code>59</code> or anything a lot larger than our initial value of <code>10</code>. Now the result doesn't look right anymore and the same happens for other polygonal chains when we increase their rounding radii beyond a certain value.</p>
 
@@ -984,7 +984,7 @@ path {
 		
 		<figure>
 			<img src='images/edge_i_lim_vs_ini.svg' alt='' />
-			<figcaption>limit radius situation (solid) vs. initial one (dashed and faded)</figcaption>
+			<figcaption>limit radius situation (solid) vs. initial one (dashed and faded) for edge <code>i</code></figcaption>
 		</figure>
 
 		<p>In order to keep things simple, we scale everything by the same factor, which means that the radii of both arc <code>i-τ</code> and <code>i-τ+1</code> remain equal to each other throughout the scaling process. We call the radius value for which the end point of arc <code>i-τ</code> (<var>E<sub>i-τ</sub></var>) coincides with the start point of arc <code>i-τ+1</code> (<var>S<sub>i-τ+1</sub></var>) the <strong>limit radius</strong> we can have for the arcs connected to edge <code>i</code> (<var>A<sub>i</sub>A<sub>i+1</sub></var>). This limit radius is edge-related because we compute one for each edge.</p>
@@ -992,31 +992,31 @@ path {
 		<p>Now let's consider just the right triangles <var>A<sub>i</sub>O<sub>i-τ</sub>E<sub>i-τ</sub></var> and <var>A<sub>i+1</sub>O<sub>i-τ+1</sub>S<sub>i-τ+1</sub></var> after they've been scaled down.</p>
 		
 		<figure>
-			<img src='' alt='' />
-			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
+			<img src='images/edge_i_lim_right_tri.svg' alt='' />
+			<figcaption>right triangles <var>A<sub>i</sub>O<sub>i-τ</sub>E<sub>i-τ</sub></var> and <var>A<sub>i+1</sub>O<sub>i-τ+1</sub>S<sub>i-τ+1</sub></var> after they've been scaled down</figcaption>
 		</figure>
 
-		<p>In the right triangle <var>A<sub>i</sub>O<sub>i-τ</sub>E<sub>i-τ</sub></var>, the tangent of the <var>∠O<sub>i-τ</sub>A<sub>i</sub>E<sub>i-τ</sub></var> angle (<code>α<sub>i-τ</sub>/2</code>) is the opposing cathetus <var>O<sub>i-τ</sub>E<sub>i-τ</sub></var> (which goes from the initial value of the rounding radius <code>R</code> to the limit value of the rounding radius <code><var>rl<sub>i</sub></var></code> after scaling down) over the adjacent cathetus <var>A<sub>i</sub>E<sub>i-τ</sub></var>. This means that <var>A<sub>i</sub>E<sub>i-τ</sub></var> is <code><var>rl<sub>i</sub></var>/tan(α<sub>i-τ</sub>/2)</code>.</p>
+		<p>In the right triangle <var>A<sub>i</sub>O<sub>i-τ</sub>E<sub>i-τ</sub></var>, the tangent of the <var>∠O<sub>i-τ</sub>A<sub>i</sub>E<sub>i-τ</sub></var> angle (<code>α<sub>i-τ</sub>/2</code>) is the opposing cathetus <var>O<sub>i-τ</sub>E<sub>i-τ</sub></var> (which goes from the initial value of the rounding radius <code>R</code> to the limit value of the rounding radius <code><var>m<sub>i</sub></var></code> after scaling down) over the adjacent cathetus <var>A<sub>i</sub>E<sub>i-τ</sub></var>. This means that <var>A<sub>i</sub>E<sub>i-τ</sub></var> is <code><var>m<sub>i</sub></var>/tan(α<sub>i-τ</sub>/2)</code>.</p>
 
-		<p>And in the right triangle <var>A<sub>i+1</sub>O<sub>i-τ+1</sub>S<sub>i-τ+1</sub></var>, the tangent of the <var>∠A<sub>i+1</sub>O<sub>i-τ+1</sub>S<sub>i-τ+1</sub></var> angle (<code>α<sub>i-τ+1</sub>/2</code>) is the opposing cathetus <var>O<sub>i-τ+1</sub>S<sub>i-τ+1</sub></var> (which goes from the initial value of the rounding radius <code>R</code> to the limit value of the rounding radius <code><var>rl<sub>i</sub></var></code> after scaling down) over the adjacent cathetus <var>A<sub>i+1</sub>S<sub>i-τ+1</sub></var>. This means that <var>A<sub>i+1</sub>E<sub>i-τ+1</sub></var> is <code><var>rl<sub>i</sub></var>/tan(α<sub>i-τ+1</sub>/2)</code>.</p>
+		<p>And in the right triangle <var>A<sub>i+1</sub>O<sub>i-τ+1</sub>S<sub>i-τ+1</sub></var>, the tangent of the <var>∠A<sub>i+1</sub>O<sub>i-τ+1</sub>S<sub>i-τ+1</sub></var> angle (<code>α<sub>i-τ+1</sub>/2</code>) is the opposing cathetus <var>O<sub>i-τ+1</sub>S<sub>i-τ+1</sub></var> (which goes from the initial value of the rounding radius <code>R</code> to the limit value of the rounding radius <code><var>m<sub>i</sub></var></code> after scaling down) over the adjacent cathetus <var>A<sub>i+1</sub>S<sub>i-τ+1</sub></var>. This means that <var>A<sub>i+1</sub>E<sub>i-τ+1</sub></var> is <code><var>m<sub>i</sub></var>/tan(α<sub>i-τ+1</sub>/2)</code>.</p>
 		
 		<p>This gives us that the sum of the <var>A<sub>i</sub>E<sub>i-τ</sub></var> and <var>A<sub>i+1</sub>S<sub>i-τ+1</sub></var> (or <var>S<sub>i-τ+1</sub>A<sub>i+1</sub></var>, orientation doesn't matter in this case) segments is:</p>
 		
-		<pre><var>rl<sub>i</sub></var>·(1/tan(α<sub>i-τ</sub>/2) + 1/tan(α<sub>i-τ+1</sub>/2))</pre>
+		<pre><var>m<sub>i</sub></var>·(1/tan(α<sub>i-τ</sub>/2) + 1/tan(α<sub>i-τ+1</sub>/2))</pre>
 
-		<p>To make things easier for ourselves, let's denote by <code>k<sub>i</sub></code> the inverses of the tangents of the half vertex angles. This makes the above become:</p>
+		<p>To make things easier for ourselves, let's denote by <code>k</code> the inverses of the tangents of the half vertex angles. This makes the above become:</p>
 
-		<pre><var>rl<sub>i</sub></var>·(k<sub>i-τ</sub> + k<sub>i-τ+1</sub>)</pre>
+		<pre><var>m<sub>i</sub></var>·(k<sub>i-τ</sub> + k<sub>i-τ+1</sub>)</pre>
 
 		<p>But the sum of the <var>A<sub>i</sub>E<sub>i-τ</sub></var> and <var>A<sub>i+1</sub>S<sub>i-τ+1</sub></var> segments is also the full edge <var>A<sub>i</sub>A<sub>i+1</sub></var>.</p>
 
 		<p>So this all means that, at the point when we stop scaling down the radius, the <var>A<sub>i</sub>A<sub>i+1</sub></var> segment (<code>l<sub>i</sub></code>) is:</p>
 		
-		<pre>l<sub>i</sub> = <var>rl<sub>i</sub></var>·(k<sub>i-τ</sub> + k<sub>i-τ+1</sub>)</pre>
+		<pre>l<sub>i</sub> = <var>m<sub>i</sub></var>·(k<sub>i-τ</sub> + k<sub>i-τ+1</sub>)</pre>
 
-		<p>This way, we can extract the limit radius <code><var>rl<sub>i</sub></var></code>:</p>
+		<p>This way, we can extract the limit radius <code><var>m<sub>i</sub></var></code>:</p>
 
-		<pre><var>rl<sub>i</sub></var> = l<sub>i</sub>/(k<sub>i-τ</sub> + k<sub>i-τ+1</sub>)</pre>
+		<pre><var>m<sub>i</sub></var> = l<sub>i</sub>/(k<sub>i-τ</sub> + k<sub>i-τ+1</sub>)</pre>
 
 		<p class='note'>Note that, while <code>k</code> is corner-related (as the <code>k</code> values get computed directly from those of the angles at each corner), <code>rl</code> is edge-related - we have one limit radius per edge.</p>
 
@@ -1024,45 +1024,141 @@ path {
 
 		<pre>let k = α.map(c => 1/Math.tan(.5*c))</pre>
 
-		<p>Before we compute the limit radius for each edge, there's one more thing to keep in mind: the first edge and the last edge in the <code>&lt;polyline&gt;</code> case only get connected to one arc, not two. There's no arc at the start of the first edge and there's no arc at the end of the last edge.</p>
+		<p>Before we compute the limit radius for each edge, there's one more thing to keep in mind: the first edge and the last edge in the <code>&lt;polyline&gt;</code> case only get connected to one arc, not two. The start point of the first edge <var>A<sub>0</sub></var> doesn't get replaced by an arc when the polygonal chain is open and neither does the end point of the last edge <var>A<sub>n-1</sub></var>.</p>
+
+		<p>In the <code>&lt;polygon&gt;</code> case, we have that <code><var>m<sub>i</sub></var></code> depends on the length of the edge it corresponds to (<code>l<sub>i</sub></code>) and on the angles at the start (<code>i</code>) and end (<code>i+1</code>) vertices of this edge, more precisely on the <code>k</code> values computed as the inverses of the tangents of half these angles:</p>
+
+		<pre><var>m<sub>i</sub></var> = <var>f</var>(l<sub>i</sub>, k<sub>i</sub>, k<sub>i+1</sub>)</pre>
+
+		<p>In the <code>&lt;polyline&gt;</code> case, we have two particular cases for the first and last edge and a general case:</p>
+
+		<pre>i = 0: <var>m<sub>0</sub></var> = <var>f</var>(l<sub>0</sub>, k<sub>0</sub>)
+i = n-2: <var>m<sub>n-2</sub></var> = <var>f</var>(l<sub>n-2</sub>, k<sub>i-3</sub>)
+0 < i < n-2: <var>m<sub>i</sub></var> = <var>f</var>(l<sub>i</sub>, k<sub>i-1</sub>, k<sub>i</sub>)</pre>
+
+		<p>This is illustrated by the following diagram:</p>
 
 		<figure>
 			<img src='' alt='' />
-			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
+			<figcaption>DIAGRAM</figcaption>
 		</figure>
 
-		<p>When we're in the <code>&lt;polyline&gt;</code> case (<code>τ = 1</code>) and we're at the first edge (<code>i = 0</code>), the limit case is when the start point of the first arc <var>S<sub>0</sub></var> coincides with the first vertex of the polygonal chain <var>A<sub>0</sub></var> or, in other words, when the <var>A<sub>0</sub>A<sub>1</sub></var> segment equals the <var>A<sub>1</sub>S<sub>0</sub></var> segment. Since the length of the <var>A<sub>0</sub>A<sub>1</sub></var> segment is <code>l<sub>0</sub></code> and we can compute that of the <var>A<sub>1</sub>S<sub>0</sub></var> segment as <code><var>rl<sub>0</sub></var>/tan(α<sub>0</sub>/2)</code> or <code><var>rl<sub>0</sub></var>·k<sub>0</sub></code>, we get that the limit radius in this case is:</p>
+		<p>Let's now take a closer look at how we get the limit radius for the first edge when the polygonal chain is open.</p>
 
-		<pre><var>rl<sub>0</sub></var> = l<sub>0</sub>/k<sub>0</sub></pre>
+		<figure>
+			<img src='' alt='' />
+			<figcaption>ILLUSTRATIONNNNNNNNNNNNN - FIRST EDGE</figcaption>
+		</figure>
+
+		<p>When we're in the <code>&lt;polyline&gt;</code> case (<code>τ = 1</code>) and we're at the first edge (<code>i = 0</code>), the limit case is when the start point of the first arc <var>S<sub>0</sub></var> coincides with the first vertex of the polygonal chain <var>A<sub>0</sub></var> or, in other words, when the <var>A<sub>0</sub>A<sub>1</sub></var> segment equals the <var>A<sub>1</sub>S<sub>0</sub></var> segment. Since the length of the <var>A<sub>0</sub>A<sub>1</sub></var> segment is <code>l<sub>0</sub></code> and we can compute that of the <var>A<sub>1</sub>S<sub>0</sub></var> segment as <code><var>m<sub>0</sub></var>/tan(α<sub>0</sub>/2)</code> or <code><var>m<sub>0</sub></var>·k<sub>0</sub></code>, we get that the limit radius in this case is:</p>
+
+		<pre><var>m<sub>0</sub></var> = l<sub>0</sub>/k<sub>0</sub></pre>
 
 		<p>Compared to the general formula <code>l<sub>i</sub>/(k<sub>i-τ</sub> + k<sub>i-τ+1</sub>)</code>, the first term at the denominator (<code>k<sub>i-τ</sub></code>) is missing in this situation where <code>τ = 1</code> and <code>i = 0</code>. This means we can consider we have a <code><var>p</var></code> multiplier in front of this term and this multiplier is <code>0</code> if <code>τ = 1</code> and <code>i = 0</code>, but <code>1</code> in every other situation. Given that <code>τ</code> can be either <code>0</code> (for <code>&lt;polygon&gt;</code> elements) or <code>1</code> (for <code>&lt;polyline&gt;</code>) and that <code>i</code> can be any natural number smaller than the number of edges, we can come up with the following formula for <code><var>p</var></code>:</p>
 
-		<pre><var>p</var> = i < τ</pre>
+		<pre><var>p</var> = i >= τ</pre>
 
 		<p>This means we now have:</p>
 
-		<pre><var>rl<sub>i</sub></var> = l<sub>i</sub>/(<var>p</var>·k<sub>i-τ</sub> + k<sub>i-τ+1</sub>)
-<var>p</var> = i < τ</pre>
+		<pre><var>m<sub>i</sub></var> = l<sub>i</sub>/(<var>p</var>·k<sub>i-τ</sub> + k<sub>i-τ+1</sub>)
+<var>p</var> = i >= τ</pre>
+		
+		<p>Now let's see the limit radius for the last edge when the polygonal chain is open.</p>
+
+		<figure>
+			<img src='' alt='' />
+			<figcaption>ILLUSTRATIONNNNNNNNNNNNN - LAST EDGE</figcaption>
+		</figure>
+
+		<p>When we're in the <code>&lt;polyline&gt;</code> case (<code>τ = 1</code>) and we're at the last edge (<code>i = n-2</code>), the limit case is when the end point of the last arc <var>E<sub>n-3</sub></var> coincides with the last vertex of the polygonal chain <var>A<sub>n-1</sub></var> or, in other words, when the <var>A<sub>n-2</sub>A<sub>n-1</sub></var> segment equals the <var>A<sub>n-2</sub>E<sub>n-3</sub></var> segment. Since the length of the <var>A<sub>n-2</sub>A<sub>n-1</sub></var> segment is <code>l<sub>n-2</sub></code> and we can compute that of the <var>A<sub>n-2</sub>E<sub>n-3</sub></var> segment as <code><var>m<sub>n-2</sub></var>/tan(α<sub>n-3</sub>/2)</code> or <code><var>m<sub>n-2</sub></var>·k<sub>n-3</sub></code>, we get that the limit radius in this case is:</p>
+
+		<pre><var>m<sub>n-2</sub></var> = l<sub>n-2</sub>/k<sub>n-3</sub></pre>
+
+		<p>Compared to the general formula <code>l<sub>i</sub>/(k<sub>i-τ</sub> + k<sub>i-τ+1</sub>)</code>, the last term at the denominator (<code>k<sub>i-τ+2</sub></code>) is missing in this situation where <code>τ = 1</code> and <code>i = n-2</code>. This means we can consider we have a <code><var>q</var></code> multiplier in front of this term and this multiplier is <code>0</code> if <code>τ = 1</code> and <code>i = n-2</code>, but <code>1</code> in every other situation. Given that <code>τ</code> can be either <code>0</code> (for <code>&lt;polygon&gt;</code> elements) or <code>1</code> (for <code>&lt;polyline&gt;</code>) and that <code>i</code> can be any natural number smaller than the number of edges (<code>ne = n-τ</code>), we can come up with the following formula for <code><var>q</var></code>:</p>
+
+		<pre><var>q</var> = ne - 1 - i >= τ</pre>
+
+		<p>This means we now have:</p>
+
+		<pre><var>m<sub>i</sub></var> = l<sub>i</sub>/(<var>p</var>·k<sub>i-τ</sub> + <var>q</var>·k<sub>i-τ+1</sub>)
+<var>p</var> = i >= τ
+<var>q</var> = ne - 1 - i >= τ</pre>
+
+		<p>This way, the JavaScript code for computing the array of limit radii is:</p>
+
+		<pre>let m = l.map((c, i) => 
+			c/((i >= τ)*k[(i - τ + na)%na] + (ne - 1 - i >= τ)*k[(i - τ + 1)%na]));</pre>
+		
+		<p>Now we need to compute one more thing and that's the actual radius we use for every arc. This is the minimum value between the intial rounding radius set via the <code>r</code> attribute and the two limit radii corresponding to the two edges this arc connects.</p>
 
 		<figure>
 			<img src='' alt='' />
 			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
 		</figure>
 
-		<p>Similarly, when we're in the <code>&lt;polyline&gt;</code> case (<code>τ = 1</code>) and we're at the last edge (<code>i = n-2</code>), the limit case is when the end point of the last arc <var>E<sub>n-3</sub></var> coincides with the last vertex of the polygonal chain <var>A<sub>n-1</sub></var> or, in other words, when the <var>A<sub>n-2</sub>A<sub>n-1</sub></var> segment equals the <var>A<sub>n-2</sub>E<sub>n-3</sub></var> segment. Since the length of the <var>A<sub>n-2</sub>A<sub>n-1</sub></var> segment is <code>l<sub>n-2</sub></code> and we can compute that of the <var>A<sub>n-2</sub>E<sub>n-3</sub></var> segment as <code><var>rl<sub>n-2</sub></var>/tan(α<sub>n-3</sub>/2)</code> or <code><var>rl<sub>n-2</sub></var>·k<sub>n-3</sub></code>, we get that the limit radius in this case is:</p>
+		<p>If the polygonal chain is closed, then the edges arc <code>i</code> connects are edges <code>i-1</code> and <code>i</code>, so the actual radius <code><var>ra<sub>i</sub></var></code> depends on the limit radii <code>m<sub>i-1</sub></code> and <code>m<sub>i</sub></code>:</p>
 
-		<pre><var>rl<sub>n-2</sub></var> = l<sub>n-2</sub>/k<sub>n-3</sub></pre>
+		<pre><var>ra<sub>i</sub></var> = <var>f</var>(R, <code>m<sub>i-1</sub></code>, <code>m<sub>i</sub></code>)</pre>
 
-		<p>Compared to the general formula <code>l<sub>i</sub>/(k<sub>i-τ</sub> + k<sub>i-τ+1</sub>)</code>, the last term at the denominator (<code>k<sub>i-τ+2</sub></code>) is missing in this situation where <code>τ = 1</code> and <code>i = n-2</code>. This means we can consider we have a <code><var>q</var></code> multiplier in front of this term and this multiplier is <code>0</code> if <code>τ = 1</code> and <code>i = n-2</code>, but <code>1</code> in every other situation. Given that <code>τ</code> can be either <code>0</code> (for <code>&lt;polygon&gt;</code> elements) or <code>1</code> (for <code>&lt;polyline&gt;</code>) and that <code>i</code> can be any natural number smaller than the number of edges (<code>ne = n-τ</code>), we can come up with the following formula for <code><var>q</var></code>:</p>
+		<p>If the polygonal chain is open, then the edges arc <code>i</code> connects are edges <code>i</code> and <code>i+1</code>, so the actual radius <code><var>ra<sub>i</sub></var></code> depends on the limit radii <code>m<sub>i</sub></code> and <code>m<sub>i+1</sub></code>:</p>
 
-		<pre><var>q</var> = ne - 1 - i < τ</pre>
+		<pre><var>ra<sub>i</sub></var> = <var>f</var>(R, <code>m<sub>i</sub></code>, <code>m<sub>i+1</sub></code>)</pre>
 
-		<p>This means we now have:</p>
+		<p>This is illustrated by the following diagram:</p>
 
-		<pre><var>rl<sub>i</sub></var> = l<sub>i</sub>/(<var>p</var>·k<sub>i-τ</sub> + <var>q</var>·k<sub>i-τ+1</sub>)
-<var>p</var> = i < τ
-<var>q</var> = ne - 1 - i < τ</pre>
+		<figure>
+			<img src='' alt='' />
+			<figcaption>DIAGRAM</figcaption>
+		</figure>
 
+		<p>In the unified case, we have that:</p>
 
+		<pre><var>ra<sub>i</sub></var> = <var>f</var>(R, <code>m<sub>i+τ-1</sub></code>, <code>m<sub>i+τ</sub></code>)</pre>
+
+		<p>So the JavaScript code that computes the actual radius we need to use for every arc is:</p>
+
+		<pre>let ra = m.slice(0, na).map((c, i) => 
+			Math.min(R, m[(i + τ - 1 + ne)%ne], m[i + τ]));</pre>
+
+		<p><a href='https://codepen.io/thebabydino/pen/6b3e1f71cc8fad6f0f00e2dd42ca792e?editors=0011'>Test</a>.</p>
+
+		<p>Alright, but just computing the actual radii doesn't really do anything, we need to update the <code>ρ</code> segments and the path data to use these newly computed radii instead of the initial radius <code>R</code> set via the <code>r</code> attribute:</p>
+
+		<pre>let ρ = α.map((c, i) => ra[i]/Math.tan(.5*c));
+
+let pd = 'M' + (τ ? v[0] + 'L' : '');
+
+for(let i = 0; i < na; i++)
+	pd += (i ? 'L' : '') + s[i] + 'A' + [ra[i], ra[i], 0, 0, f[i], ...e[i]];
+	
+pd += τ ? 'L' + v[n - 1] : 'z';</pre>
+
+		<p>This solves the problem of the initial radius set via the <code>r</code> attribute being too big for some edges:</p>
+
+		<p data-height="451" data-theme-id="0" data-slug-hash="4a2f85c8d835f7305bbab39317712752" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="[NMAR] round poly(gon|line) corners - fillet step #19" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/4a2f85c8d835f7305bbab39317712752/">[NMAR] round poly(gon|line) corners - fillet step #19</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+
+		<p>There's something very interesting that can be seen in the above demo - while the rounded shapes for the random polygon look different for different starting radii, in the case of the equilateral triangle, they're both circles. This is because, in the case of regular shapes, all edges and angles are equal. This means that all values in the <code>l</code> array (storing the edge lengths) are equal and all the values in the <code>α</code> (storing the angles of our polygonal chain) array are equal. Consequently, all values in the <code>m</code> array (the array of limit radii depending solely on these two sets of factors - edges and angles) are equal, so the shape we get for any given rounding radius greater than this common limit radius is always the same.</p>
+		
+		<p>At the limit, the end point of an arc coincides with the start point of the next arc and, since the actual radii are also equal and the central points of the circles are always inside the initial polygon shape in the case of a regular polygon, be it a convex regular one or a self-intersecting star one, then all these circles are all the same (as they have the same central point and the same radius). So we get to the conclusion that, in the case of any regular polygon, its rounding shape beyond the limit radius (that its edges and angles allow) is always the same circle that's tangent to all of its edges.</p>
+		
+		<p>But that's exactly what its <a href='http://mathworld.wolfram.com/Incircle.html'>incircle</a> is!</p>
+		
+		<p>So for any regular polygon, any rounding radius <code>R</code> (set via the <code>r</code> attribute) greater than the limit radius <code>m</code> always gives us a rounding shape that's identical to the inradius of the initial regular polygon. This is illustrated by the following demo:</p>
+		
+		<p data-height="400" data-theme-id="0" data-slug-hash="MbxQmJ" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="round regular poly corners" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/MbxQmJ/">round regular poly corners</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+		
+		<p>Similarly, we always get the same shape for a rounding radius <code>R</code> greater than the limit radius <code>m</code> in the case of equilateral polygons where the sum of any two consecutive angles is always the same, which basically means equilateral polygons with an even number of vertices, all the even-numbered ones equal between them and all the odd-numbered ones equal between them (though the odd and the even not equal between them, as that would give us the particular case covered previously, that of a regular polygon). An simple example of this would be any rhombus.</p>
+
+		<p>Now let's see how things look for random, pretty irregular polygonal chains:</p>
+
+		EMBED DEMO
+
+		<h2>copying the look of initial polygonal chains</h2>
+
+		<p>Before we remove the original polygonal chains and leave just the path equivalents of the polygons with rounded corners, we need to mak sure they're styled the same way.</p>
+
+		<h2>final words</h2>
 	</body>
 </html>

@@ -4,28 +4,30 @@
 	<style>
 		[d] {
 			fill: none;
-			stroke: #bbc;
+			stroke: #eea0c7;
 			stroke-width: .2px
 		}
-		[d*=A] { stroke: #ef9134 }
-		#g * [d] { stroke-dasharray: .3 }
-		[d] + [d] { stroke: #eea0c7 }
-		[d] + * + [d] { stroke: #c7a0ee }
-		* { 
+		[d] + [d] { stroke: #bbc }
+		[d] + [d*=A] { stroke: #ef9134 }
+		[d] + [d*='M35'] { stroke: #c7a0ee }
+		[d*='A2']  { stroke: deeppink }
+		[x] { 
 			fill: #400080;
 			font: italic 1.3px tahoma, arial
 		}
 		tspan { font-size: .5em }
-		[r] + *, use ~ * {
+		[r] ~ [x], use ~ [x], #a [x] {
 			fill: #804000;
 			font: 1.3px consolas, monospace
 		}
-		g ~ * { fill: #800040 }
-		use ~ * {
+		#m { font-style: italic }
+		g ~ [x], #a * { fill: #800040 }
+		use ~ [x] {
 			fill: grey;
 			font-size: 1.7px
 		}
-		[r] {
+		[r] { fill: #eea0c7 }
+		[r^='.2'] {
 			fill: #c7a0ee;
 			stroke: #9134ef;
 			stroke-width: .13px
@@ -33,36 +35,31 @@
 		[r*='6'] { stroke: #ef3491 }
 	</style>
 	<g id='g'>
-		<path d='M32.2-8.6 25-5 35 15 15.5 7.2'/>
+		<path d='M26.9-4.4
+						 A2 2 0 0 1 25.9-3.2
+						 M32.8 10.5
+						 A5 5 0 0 0 31.3 11.6'/>
 		<text x='23.5' y='-5'>A<tspan>i</tspan></text>
 		<text x='35.5' y='16'>A<tspan>i+1</tspan></text>
-		<g opacity='.5'>
-			<path d='M32.2-8.6
-							 A8 8 0 0 0 28.6 2.2
-							 L25.6-3.9
-							 A8 8 0 0 1 15.5 7.2'/>
-			<path d='M35.7-1.4 28.6 2.2
-							 M25.6-3.9 18.4-.3'/>
-			<path d='M35.7-1.4 33.3-2.3
-							 M22.3 3.3 18.4-.3'/>
-			<circle r='.2' cx='35.7' cy='-1.4'/>
-			<circle r='.2' cx='18.4' cy='-.3'/>
-			<circle r='.26' cx='28.6' cy='2.2'/>
-			<circle r='.26' cx='25.6' cy='-3.9'/>
-		</g>
-		<path d='M32.2-8.6 30.5-7.8
+		<path d='M33.3-2.3 22.3 3.3
+						 M28.2 1.4 29.1 1 28.6 .1
+						 M27.4-.4 26.4 .1 26.9 1'/>
+		<path d='M30.5-7.8 25-5 35 15 20 9'/>
+		<path d='M30.5-7.8
 						 A6.16 6.16 0 0 0 27.8 .5
-						 A6.16 6.16 0 0 1 20 9
-						 L15.5 7.2'/>
-		<path d='M33.3-2.3 22.3 3.3'/>
-		<path d='M33.3-2.3 25-5
-						 M35 15 22.3 3.3'/>
+						 A6.16 6.16 0 0 1 20 9'/>
+		<path d='M35 15 22.3 3.3
+						 M33.3-2.3 25-5'/>
+		<circle r='.1' cx='28.4' cy='.7'/>
+		<circle r='.1' cx='27.1' cy='.3'/>
 		<circle r='.2' cx='33.3' cy='-2.3'/>
 		<circle r='.2' cx='22.3' cy='3.3'/>
 		<circle r='.2' cx='25' cy='-5'/>
 		<circle r='.2' cx='35' cy='15'/>
 		<circle r='.26' cx='27.8' cy='.5'/>
 		<text x='31' y='6'>i</text>
+		<text id='m' x='30.5'>m<tspan>i</tspan></text>
+		<use xlink:href='#m' x='-6.5' y='1.5'/>
 	</g>
 	<text x='33' y='-3'>O<tspan>i-1</tspan></text>
 	<text x='27.5' y='-.4'>E<tspan>i-1</tspan></text>
@@ -73,6 +70,13 @@
 	<text x='-5' y='4'>O<tspan>i+1</tspan></text>
 	<text x='1.3' y='2.3'>S<tspan>i+1</tspan></text>	
 	<use xlink:href='#g' x='-25'/>
-	<text x='16' y='-8'>polyline</text>
-	<text x='-9' y='-8'>polygon</text>
+	<g id='a'>
+		<text x='26.6' y='-3'>φ<tspan>i-1</tspan></text>
+		<text x='31' y='10.5'>φ<tspan>i</tspan></text>
+		<text x='1.5' y='-3'>φ<tspan>i</tspan></text>
+		<text x='5.5' y='10.5'>φ<tspan>i+1</tspan></text>
+	</g>
+	<text x='16' y='17'>polyline</text>
+	<text x='-9' y='17'>polygon</text>
+	<text x='12' y='-8'>φ<tspan>i</tspan> = α<tspan>i</tspan>/2</text>
 </svg>
