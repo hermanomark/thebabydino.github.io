@@ -1,0 +1,71 @@
+<svg xmlns='http://www.w3.org/2000/svg' 
+		 xmlns:xlink='http://www.w3.org/1999/xlink' 
+		 viewBox='-24 -23 60 30'>
+	<style>
+		[x] { 
+			fill: #400080;
+			font: italic 1.6px tahoma, arial
+		}
+		tspan { font-size: .5em }
+		[r] + *, [d] + * { font: 1.6px consolas, monospace }
+		[r] + * { fill: #804000 }
+		svg > [x], #a [x] { fill: #800040 }
+		[d], [r] {
+			fill: none;
+			stroke: #bbc;
+			stroke-width: .15px
+		}
+		[d] + [d] { stroke: #eea0c7 }
+		[d] + [d*='-10'] { stroke: #c7a0ee }
+		[d] + [d*=A] { stroke: #ef9134 }
+		[r] {
+			fill: #c7a0ee;
+			stroke: #9134ef
+		}
+		#a [d], [r='.3'] { stroke: #ef3491 }
+		[d] + [d], [r='.3'] { stroke-width: .2px }
+		svg > [x*='12'] { font-style: italic }
+		[*|href='#c'] ~ [x] {
+			fill: grey;
+			font-size: 2px;
+			text-anchor: middle
+		}
+	</style>
+	<g id='a'>
+		<path d='M28.2-11.7A7 7 0 0 0 28-9.2'/>
+		<text x='29' y='-10'>φ<tspan>0</tspan></text>
+	</g>
+	<use xlink:href='#a' x='-30'/>
+	<g id='i'>
+		<path d='M-15-15 5-10-19.2 2'/>
+		<path d='M-23.6-6.9-21.2-16.6'/>
+		<path d='M-15-15-21.2-16.6A10 10 0 0 1-19.2 2'/>
+		<path d='M-21.2-16.6-23.6-6.9'/>
+		<path d='M5-10-23.6-6.9'/>
+		<circle r='.3' cx='-21.2' cy='-16.6'/>
+		<circle r='.25' cx='-23.6' cy='-6.9'/>
+	</g>
+	<path d='M15-15 35-10 16.6-.8'/>
+	<path d='M13.2-7.6 15-15'/>
+	<path d='M15-15 A7.6 7.6 0 0 1 16.6-.8L10.8 2'/>
+	<path d='M35-10 13.2-7.6'/>
+	<g id='c'>
+		<text x='15' y='-15.5'>A<tspan>0</tspan></text>
+		<text x='34.5' y='-8.5'>A<tspan>1</tspan></text>
+		<circle r='.25' cx='35' cy='-10'/>
+		<text x='24' y='-13'>0</text>
+	</g>
+	<text id='s' x='13' y='-14'>S<tspan>0</tspan></text>
+	<text id='o' x='12' y='-6'>O<tspan>0</tspan></text>
+	<use xlink:href='#s' x='-36.3' y='-2'/>
+	<use xlink:href='#o' x='-36' y='.5'/>
+	<circle r='.25' cx='-15' cy='-15'/>
+	<text x='-24' y='-11.7'>R</text>
+	<circle r='.3' cx='15' cy='-15'/>
+	<text x='12.5' y='-11'>m<tspan>0</tspan></text>
+	<use xlink:href='#c' x='-30'/>
+	<text x='-9' y='5'>before</text>
+	<text x='21' y='5'>after</text>
+	<circle r='.25' cx='13.2' cy='-7.6'/>
+	<text x='6' y='-20'>φ<tspan>0</tspan> = α<tspan>0</tspan>/2</text>
+</svg>

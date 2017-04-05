@@ -976,7 +976,7 @@ path {
 
 		<p>So if edge <code>i</code> (<var>A<sub>i</sub>A<sub>i+1</sub></var>) is too short, then in going from the end point of arc <code>i-τ</code> (<var>E<sub>i-τ</sub></var>) to the start point of arc <code>i-τ+1</code> (<var>S<sub>i-τ+1</sub></var>), we actually go backwards on this edge, towards its start point (<var>A<sub>i</sub></var>), not towards its end point (<var>A<sub>i+1</sub></var>) as we should.</p>
 		
-		<p>The fix is to decrease the radii of the arcs replacing the vertices this edge connects until <var>S<sub>i-τ+1</sub></var> isn't behind <var>E<sub>i-τ</sub></var> anymore. This happens when <var>S<sub>i-τ+1</sub></var> and <var>E<sub>i-τ</sub></var> overlap, which means stopping when the sum of the <var>A<sub>i</sub>E<sub>i-τ</sub></var> and <var>S<sub>i-τ+1</sub>A<sub>i+1</sub></var> segments equals <var>A<sub>i</sub>A<sub>i+1</sub></var>.</p>
+		<p>The fix is to decrease the radii of the arcs replacing the vertices this edge <code>i</code> connects until <var>S<sub>i-τ+1</sub></var> isn't behind <var>E<sub>i-τ</sub></var> anymore. This happens when <var>S<sub>i-τ+1</sub></var> and <var>E<sub>i-τ</sub></var> overlap, which means stopping when the sum of the <var>A<sub>i</sub>E<sub>i-τ</sub></var> and <var>S<sub>i-τ+1</sub>A<sub>i+1</sub></var> segments equals <var>A<sub>i</sub>A<sub>i+1</sub></var>.</p>
 
 		DEMO
 		
@@ -1039,15 +1039,15 @@ i = n-2: <var>m<sub>n-2</sub></var> = <var>f</var>(l<sub>n-2</sub>, k<sub>i-3</s
 		<p>This is illustrated by the following diagram:</p>
 
 		<figure>
-			<img src='' alt='' />
-			<figcaption>DIAGRAM</figcaption>
+			<img src='images/lim_rad_diagr.svg' alt='' />
+			<figcaption>diagram showing how getting limit radii <code><var>m</var></code> from edge lengths <code>l</code> and vertex angle constants <code>k</code> works in the two cases: <code>&lt;polygon&gt;</code> (top) vs. <code>&lt;polyline&gt;</code> (bottom)</figcaption>
 		</figure>
 
 		<p>Let's now take a closer look at how we get the limit radius for the first edge when the polygonal chain is open.</p>
 
 		<figure>
-			<img src='' alt='' />
-			<figcaption>ILLUSTRATIONNNNNNNNNNNNN - FIRST EDGE</figcaption>
+			<img src='images/edge_first_ini_vs_lim_right_tri.svg' alt='' />
+			<figcaption>the right triangle <var>A<sub>1</sub>S<sub>0</sub>O<sub>0</sub></var> in the initial case (left, using the radius <code>R</code> set via the <code>r</code> attribute) vs. the limit case (right, after scaling it down with respect to <var>A<sub>1</sub></var> such that <var>S<sub>0</sub></var> coincides with <var>A<sub>0</sub></var>, which means it's not beyond the <var>A<sub>0</sub></var> limit of the <var>A<sub>0</sub>A<sub>1</sub></var> segment anymore)</figcaption>
 		</figure>
 
 		<p>When we're in the <code>&lt;polyline&gt;</code> case (<code>τ = 1</code>) and we're at the first edge (<code>i = 0</code>), the limit case is when the start point of the first arc <var>S<sub>0</sub></var> coincides with the first vertex of the polygonal chain <var>A<sub>0</sub></var> or, in other words, when the <var>A<sub>0</sub>A<sub>1</sub></var> segment equals the <var>A<sub>1</sub>S<sub>0</sub></var> segment. Since the length of the <var>A<sub>0</sub>A<sub>1</sub></var> segment is <code>l<sub>0</sub></code> and we can compute that of the <var>A<sub>1</sub>S<sub>0</sub></var> segment as <code><var>m<sub>0</sub></var>/tan(α<sub>0</sub>/2)</code> or <code><var>m<sub>0</sub></var>·k<sub>0</sub></code>, we get that the limit radius in this case is:</p>
@@ -1066,8 +1066,8 @@ i = n-2: <var>m<sub>n-2</sub></var> = <var>f</var>(l<sub>n-2</sub>, k<sub>i-3</s
 		<p>Now let's see the limit radius for the last edge when the polygonal chain is open.</p>
 
 		<figure>
-			<img src='' alt='' />
-			<figcaption>ILLUSTRATIONNNNNNNNNNNNN - LAST EDGE</figcaption>
+			<img src='images/edge_last_ini_vs_lim_right_tri.svg' alt='' />
+			<figcaption>the right triangle <var>A<sub>n-2</sub>S<sub>n-3</sub>O<sub>n-3</sub></var> in the initial case (left, using the radius <code>R</code> set via the <code>r</code> attribute) vs. the limit case (right, after scaling it down with respect to <var>A<sub>n-2</sub></var> such that <var>S<sub>n-3</sub></var> coincides with <var>A<sub>n-1</sub></var>, which means it's not beyond the <var>A<sub>n-1</sub></var> limit of the <var>A<sub>n-2</sub>A<sub>n-1</sub></var> segment anymore)</figcaption>
 		</figure>
 
 		<p>When we're in the <code>&lt;polyline&gt;</code> case (<code>τ = 1</code>) and we're at the last edge (<code>i = n-2</code>), the limit case is when the end point of the last arc <var>E<sub>n-3</sub></var> coincides with the last vertex of the polygonal chain <var>A<sub>n-1</sub></var> or, in other words, when the <var>A<sub>n-2</sub>A<sub>n-1</sub></var> segment equals the <var>A<sub>n-2</sub>E<sub>n-3</sub></var> segment. Since the length of the <var>A<sub>n-2</sub>A<sub>n-1</sub></var> segment is <code>l<sub>n-2</sub></code> and we can compute that of the <var>A<sub>n-2</sub>E<sub>n-3</sub></var> segment as <code><var>m<sub>n-2</sub></var>/tan(α<sub>n-3</sub>/2)</code> or <code><var>m<sub>n-2</sub></var>·k<sub>n-3</sub></code>, we get that the limit radius in this case is:</p>
@@ -1092,8 +1092,8 @@ i = n-2: <var>m<sub>n-2</sub></var> = <var>f</var>(l<sub>n-2</sub>, k<sub>i-3</s
 		<p>Now we need to compute one more thing and that's the actual radius we use for every arc. This is the minimum value between the intial rounding radius set via the <code>r</code> attribute and the two limit radii corresponding to the two edges this arc connects.</p>
 
 		<figure>
-			<img src='' alt='' />
-			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
+			<img src='images/rad_pick.svg' alt='' />
+			<figcaption>in both the <code>&lt;polygon&gt;</code> case (left) and the <code>&lt;polyline&gt;</code> case (right), the actual rounding radius we use for corner <code>i</code> is the minimum between the initial radius <code>R</code> set via the <code>r</code> attribute and the limit radii we've computed for the edges that meet at this corner: limit radius <code>m<sub>i+τ-1</sub></code> corresponding to edge <code>i+τ-1</code> (<var>A<sub>i+τ-1</sub>A<sub>i+τ</sub></var>) and limit radius <code>m<sub>i+τ</sub></code> corresponding to edge <code>i+τ</code> (<var>A<sub>i+τ</sub>A<sub>i+τ+1</sub></var>)</figcaption>
 		</figure>
 
 		<p>If the polygonal chain is closed, then the edges arc <code>i</code> connects are edges <code>i-1</code> and <code>i</code>, so the actual radius <code><var>ra<sub>i</sub></var></code> depends on the limit radii <code>m<sub>i-1</sub></code> and <code>m<sub>i</sub></code>:</p>
