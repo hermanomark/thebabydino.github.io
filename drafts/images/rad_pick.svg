@@ -12,9 +12,7 @@
 		[d*=A] { stroke: #c54b27 }
 		[d*='.5 0'] { stroke: #792615 }
 		[d*='A6'] { stroke: #f69e1f }
-		* {
-			font: italic .6px tahoma, arial
-		}
+		[x] {	font: italic .6px tahoma, arial }
 		tspan { font-size: .5em }
 		[r] {
 			fill: #c7a0ee;
@@ -24,6 +22,7 @@
 		[r] ~ [x] { fill: #800040 }
 		g [r] { stroke: grey }
 		[x] ~ [d] { stroke-dasharray: .2 }
+		g  [x] { font: .6px consolas, monospace }
 	</style>
 	<path d='M18.5-8.75 11-5 21 15'/>
 	<path d='M33-10.5 28-8 33 2 20.5-3'/>

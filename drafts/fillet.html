@@ -12,7 +12,7 @@
 
 		<p>I've learned that it's been proposed and got asked if I could draft an algorithm for getting the equivalent <code>&lt;path&gt;</code> data (<code>d</code>) attribute from the <a href='https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/points'><code>points</code></a> and <code>r</code> attributes specified for the initial <code>&lt;polygon&gt;</code>. I've never done this before, had no idea how to do it, what to begin with, so I'd thought I'd have a more clear idea once I've coded some kind of JavaScript polyfill.</p>
 		
-		<p>Well, here it is - <code>fillet.js</code>! It's a script that rounds the corners of any inline <code>&lt;polygon&gt;</code> and <code>&lt;polyline&gt;</code> elements that have a finite, positive rounding radius attribute (<code>r</code>) specified. All we need to do is include the script at the end of the page and... bam! Whenever we specify a valid rounding radius attribute <code>r</code> for a <code>&lt;polygon&gt;</code> or <code>&lt;polyline&gt;</code>, it magically gets rounded corners using that rounding radius or, if the given rounding radius is too big, the maximum rounding radius possible.</p>
+		<p>Well, here it is - <code>fillet.js</code>! It's a script that rounds the corners of any <code>&lt;polygon&gt;</code> and <code>&lt;polyline&gt;</code> elements that have a finite, positive rounding radius attribute (<code>r</code>) specified. All we need to do is include the script at the end of the document and... bam! Whenever we specify a valid rounding radius attribute <code>r</code> for a <code>&lt;polygon&gt;</code> or <code>&lt;polyline&gt;</code>, it magically gets rounded corners using that rounding radius or, if the given rounding radius is too big, the maximum rounding radius possible.</p>
 		
 		<p>This article is going to walk you through the thought process behind the code and show you how <code>fillet.js</code> was built - step by step. So let's get started!</p>
 		
@@ -1107,8 +1107,8 @@ i = n-2: <var>m<sub>n-2</sub></var> = <var>f</var>(l<sub>n-2</sub>, k<sub>i-3</s
 		<p>This is illustrated by the following diagram:</p>
 
 		<figure>
-			<img src='' alt='' />
-			<figcaption>DIAGRAM</figcaption>
+			<img src='images/fin_rad_diagr.svg' alt='' />
+			<figcaption>diagram showing how getting the actual radii <code><var>ra</var></code> from the initial rounding radius set via the <code>r</code> attribute and from the limit radii <code>m</code> works in the two cases: <code>&lt;polygon&gt;</code> (top) vs. <code>&lt;polyline&gt;</code> (bottom)</figcaption>
 		</figure>
 
 		<p>In the unified case, we have that:</p>
@@ -1153,7 +1153,10 @@ pd += τ ? 'L' + v[n - 1] : 'z';</pre>
 
 		<p>Now let's see how things look for random, pretty irregular polygonal chains:</p>
 
-		EMBED DEMO
+		<p data-height="525" data-theme-id="0" data-slug-hash="abe80e8697ebb911348856c86921d538" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="[NMAR] round poly(gon|line) corners - fillet step #20" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/abe80e8697ebb911348856c86921d538/">[NMAR] round poly(gon|line) corners - fillet step #20</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+
+		<p>Now everything looks nicely rounded even when the rounding radius set via th <code>r</code> attribute is too large!</p>
 
 		<h2>copying the look of initial polygonal chains</h2>
 

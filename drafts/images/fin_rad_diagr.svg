@@ -1,0 +1,99 @@
+<svg xmlns='http://www.w3.org/2000/svg' 
+		 xmlns:xlink='http://www.w3.org/1999/xlink' 
+		 viewBox='-15 -25 170 100' class='r'>
+	<style>
+		[d] {
+			fill: none;
+			stroke: #bbc;
+			stroke-width: .4px
+		}
+		[x] { font: 4px consolas, monospace }
+		[id*=h] * {
+			stroke: #ef3491;
+			marker-end: url(#a)
+		}
+		#a * { fill: #ef3491 }
+		.m { fill: #804000 }
+		.r { fill: #800040 }
+		[x='150'] {
+			fill: grey;
+			font-size: 5px;
+			text-anchor: end
+		}
+		[y='-15'] { fill: #555 }
+	</style>
+	<marker id='a' viewBox='0 -4 8 8' refX='6' 
+					markerWidth='5' markerHeight='5' orient='auto'>
+		<path d='M8 0 0-4V4'/>
+	</marker>
+	<g id='h0'>
+		<path d='M-4 11v9h119v-4M55-16l-49 11'/>
+		<path d='M65-16l49 11'/>
+	</g>
+	<g id='u'>
+		<text x='112'>n-1</text>
+		<path id='e' d='M110-4h10v5h-10z'/><!-- box extension -->
+	</g><!-- unique part first case -->
+	<use xlink:href='#u' y='15'/>
+	<g id='w'>
+		<g id='o'>
+			<g id='t'>
+				<text x='4'>0</text>
+				<text x='14'>1</text>
+				<text x='47'>i-1</text>
+				<text x='59'>i</text>
+				<text x='92'>n-3</text>
+			</g>
+			<text x='24'>2</text>
+			<text x='67'>i+1</text>
+			<text x='102'>n-2</text>
+		</g>
+		<use xlink:href='#e' x='-110'/>
+	</g>
+	<g id='c'>
+		<text class='r' x='-10'>ra</text>
+		<text class='m' x='-10' y='15'>m</text>
+		<g id='l'>
+			<text id='d' x='34' y='-1'>...</text>
+			<use xlink:href='#d' x='45'/>
+			<path id='b' d='M45-4v5h20v-5zm10 0v5'/><!-- base box -->
+			<use xlink:href='#e' x='-45'/>
+			<use xlink:href='#b' x='-35'/>
+			<use xlink:href='#b' x='45'/>
+		</g><!-- line -->
+		<g id='h'>
+			<path d='M55-15l-40 10'/>
+			<path d='M56-14l-30 9'/>
+			<path d='M59-14l-8 9'/>
+			<path d='M60-14v9'/>
+			<path d='M61-14l8 9'/>
+			<path d='M64-14l30 9'/>
+			<path d='M65-15l40 10'/>
+			<g id='g'>
+				<g id='f'>
+					<path d='M15 11v-9'/>
+					<path d='M6 11l8-9'/>
+				</g>
+				<use xlink:href='#f' x='10'/>
+			</g>
+		</g>
+		<use xlink:href='#g' x='35'/>
+		<use xlink:href='#f' x='55'/>
+		<use xlink:href='#g' x='80'/>
+		<use xlink:href='#l' y='15'/>
+		<use class='m' xlink:href='#w' y='15'/>
+		<use xlink:href='#e' x='-55' y='-15'/>
+		<text x='59' y='-15'>R</text>
+	</g><!-- COMMON part -->
+	<use xlink:href='#f' x='-10'/>
+	<use xlink:href='#f' x='100'/>
+	<text x='150'>polygon</text><!-- polygon case end -->
+
+	<g transform='translate(0 50)'>
+		<use xlink:href='#c'/><!-- copy of COMMON PART -->
+		<use xlink:href='#t' x='10'/>
+		<text x='47'>i-2</text>
+		<text x='92'>n-4</text>
+		<text x='150'>polyline</text>
+	</g>
+</svg>
