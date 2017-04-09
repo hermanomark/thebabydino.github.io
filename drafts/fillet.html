@@ -1160,7 +1160,7 @@ pd += τ ? 'L' + v[n - 1] : 'z';</pre>
 
 		<h2>copying the look of initial polygonal chains</h2>
 
-        <p>The final step is copying the styles of the original polygonal chains on the equivalent paths, hiding the original shapes and making sure all future interactions run smoothly. This turned out to be not just the most difficult part, but impossibly difficult and I ended up going down into an endless rabbit hole with it, bloating the code a lot to accomodate for every possibility I could think of and for all the new problems every solution I came up with introduced.</p>
+        <p>The last part is copying the styles of the original polygonal chains on the equivalent paths, hiding the original shapes and making sure all future interactions run smoothly. This turned out to be not just the most difficult part, but impossibly difficult and I ended up going down into an endless rabbit hole with it, bloating the code a lot to accomodate for every possibility I could think of and for all the new problems every solution I came up with introduced.</p>
 
         <p>So I ended up deciding I'd just handle just a few very basic situations and add warnings about polyfill limitations for the rest.</p>
 
@@ -1209,7 +1209,29 @@ for(let i = 0; i &lt; s0.length; i++) {
 
         <p>There's still another CSS related problem, which remains a limitation of the polyfill (unless you have a simple and bulletproof solution for it, in which case, please share it): styles set via sibling combinators, <code>:nth-child()</code>, <code>:nth-last-child()</code>, <code>:only-child</code>, <code>:last-child</code>, <code>:nth-of-type()</code> might get broken. For example, a selector like <code>polygon[r] + circle</code> won't match anything anymore after inserting the equivalent path in between.</p>
 
-        <h2>handling potential interactions</h2>
+        <h2>handling potential changes</h2>
+
+		<p>Before that, we have one more thing to do: hide the original polygonal chain and make pointer events pass through the path equivalent:</p>
+
+		<pre>_poly.dataset.alpha = s0.opacity;
+_poly.style.opacity = 0;
+_path.style['pointer-events'] = 'none';</pre>
+
+		<p>Now let's see in what ways our document might change and how we handle these changes.</p>
+
+		<p>First off, one of the original polygonal chains might get deleted. In this case, we need to also remove its equivalent path.</p>
+
+		<p>Another possible change is the addition of a <code>&lt;polygon&gt;</code> or <code>&lt;polygon&gt;</code> with a rounding radius <code>r</code> attribute to our document. In this case, we need to try to round its corners using the <code>fillet()</code> function.</p>
+
+		<p>Then there are attribute changes to the polygonal chains with an <code>r</code> attribute for which we've created equivalent paths. In most cases, we'd just copy the new attribute values to the equivalent path. However, a few cases are significant because they require doing a bit more, so let's take a closer look at them.</p>
+
+		<p>The first of these particular cases is when the changed attribute is the <code>r</code> attribute. In this case, we need to recompute the path data for the equivalent shape with rounded corners. This something that's going to require modifying the <code>fillet()</code> function a bit so that we can use it both when we already have an equivalent path element and when we don't. This <code>r</code> attribute could also get removed altogether from our initial polygonal chain, in which case we remove the equivalent path and we make the original <code>&lt;polygon&gt;</code> or <code>&lt;polygon&gt;</code> visible again. It could also be added to a <code>&lt;polygon&gt;</code> or <code>&lt;polygon&gt;</code> that didn't previously have it, in which case we try to get its rounded version using the <code>fillet()</code> function.</p>
+
+		<p>Another attribute change that requires recomputing the equivalent path data is that concerning <code>points</code>.</p>
+
+		<p>The final attribute that requires a bit more work is <code>style</code> because we need to check whether a few particular properties (<code>opacity</code>, <code>pointer-events</code>, <code>points</code>) have been changed and act accordingly.</p>
+
+		<p>On the other hand, we don't do anything if the <code>pointer-events</code> attribute changes, not even copy it onto the equivalent path. We could copy it and it wouldn't have any effect since we're setting <code>pointer-events: none</code> as an inline style, but there's no point in bloating the markup and making it more confusing.</p>
 
 		<h2>final words</h2>
 	</body>
