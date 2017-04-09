@@ -1160,21 +1160,157 @@ pd += τ ? 'L' + v[n - 1] : 'z';</pre>
 
 		<h2>copying the look of initial polygonal chains</h2>
 
-        <p>The final step is copying the styles of the original polygonal chains on the equivalent paths, hiding the original shapes and making sure all future interactions run smoothly. This turned out to be not just the most difficult part, but impossibly difficult and I ended up going down into an endless rabbit hole with it, bloating the code a lot to accomodate for every possibility I could think of and for all the new problems every solution I came up with introduced.</p>
+		<p>The next thing we want to do is hide the original polygonal chains and leave just the path equivalents with rounded corners. It's very tempting to hide it with <code>display: none</code> since fading it with <code>opacity</code> or moving it out of view with <code>translate</code> is something that seems unappealing as we want to allow the user to change those properties via JS and have those changes reflect on the equivalent path.</p>
 
-        <p>So I ended up deciding I'd just handle just a few very basic situations and add warnings about polyfill limitations for the rest.</p>
+		<p>However, this causes a problem with mouse/ touch events that expect a <code>polygon</code> or <code>polyline</code> element as they'd happen on the equivalent <code>path</code>. So, in the end, fading it with <code>opacity</code> and setting a <code>data-user-alpha</code> attribute on it, which would translate to an <code>opacity</code> of that value on the equivalent path is probably the better idea.</p>
 
-        <p>First off, copying styles on the equivalent paths is handled by copying all attributes of the original polygonal chains onto their path equivalents. This takes care of styles set inline, via presentation attributes, via <code>class</code>, attribute and, yes, <code>id</code> selectors as well. As dirty as duplicating <code>id</code> attributes may feel, not doing it creates more problems and the only practical problem it creates - getting a different result from <code>document.getElementById</code> before and after inserting the equivalent path (the original polygonal chain before, the equivalent path after) - can be solved by inserting our equivalent paths after the original shapes they round.</p>
+		<p>Before we do that, we need to make sure they both look the same way.</p>
 
-        <pre></pre>
+		<p>The first thing that comes to mind here is to copy the attributes of the initial polygonal chain to the equivalent path. This takes care of everything that's been set via presentation attributes, via id, class, attribute selectors or via inline styles.</p>
 
-        <p>At this point, it's clear there are some styles that don't match: those set via tag selectors. Rather than scanning every rule set in every stylesheet trying to match an unexpectedly complex regex and add new selectors that may well cause specificity issues (because there's no way of matching the specificity of a tag and, unlike HTML elements, SVG elements can't be extended so that we can use a tag like <code>polygon-rounded</code>) for which the only sure fix is bumping up the specificity for ever other selector in every stylesheet... we're just going to compare the computed styles of the two elements and set inline on the equivalent path the styles that don't already match.</p>
+		<p>I've been in doubt whether to do this for all attributes or exclude the <code>points</code> and <code>r</code> ones. I eventually decided not to exclude them because I didn't want to break styles in case there might be rule sets that use these attributes for the selectors - for example, something like this:</p>
 
-        <pre></pre>
+		<pre>[points][r] { /* styles */ }</pre>
 
-        <p>There's still another CSS related problem, which remains a limitation of the polyfill (unless you have a simple and bulletproof solution for it): styles set via sibling combinators might get broken. For example, a selector like <code>polygon[r] + circle</code> won't match anything anymore after inserting the equivalent path in between.</p>
+		<p>Also, while they have the downside of adding to the markup, their presence doesn't really do any harm.</p>
 
-        <p></p>
+		<p>The code for copying the attributes looks as follows:</p>
+
+		<pre>for(let i = 0; i < _poly.attributes.length; i++) {
+	let attr = _poly.attributes[i];
+	_path.setAttribute(attr.name, attr.value);
+}</pre>
+		<p>The following pen shows the result of adding the above code:</p>
+
+		<p data-height="349" data-theme-id="0" data-slug-hash="8d1708c4c0f56823f2bc20b24409b54d" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="[NMAR] round poly(gon|line) corners - fillet step #21" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/8d1708c4c0f56823f2bc20b24409b54d/">[NMAR] round poly(gon|line) corners - fillet step #21</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+
+		<p>For the most part, things seem fine. However... things are not what they seem.</p>
+
+		<p>The first problem is that we're duplicating <code>id</code> attributes - we now have both a <code>polygon</code> and a <code>path</code> with an <code>id</code> of <code>boo</code>. It feels dirty to leave things like this, but adding a prefix or suffix seems to cause more trouble.</p>
+
+		<p>For starters, I'd need to duplicate all instances of selectors containing <code>#boo</code>, meaning that the following rules:</p>
+
+		<pre>#boo { /* styles */ }
+
+.active #boo { /* other styles */ }</pre>
+
+		<p>... should become:</p>
+
+		<pre>#boo, #boo-fillet { /* styles */ }
+
+.active #boo, .active #boo-fillet { /* other styles */ }</pre>
+		
+		<p>We don't want to just replace <code>#boo</code> with <code>[id^='boo']</code> as that can both lead to specificity issues and catch other elements whose <code>id</code> attributes happen to begin with <code>"boo"</code>.</p>
+
+		<p>Then there's the problem of attribute selectors. A selector like <code>[id='boo']</code> won't match anymore and neither will <code>[id$='oo']</code> (or <code>[id^='b']</code> if we decide to add a prefix instead of a suffix and have the <code>id</code> of the equivalent path be <code>fillet-boo</code>).</p>
+		
+		<p>The easiest fix would be to replace the <code>^</code> or <code>$</code> with <code>*</code> in the selectors that match, but that may lead to catching other elements that happen to contain those strings elsewhere in their <code>id</code> attributes. For example, <code>[id$='oo']</code> doesn't catch an <code>id</code> of <code>scooby</code>, but <code>[id*='oo']</code> does.</p>
+
+		<p>So the only solution left would be to duplicate these selectors:</p>
+
+		<pre>[id='boo'], [id='boo-fillet'] { /* styles */ }
+
+[id$='oo'], [id$='oo-fillet'] { /* styles */ }</pre>
+
+		<p>So it's probably better to keep the same <code>id</code> on both elements, even if it feels dirty. This could still cause problems with user JS when selecting the element with an <code>id</code> of <code>boo</code> and expecting a <code>polygon</code> (or <code>polyline</code>). <code>document.getElementById('boo')</code> only catches the first element with this <code>id</code>, which shouldn't normally be a problem, but in our case, it catches the initial polygonal chain before the rounding script runs and the equivalent path after the rounding script runs.</p>
+		
+		<p>This is why it would probably make more sense to insert the equivalent path after the intial polygonal chain in the DOM and set <code>pointer-events: none</code> on it.</p>
+
+		<pre></pre>
+		
+		<p>The second problem is that what copying all attributes doesn't cover is styles set using the <code>polygon</code> or <code>polyline</code> selectors. In the CSS of the above pen, we have as follows:</p>
+
+		<pre>polygon, polyline { fill-opacity: .5 }
+
+polygon { fill: #c7a0ee }
+
+polyline { fill: #eec7a0 }</pre>
+
+		<p>These styles don't get applied to the equivalent paths, as it is highlighted in the following illustration (the areas inside the equivalent path, but outside the initial polygonal line don't have a <code>fill</code>):</p>
+
+		<figure>
+			<img src='' alt=''/>
+			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
+		</figure>
+
+		<p>We could add some appropriate classes on the equivalent paths (let's say <code>fillet--c</code> for the equivalents of closed polygonal chains and <code>fillet--o</code> for the equivalents of open ones) and also add these classes to the above selector lists.</p>
+
+		<p>Adding these classes to the equivalent paths is something we would do for each such path after copying the attributes from the original polygonal chains:</p>
+
+		<pre>_path.classList.add(`fillet--${τ ? 'o' : 'c'}`)</pre>
+
+		<p>However, adding them wherever we have element selectors is something we would only do once, right at the beginning, before rounding any polygonal chain.</p>
+
+		<p>In our case, the result we want is the following:</p>
+
+		<pre>polygon, polyline, .fillet--c, .fillet--o { fill-opacity: .5 }
+
+polygon, .fillet--c { fill: #c7a0ee }
+
+polyline, .fillet--o { fill: #eec7a0 }</pre>
+
+		<p>In order to do this, we'd need to scan the <code>selectorText</code> of every CSS style rule in every stylesheet of our document.</p>
+
+		<pre></pre>
+
+		<p>We should match selectors like these:</p>
+
+		<pre>polygon, polyline { /* styles */ }
+polygon,polyline { /* styles */ } /* note no space after "," here */
+polygon~polygon { /* styles */ }
+circle+polyline { /* styles */ }
+:not(polygon) {/* styles */}
+g polyline { /* styles */ }</pre>
+
+		<p>And turn them into these:</p>
+
+		<pre>polygon, polyline, .fillet--c, .fillet--o { /* styles */ }
+polygon,polyline, .fillet--c, .fillet--o { /* styles */ }
+polygon~polygon, polygon ~ .fillet--c { /* styles */ }
+circle+polyline, circle+polyline + .fillet--o { /* styles */ }
+:not(polygon), :not(.fillet--c) {/* styles */}
+g polyline, g .fillet--o { /* styles */ }</pre>
+
+		<p>Note how we just duplicate them in most cases, but need to do something different when we have an adjacent sibling combinator.</p>
+
+		<p>We should also be careful not to match selectors like these:</p>
+
+		<pre>.polygon { /* styles */ }
+.mypolygon { /* styles */ }
+my-polygon { /* styles */ }
+polygons { /* styles */ }
+polygon-foo { /* styles */ }
+#polyline { /* styles */ }
+[class*='g polyline'] { /* styles */ }</pre>
+
+		<p>Well, this is getting crazy. On top of it all, after we delete all of these rules and replace them with new ones (we cannot simply change <code>selectorText</code> as that's read-only in Firefox and Edge), we can run into specificity issues.</p>
+
+		<p>Let's say we round the corners of a <code>polygon</code> with a class of <code>boo</code> and that, in the CSS, we have:</p>
+
+		<pre>.boo { fill: violet }
+polygon {
+	fill: grey;
+	stroke: dimgrey
+}</pre>
+
+		<p>Our <code>polygon</code> will have a <code>violet</code> fill because <code>.boo</code> has higher specificity than <code>polygon</code>. And so will the equivalent path since we've copied the <code>boo</code> class on it. However, the equivalent <code>path</code> that doesn't get the <code>dimgrey</code> stroke at this point. We add a <code>fillet--c</code> class to this element and then modify the CSS:</p>
+
+		<pre>.boo { fill: violet }
+polygon, .fillet--c {
+	fill: grey;
+	stroke: dimgrey
+}</pre>
+
+		<p>Now our equivalent path has the <code>dimgrey</code> stroke, but its fill has become <code>grey</code>. <code>.boo</code> and <code>.fillet--c</code> have the same specificity, but <code>.fillet--c</code> appears after <code>.boo</code> in the CSS. There is no way to match the specificity of a tag since we cannot currently extend SVG elements to create our own custom elements (we can only extend HTML elements). The only way to get around this is to bump up the specificity of every rule that doesn't contain <code>.fillet--c</code>. Which is crazy.</p>
+
+		<p>Which is why simply copying the computed styles of the original <code>polygon</code> or <code>polyline</code> into the style attribute of the equivalent path doesn't sound like such a bad idea anymore.</p>
+
+		<p>However, we may still break styles of other elements anyway. For example, consider the following:</p>
+
+		<pre>polygon[r] + circle { /* styles */ }</pre>
+
+		<p>After adding the equivalent <code>path</code> to the document, the <code>circle</code> isn't right after our original <code>polygon</code> anymore. And if we were to add it before, we may break a style set via a selector like <code>circle + polygon[r]</code>.</p>
 
 		<h2>final words</h2>
 	</body>
