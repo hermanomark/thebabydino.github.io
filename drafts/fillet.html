@@ -1160,7 +1160,11 @@ pd += τ ? 'L' + v[n - 1] : 'z';</pre>
 
 		<h2>copying the look of initial polygonal chains</h2>
 
-		<p>Before we hide the original polygonal chains and leave just the path equivalents with rounded corners, we need to make sure they look the same way.</p>
+		<p>The next thing we want to do is hide the original polygonal chains and leave just the path equivalents with rounded corners. It's very tempting to hide it with <code>display: none</code> since fading it with <code>opacity</code> or moving it out of view with <code>translate</code> is something that seems unappealing as we want to allow the user to change those properties via JS and have those changes reflect on the equivalent path.</p>
+
+		<p>However, this causes a problem with mouse/ touch events that expect a <code>polygon</code> or <code>polyline</code> element as they'd happen on the equivalent <code>path</code>. So, in the end, fading it with <code>opacity</code> and setting a <code>data-user-alpha</code> attribute on it, which would translate to an <code>opacity</code> of that value on the equivalent path is probably the better idea.</p>
+
+		<p>Before we do that, we need to make sure they both look the same way.</p>
 
 		<p>The first thing that comes to mind here is to copy the attributes of the initial polygonal chain to the equivalent path. This takes care of everything that's been set via presentation attributes, via id, class, attribute selectors or via inline styles.</p>
 
@@ -1181,7 +1185,41 @@ pd += τ ? 'L' + v[n - 1] : 'z';</pre>
 		<p data-height="349" data-theme-id="0" data-slug-hash="8d1708c4c0f56823f2bc20b24409b54d" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="[NMAR] round poly(gon|line) corners - fillet step #21" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/8d1708c4c0f56823f2bc20b24409b54d/">[NMAR] round poly(gon|line) corners - fillet step #21</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
 <script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
 
-		<p>For the most part, things are fine. However, what copying all attributes doesn't cover is styles set using the <code>polygon</code> or <code>polyline</code> selectors. In the CSS of the above pen, we have as follows:</p>
+		<p>For the most part, things are fine. However, I can see two problems here.</p>
+
+		<p>The first problem is that we're' duplicating <code>id</code> attributes - I now have both a <code>polygon</code> and a <code>path</code> with an <code>id</code> of <code>boo</code>. It feels dirty to leave things like this, but adding a prefix or suffix seems to cause more trouble.</p>
+
+		<p>For starters, I'd need to duplicate all instances of selectors containing <code>#boo</code>, meaning that the following rules:</p>
+
+		<pre>#boo { /* styles */ }
+
+.active #boo { /* other styles */ }</pre>
+
+		<p>... should become:</p>
+
+		<pre>#boo, #boo-fillet { /* styles */ }
+
+.active #boo, .active #boo-fillet { /* other styles */ }</pre>
+		
+		<p>We don't want to just replace <code>#boo</code> with <code>[id^='boo']</code> as that can both lead to specificity issues and catch other elements whose <code>id</code> attributes happen to begin with <code>"boo"</code>.</p>
+
+		<p>Then there's the problem of attribute selectors. A selector like <code>[id='boo']</code> won't match anymore and neither will <code>[id$='oo']</code> (or <code>[id^='b']</code> if we decide to add a prefix instead of a suffix and have the <code>id</code> of the equivalent path be <code>fillet-boo</code>).</p>
+		
+		<p>The easiest fix would be to replace the <code>^</code> or <code>$</code> with <code>*</code> in the selectors that match, but that may lead to catching other elements that happen to contain those strings elsewhere in their <code>id</code> attributes. For example, <code>[id$='oo']</code> doesn't catch an <code>id</code> of <code>scooby</code>, but <code>[id*='oo']</code> does.</p>
+
+		<p>So the only solution left would be to duplicate these selectors:</p>
+
+		<pre>[id='boo'], [id='boo-fillet'] { /* styles */ }
+
+[id$='oo'], [id$='oo-fillet'] { /* styles */ }</pre>
+
+		<p>So it's probably better to keep the same <code>id</code> on both elements, even if it feels dirty. This could still cause problems with user JS when selecting the element with an <code>id</code> of <code>boo</code> and expecting a <code>polygon</code> (or <code>polyline</code>). <code>document.getElementById('boo')</code> only catches the first element with this <code>id</code>, which shouldn't normally be a problem, but in our case, it catches the initial polygonal chain before the rounding script runs and the equivalent path after the rounding script runs.</p>
+		
+		<p>This is why it would probably make more sense to insert the equivalent path after the intial polygonal chain in the DOM and set <code>pointer-events: none</code> on it.</p>
+
+		<pre></pre>
+		
+		<p>The second problem is that what copying all attributes doesn't cover is styles set using the <code>polygon</code> or <code>polyline</code> selectors. In the CSS of the above pen, we have as follows:</p>
 
 		<pre>polygon, polyline { fill-opacity: .5 }
 
