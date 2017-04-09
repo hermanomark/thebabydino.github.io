@@ -1164,15 +1164,47 @@ pd += τ ? 'L' + v[n - 1] : 'z';</pre>
 
         <p>So I ended up deciding I'd just handle just a few very basic situations and add warnings about polyfill limitations for the rest.</p>
 
-        <p>First off, copying styles on the equivalent paths is handled by copying all attributes of the original polygonal chains onto their path equivalents. This takes care of styles set inline, via presentation attributes, via <code>class</code>, attribute and, yes, <code>id</code> selectors as well. As dirty as duplicating <code>id</code> attributes may feel, not doing it creates more problems and the only practical problem it creates - getting a different result from <code>document.getElementById</code> before and after inserting the equivalent path (the original polygonal chain before, the equivalent path after) - can be solved by inserting our equivalent paths after the original shapes they round.</p>
+        <p>First off, copying styles on the equivalent paths is handled by copying all attributes of the original polygonal chains onto their path equivalents. This takes care of styles set inline, via presentation attributes, via <code>class</code>, attribute and, yes, <code>id</code> selectors as well.</p>
+		
+		<p>As dirty as duplicating <code>id</code> attributes may feel, not doing it creates quite a few problems while the only practical problem duplication creates - getting a different result from <code>document.getElementById()</code> before and after inserting the equivalent path (the original polygonal chain before, the equivalent path after) - can be solved by inserting our equivalent paths after the original shapes they round.</p>
 
-        <pre></pre>
+        <pre>for(let i = 0; i &lt; _poly.attributes.length; i++) {
+	let attr = _poly.attributes[i];
+	_path.setAttribute(attr.name, attr.value);
+}
 
-        <p>At this point, it's clear there are some styles that don't match: those set via tag selectors. Rather than scanning every rule set in every stylesheet trying to match an unexpectedly complex regex and add new selectors that may well cause specificity issues (because there's no way of matching the specificity of a tag and, unlike HTML elements, SVG elements can't be extended so that we can use a tag like <code>polygon-rounded</code>) for which the only sure fix is bumping up the specificity for ever other selector in every stylesheet... we're just going to compare the computed styles of the two elements and set inline on the equivalent path the styles that don't already match.</p>
+_up = _poly.parentNode;
+	
+if(_poly.nextElementSibling)
+	_up.insertBefore(_path, _poly.nextElementSibling);
+else _up.appendChild(_path);</pre>
 
-        <pre></pre>
+		<p>The result can be seen in the following pen:</p>
 
-        <p>There's still another CSS related problem, which remains a limitation of the polyfill (unless you have a simple and bulletproof solution for it): styles set via sibling combinators might get broken. For example, a selector like <code>polygon[r] + circle</code> won't match anything anymore after inserting the equivalent path in between.</p>
+		<p data-height="349" data-theme-id="0" data-slug-hash="8d1708c4c0f56823f2bc20b24409b54d" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="[NMAR] round poly(gon|line) corners - fillet step #21" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/8d1708c4c0f56823f2bc20b24409b54d/">[NMAR] round poly(gon|line) corners - fillet step #21</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+
+        <p>At this point, it's clear there are some styles that don't match: those set via tag selectors. In the above pen, the fills of the polygonal chains have been set using tag selectors. As a result, these fills don't get applied to the equivalent paths, as it is highlighted in the following illustration (the areas inside the equivalent path, but outside the initial polygonal line don't have a <code>fill</code>):</p>
+
+		<figure>
+			<img src='images/diff_fills.svg' alt=''/>
+			<figcaption>areas indicated by the arrows should have a semitransparent violet fill</figcaption>
+		</figure>
+		
+		<p>Rather than scanning every rule set in every stylesheet trying to match an unexpectedly complex regex and add new selectors that may well cause specificity issues (because there's no way of matching the specificity of a tag and, unlike HTML elements, <a href='https://twitter.com/justinfagnani/status/850830166594998272'>SVG elements can't be extended</a> so that we can use a tag like <code>polygon-rounded</code>) for which the only sure fix is bumping up the specificity by a class for ever other selector... we're just going to compare the computed styles of the two elements and set inline on the equivalent path the styles that don't already match.</p>
+
+        <pre>let s0 = getComputedStyle(_poly);
+	
+let s1 = getComputedStyle(_path);
+		
+for(let i = 0; i &lt; s0.length; i++) {
+	let key = s0.item(i), val = s0.getPropertyValue(key);
+			
+	if(key !== 'd' &amp;&amp; val !== s1.getPropertyValue(key))
+		_path.style[key] = val;
+}</pre>
+
+        <p>There's still another CSS related problem, which remains a limitation of the polyfill (unless you have a simple and bulletproof solution for it, in which case, please share it): styles set via sibling combinators, <code>:nth-child()</code>, <code>:nth-last-child()</code>, <code>:only-child</code>, <code>:last-child</code>, <code>:nth-of-type()</code> might get broken. For example, a selector like <code>polygon[r] + circle</code> won't match anything anymore after inserting the equivalent path in between.</p>
 
         <p></p>
 
