@@ -8,7 +8,7 @@
 			stroke-width: .3px
 		}
 		[x] { 
-			fill: #400080;
+			fill: #5200a3;
 			font: 2px consolas, monospace
 		}
 		tspan { font-size: .5em }

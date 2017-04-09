@@ -9,15 +9,15 @@
 		}
 		[d*=A] { stroke: #ef9134 }
 		* { 
-			fill: #400080;
+			fill: #5200a3;
 			font: italic 1.3px tahoma, arial
 		}
 		tspan { font-size: .5em }
 		[r] + *, use ~ * {
-			fill: #804000;
+			fill: #a35200;
 			font: 1.3px consolas, monospace
 		}
-		g ~ * { fill: #800040 }
+		g ~ * { fill: #a30052 }
 		use ~ * {
 			fill: grey;
 			font-size: 1.7px

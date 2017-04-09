@@ -15,11 +15,11 @@
 			stroke-width: .7px
 		}
 		[x] {
-			fill: #400080;
+			fill: #5200a3;
 			font: italic 4.5px tahoma, arial
 		}
 		tspan { font-size: .5em }
-		[r] ~ [x] { fill: #804000 }
+		[r] ~ [x] { fill: #a35200 }
 		[r='.5'], [d] + [x] { fill: grey }
 		[d*='A2'] {
 			opacity: .5;
@@ -27,7 +27,7 @@
 		}
 		#r ~ [r] { stroke: none }
 		[d] + [x], #r { font: 6px consolas, monospace }
-		#a { fill: #800040 }
+		#a { fill: #a30052 }
 		#a + * { stroke: #ef3491 }
 	</style>	
 	<!-- vertex labels -->

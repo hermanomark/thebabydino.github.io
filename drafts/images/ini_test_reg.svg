@@ -19,7 +19,7 @@
 		}
 		tspan { font-size: .5em }
 		* + tspan { font: 2px consolas, monospace }
-		#g [x] { fill: #400080 }
+		#g [x] { fill: #5200a3 }
 		[r] { stroke: #9134ef }
 	</style>
 	<g id='c'>

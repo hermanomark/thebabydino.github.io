@@ -1156,23 +1156,65 @@ pd += τ ? 'L' + v[n - 1] : 'z';</pre>
 		<p data-height="525" data-theme-id="0" data-slug-hash="abe80e8697ebb911348856c86921d538" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="[NMAR] round poly(gon|line) corners - fillet step #20" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/abe80e8697ebb911348856c86921d538/">[NMAR] round poly(gon|line) corners - fillet step #20</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
 		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
 
-		<p>Now everything looks nicely rounded even when the rounding radius set via th <code>r</code> attribute is too large!</p>
+		<p>Now everything looks nicely rounded even when the rounding radius set via the <code>r</code> attribute is too large!</p>
 
 		<h2>copying the look of initial polygonal chains</h2>
 
-		<p>Before we remove the original polygonal chains and leave just the path equivalents with rounded corners, we need to make sure they look the same way.</p>
+		<p>Before we hide the original polygonal chains and leave just the path equivalents with rounded corners, we need to make sure they look the same way.</p>
 
 		<p>The first thing that comes to mind here is to copy the attributes of the initial polygonal chain to the equivalent path. This takes care of everything that's been set via presentation attributes, via id, class, attribute selectors or via inline styles.</p>
 
-		<p>I've been in doubt whether to do this for all attributes or exclude the <code>points</code> and <code>r</code> ones. I eventually decided not to exclude them for a few reasons.</p>
-
-		<p>First of all, excluding them might break styles set via attribute selectors because there may be some rule set that looks like this:</p>
+		<p>I've been in doubt whether to do this for all attributes or exclude the <code>points</code> and <code>r</code> ones. I eventually decided not to exclude them because I didn't want to break styles in case there might be rule sets that use these attributes for the selectors - for example, something like this:</p>
 
 		<pre>[points][r] { /* styles */ }</pre>
 
-		<p>Secondly, since I'm removing the initial polygonal chains, I don't exactly dislike the idea of still having the information in those attributes. And finally, while they have the downside of adding to the markup, their presence doesn't do any harm.</p>
+		<p>Also, while they have the downside of adding to the markup, their presence doesn't really do any harm.</p>
 
-		<p>However, what copying all attributes doesn't cover is styles set using the <code>polygon</code> or <code>polyline</code> selectors.</p>
+		<p>The code for copying the attributes looks as follows:</p>
+
+		<pre>for(let i = 0; i < _poly.attributes.length; i++) {
+	let attr = _poly.attributes[i];
+	_path.setAttribute(attr.name, attr.value);
+}</pre>
+		<p>The following pen shows the result of adding the above code:</p>
+
+		<p data-height="349" data-theme-id="0" data-slug-hash="8d1708c4c0f56823f2bc20b24409b54d" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="[NMAR] round poly(gon|line) corners - fillet step #21" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/8d1708c4c0f56823f2bc20b24409b54d/">[NMAR] round poly(gon|line) corners - fillet step #21</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+
+		<p>For the most part, things are fine. However, what copying all attributes doesn't cover is styles set using the <code>polygon</code> or <code>polyline</code> selectors. In the CSS of the above pen, we have as follows:</p>
+
+		<pre>polygon, polyline { fill-opacity: .5 }
+
+polygon { fill: #c7a0ee }
+
+polyline { fill: #eec7a0 }</pre>
+
+		<p>These styles don't get applied to the equivalent paths, as it is highlighted in the following illustration (the areas inside the equivalent path, but outside the initial polygonal line don't have a <code>fill</code>):</p>
+
+		<figure>
+			<img src='' alt=''/>
+			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
+		</figure>
+
+		<p>What we can do here is add some appropriate classes on the equivalent paths (let's say <code>fillet--c</code> for the equivalents of closed polygonal chains and <code>fillet--o</code> for the equivalents of open ones) and also add these classes to the above selector lists.</p>
+
+		<p>Adding these classes to the equivalent paths is something we do for each such path after copying the attributes from the original polygonal chains:</p>
+
+		<pre>_path.classList.add(`fillet--${τ ? 'o' : 'c'}`)</pre>
+
+		<p>However, adding them wherever we have element selectors is something we do only do once, right at the beginning, before rounding any polygonal chain.</p>
+
+		<p>In our case, the result we want is the following:</p>
+
+		<pre>polygon, polyline, .fillet--c, .fillet--o { fill-opacity: .5 }
+
+polygon, .fillet--c { fill: #c7a0ee }
+
+polyline, .fillet--o { fill: #eec7a0 }</pre>
+
+		<p>In order to do this, we need to scan the selector text for every CSS style rule in every stylesheet of our document.</p>
+
+		<pre></pre>
 
 		<h2>final words</h2>
 	</body>

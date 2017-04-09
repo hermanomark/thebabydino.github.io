@@ -16,7 +16,7 @@
 			marker-end: url(#b);
 			marker-start: none
 		} /* arc */
-		#b ~ [x] { fill: #800040 }
+		#b ~ [x] { fill: #a30052 }
 		[d*='9V'], [r] { stroke-width: .1px }
 		[d*='9V'] {
 			stroke: #bbc;
@@ -26,7 +26,7 @@
 		[r] { fill: #c7a0ee }
 		[y] + [r] { stroke: #9134ef }
 		[y] {
-			fill: #804000;
+			fill: #a35200;
 			font: italic 1px tahoma, arial
 		}
 		[y] :nth-child(odd), [y] * * {
@@ -36,7 +36,7 @@
 			font-family: consolas, monospace
 		}
 		[y] > :nth-child(2n), svg > [d] ~ * { font-style: normal }
-		#g [y] { fill: #400080 }
+		#g [y] { fill: #5200a3 }
 	</style>
 	<path d='M10 15H20V0'/><!-- projection right -->
 	<g>

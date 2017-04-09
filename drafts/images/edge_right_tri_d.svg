@@ -9,7 +9,7 @@
 		}
 		[d] + [d] { stroke: #ef9134 } /* edge */
 		[y] {
-			fill: #804000;
+			fill: #a35200;
 			font: italic 1px tahoma, arial
 		}
 		[y] :nth-child(odd), [y] * * {
@@ -17,7 +17,7 @@
 		}
 		[y] > :nth-child(2n) { font-style: normal }
 		[y] > :nth-child(2n), [x='-8'], [y='8'] { font-family: consolas, monospace }
-		[r] + [y] { fill: #400080 }
+		[r] + [y] { fill: #5200a3 }
 		[y] + [r] {
 			fill: #c7a0ee;
 			stroke: #9134ef;

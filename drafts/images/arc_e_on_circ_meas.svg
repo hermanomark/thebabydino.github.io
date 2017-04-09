@@ -10,7 +10,7 @@
 		[d*=h] { stroke-width: .1px }
 		[d*=h] + [d] ~ [d] { stroke: #ef9134 }
 		[x] {
-			fill: #400080;
+			fill: #5200a3;
 			font: italic 2px tahoma, arial
 		}
 		tspan { font-size: .5em }
@@ -18,7 +18,7 @@
 		[x] {  }
 		[r*='.3'] { fill: #c7a0ee }
 		[r] { stroke-width: .15px }
-		[id*=m] [x], [r] ~ [x] { fill: #800040 }
+		[id*=m] [x], [r] ~ [x] { fill: #a30052 }
 		#b * { fill: #ef3491 }
 		[id*=m] [d], [r='.35'] {
 			marker-end: url(#b);
@@ -27,7 +27,7 @@
 		}
 		[r='.35'] { stroke: #9134ef }
 		g + [x] {
-			fill: #804000;
+			fill: #a35200;
 			font: 2px consolas, monospace
 		}
 		#m0 g { filter: url(#f) }

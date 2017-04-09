@@ -9,11 +9,11 @@
 		}
 		[d*=L] { stroke: #ef9134 } /* edge */
 		[y] {
-			fill: #804000;
+			fill: #a35200;
 			font: italic 1px tahoma, arial
 		}
 		tspan { font-size: .5em }
-		[r] + [y] { fill: #400080 }
+		[r] + [y] { fill: #5200a3 }
 		[y] + [r] {
 			fill: #c7a0ee;
 			stroke: #9134ef;

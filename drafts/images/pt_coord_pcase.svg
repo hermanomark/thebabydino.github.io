@@ -11,10 +11,10 @@
 		[d] { stroke: #bbc }
 		[d*=A] { stroke: #ef3491 } /* arc */
 		[d*='L69'] { stroke: #ef9134 } /* radial line */
-		[d*='L69'] + *, g { fill: #804000 } /* radial line text */
+		[d*='L69'] + *, g { fill: #a35200 } /* radial line text */
 	</style>
 	<path d='M20 0A20 20 0 0 1 17.3 10'/><!--arc-->
-	<text x='12' y='5' fill='#800040'>θ</text><!-- angle label -->
+	<text x='12' y='5' fill='#a30052'>θ</text><!-- angle label -->
 
 	<g>
 		<text x='-15' y='-2'>O<tspan>(0,0)</tspan></text><!-- origin label -->
@@ -40,7 +40,7 @@
 		<text x='-5' y='41'>R</text><!-- y proj label -->
 		<text x='34' y='-2' id='x'>xp</text><!-- primary x projection label -->
 		<text x='-7' y='21' id='y'>yp</text><!-- primary y projection label -->
-		<text x='71' y='43' fill='#400080'>P<tspan>(xp,yp)</tspan></text><!-- point P label -->
+		<text x='71' y='43' fill='#5200a3'>P<tspan>(xp,yp)</tspan></text><!-- point P label -->
 	</g>
 
 	<use xlink:href='#p' x='69.3' y='40' stroke='#9134ef'/><!-- point P -->

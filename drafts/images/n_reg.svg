@@ -16,16 +16,16 @@
 			stroke-width: .2px
 		}
 		svg {
-			fill: #400080;
+			fill: #5200a3;
 			font: 2px consolas, monospace
 		}
 		[r] {
 			fill: #c7a0ee;
 			stroke: #9134ef
 		}
-		[d] ~ [x] { fill: #804000 }
+		[d] ~ [x] { fill: #a35200 }
 		[d*=A] { stroke: #ef3491 }
-		#g ~ [y] { fill: #800040 }
+		#g ~ [y] { fill: #a30052 }
 	</style>
 	<g id='c'>
 		<path d='M1 0h38'/>

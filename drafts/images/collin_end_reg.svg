@@ -16,7 +16,7 @@
 			stroke-width: .3px
 		}
 		svg {
-			fill: #400080;
+			fill: #5200a3;
 			font: 3px consolas, monospace
 		}
 		[r] {

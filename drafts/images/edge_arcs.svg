@@ -10,7 +10,7 @@
 		[d*=h] { stroke-width: .07px }
 		[d*=A] { stroke: #ef9134 }
 		[x] {
-			fill: #400080;
+			fill: #5200a3;
 			font: italic 1.3px tahoma, arial
 		}
 		tspan { font-size: .5em }
@@ -19,7 +19,7 @@
 			stroke: #9134ef;
 			stroke-width: .1px
 		}
-		#b ~ [x] { fill: #800040 }
+		#b ~ [x] { fill: #a30052 }
 		#b * { fill: #ef3491 }
 		#b ~ [d] {
 			marker-end: url(#b);
@@ -27,7 +27,7 @@
 			stroke-width: .1px
 		}
 		#b + [x] {
-			fill: #804000;
+			fill: #a35200;
 			font: 1.3px consolas, monospace
 		}
 	</style>

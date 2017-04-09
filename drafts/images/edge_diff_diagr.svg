@@ -1,6 +1,6 @@
 <svg xmlns='http://www.w3.org/2000/svg' 
 		 xmlns:xlink='http://www.w3.org/1999/xlink' 
-		 viewBox='-15 -20 170 80' fill='#400080'>
+		 viewBox='-15 -20 170 80' fill='#5200a3'>
 	<style>
 		[d] {
 			fill: none;
@@ -13,7 +13,7 @@
 			font-size: 5px;
 			text-anchor: end
 		}
-		[y='15'],[*|href='#u'] { fill: #804000 }
+		[y='15'],[*|href='#u'] { fill: #a35200 }
 		#f { marker-end: url(#a) }
 		#f *, [d*='h-1'] { stroke: #ef9134 }
 		#a * {

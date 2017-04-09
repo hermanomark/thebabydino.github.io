@@ -11,12 +11,12 @@
 		[d], [r='80'] { fill: none }
 		[d] { stroke: #bbc }
 		[d*=A] { stroke: #ef3491 }
-		[d*=A] + * { fill: #800040 }
+		[d*=A] + * { fill: #a30052 }
 		[d] + [d] { stroke-dasharray: 1px }
 		[d*=L] { stroke: #ef9134 }
-		svg > text + [x], [d*=L] + * { fill: #804000 }
+		svg > text + [x], [d*=L] + * { fill: #a35200 }
 		g + use { stroke: #9134ef }
-		g + use + * { fill: #400080 }
+		g + use + * { fill: #5200a3 }
 	</style>
 	<path d='M80 30A20 20 0 0 1 77.3 40'/><!--arc-->
 	<text x='74' y='36'>θ</text>

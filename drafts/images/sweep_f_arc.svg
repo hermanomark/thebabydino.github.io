@@ -13,7 +13,7 @@
 		}
 		[d] + [d] { stroke: #ef9134 }
 		[x] {
-			fill: #400080;
+			fill: #5200a3;
 			font: italic 2px tahoma, arial
 		}
 		tspan { font-size: .5em }
@@ -22,7 +22,7 @@
 			stroke: #ef3491;
 			marker-end: url(#a)
 		}
-		[r] ~ [x] { fill: #800040 }
+		[r] ~ [x] { fill: #a30052 }
 		#a * {
 			fill: #ef3491;
 			stroke: none

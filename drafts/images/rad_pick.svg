@@ -1,6 +1,6 @@
 <svg xmlns='http://www.w3.org/2000/svg' 
 		 xmlns:xlink='http://www.w3.org/1999/xlink' 
-		 viewBox='9.9 -10.5 24 13' fill='#400080'>
+		 viewBox='9.9 -10.5 24 13' fill='#5200a3'>
 	<style>
 		[d] {
 			fill: none;
@@ -19,7 +19,7 @@
 			stroke: #9134ef;
 		}
 		[r*='3'] { stroke: #ef3491 }
-		[r] ~ [x] { fill: #800040 }
+		[r] ~ [x] { fill: #a30052 }
 		g [r] { stroke: grey }
 		[x] ~ [d] { stroke-dasharray: .2 }
 		g  [x] { font: .6px consolas, monospace }

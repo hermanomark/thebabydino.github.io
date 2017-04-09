@@ -3,13 +3,13 @@
 		 viewBox='-24 -23 60 30'>
 	<style>
 		[x] { 
-			fill: #400080;
+			fill: #5200a3;
 			font: italic 1.6px tahoma, arial
 		}
 		tspan { font-size: .5em }
 		[r] + *, [d] + * { font: 1.6px consolas, monospace }
-		[r] + * { fill: #804000 }
-		svg > [x], #a [x] { fill: #800040 }
+		[r] + * { fill: #a35200 }
+		svg > [x], #a [x] { fill: #a30052 }
 		[d], [r] {
 			fill: none;
 			stroke: #bbc;

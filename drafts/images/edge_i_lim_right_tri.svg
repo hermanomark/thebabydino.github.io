@@ -12,16 +12,16 @@
 		[d] + [d*='M35'] { stroke: #c7a0ee }
 		[d*='A2']  { stroke: deeppink }
 		[x] { 
-			fill: #400080;
+			fill: #5200a3;
 			font: italic 1.3px tahoma, arial
 		}
 		tspan { font-size: .5em }
 		[r] ~ [x], use ~ [x], #a [x] {
-			fill: #804000;
+			fill: #a35200;
 			font: 1.3px consolas, monospace
 		}
 		#m { font-style: italic }
-		g ~ [x], #a * { fill: #800040 }
+		g ~ [x], #a * { fill: #a30052 }
 		use ~ [x] {
 			fill: grey;
 			font-size: 1.7px

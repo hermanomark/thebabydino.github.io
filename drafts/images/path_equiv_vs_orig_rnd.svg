@@ -10,7 +10,7 @@
 		[d] { fill: none }
 		[d] + [d] { stroke: #ef9134 }
 		[x] {
-			fill: #400080;
+			fill: #5200a3;
 			font: italic 2px tahoma, arial
 		}
 		tspan { font-size: .5em }
@@ -20,7 +20,7 @@
 			stroke-width: .2px
 		}
 		[r='.4'] { stroke: #ef3491 }
-		[r] ~ [x] { fill: #800040 }
+		[r] ~ [x] { fill: #a30052 }
 	</style>
 	<path d='M-28 5.8-30 5-25-15-22.6-14.4'/>
 	<path d='M15-15 17.4-14.4

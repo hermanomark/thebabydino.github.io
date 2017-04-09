@@ -8,13 +8,13 @@
 			stroke-width: .3px
 		}
 		[x] { font: 2px consolas, monospace }
-		#g { fill: #400080 }
+		#g { fill: #5200a3 }
 		[r] {
 			fill: #c7a0ee;
 			stroke: #9134ef;
 			stroke-width: .2px
 		}
-		[d] ~ [x] { fill: #804000 }
+		[d] ~ [x] { fill: #a35200 }
 	</style>
 	<path d='M35-10L25-5L35 15
 					 M-30 5l5-20

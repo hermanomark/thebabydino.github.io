@@ -8,7 +8,7 @@
 			stroke-width: .2px
 		}
 		* { font: italic 2px tahoma, arial }
-		[d] ~ [x] { fill: #400080 }
+		[d] ~ [x] { fill: #5200a3 }
 		[d] + [x] {
 			fill: #bbc;
 			font-family: courier, monospace

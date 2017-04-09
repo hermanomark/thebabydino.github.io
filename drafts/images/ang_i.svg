@@ -15,11 +15,11 @@
 		[y] + [d] { stroke: #ef3491 }
 		[d][y] { fill: #eea0c7 }
 		[x] { 
-			fill: #400080;
+			fill: #5200a3;
 			font: 2px consolas, monospace
 		}
-		[d] ~ [x] { fill: #804000 }
-		#g ~ [x] { fill: #800040 }
+		[d] ~ [x] { fill: #a35200 }
+		#g ~ [x] { fill: #a30052 }
 	</style>
 	<path d='M-11.4-6.8A4 4 0 0 1-13.2-1.4L-15-5
 					 M33.2 11.4A4 4 0 0 0 31.3 13.5L35 15'

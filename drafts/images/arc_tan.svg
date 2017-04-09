@@ -14,9 +14,9 @@
 		}
 		[x] { font: italic 4.5px tahoma, arial }
 		tspan { font-size: .5em }
-		[x] { fill: #400080 }
+		[x] { fill: #5200a3 }
 		[r*='3'] { stroke: #9134ef }
-		[r] ~ [x] { fill: #800040 }
+		[r] ~ [x] { fill: #a30052 }
 		[r] + [d] { stroke: #ef3491 }
 		[r='.5'] { fill: #ef3491 }
 		[r='25'] { stroke:  #eea0c7 }

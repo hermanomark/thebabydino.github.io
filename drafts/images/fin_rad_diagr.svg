@@ -13,8 +13,8 @@
 			marker-end: url(#a)
 		}
 		#a * { fill: #ef3491 }
-		.m { fill: #804000 }
-		.r { fill: #800040 }
+		.m { fill: #a35200 }
+		.r { fill: #a30052 }
 		[x='150'] {
 			fill: grey;
 			font-size: 5px;

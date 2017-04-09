@@ -14,7 +14,7 @@
 		}
 		[d] + [d*=A] { stroke: #ef3491 }
 		[y] {
-			fill: #400080;
+			fill: #5200a3;
 			font: italic 1.5px tahoma, arial
 		}
 		tspan { font-size: .5em }

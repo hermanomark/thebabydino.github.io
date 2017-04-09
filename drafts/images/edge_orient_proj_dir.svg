@@ -12,7 +12,7 @@
 			stroke: #ef3491;
 			marker-end: url(#b)
 		} /* arc */
-		#b + * + * { fill: #800040 }
+		#b + * + * { fill: #a30052 }
 		#c + *, [y] + [r] {
 			stroke-width: .1px;
 		}
@@ -27,9 +27,9 @@
 		[d*='5V'] { opacity: .5 }
 		[r] { fill: #c7a0ee }
 		[y] + [r] { stroke: #9134ef }
-		[r] + [y] { fill: #400080 }
+		[r] + [y] { fill: #5200a3 }
 		[y] {
-			fill: #804000;
+			fill: #a35200;
 			font: italic 1px tahoma, arial
 		}
 		[y] :nth-child(odd), [y] * * {

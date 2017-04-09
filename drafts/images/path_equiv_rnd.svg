@@ -10,7 +10,7 @@
 		[d] { fill: none }
 		g ~ [d] { stroke: #ef9134 }
 		[x] {
-			fill: #400080;
+			fill: #5200a3;
 			font: italic 2px tahoma, arial
 		}
 		tspan { font-size: .5em }
@@ -20,7 +20,7 @@
 			stroke-width: .2px
 		}
 		[r='.4'] { stroke: #ef3491 }
-		[r] ~ [x] { fill: #800040 }
+		[r] ~ [x] { fill: #a30052 }
 		[id*=o] {
 			fill-opacity: .4;
 			stroke-opacity: .4;
