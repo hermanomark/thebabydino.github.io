@@ -54,7 +54,7 @@
 		<circle r='.3' cx='35' cy='15'/>
 		<text x='19' y='12'>n-2</text>
 	</g>
-	<text id='s' x='7' y='4'>S<tspan>n-3</tspan></text>
+	<text id='s' x='7' y='4'>E<tspan>n-3</tspan></text>
 	<text id='o' x='12' y='-6'>O<tspan>n-3</tspan></text>
 	<use xlink:href='#s' x='-47' y='-2'/>
 	<use xlink:href='#o' x='-46' y='-5'/>
