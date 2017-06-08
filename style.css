@@ -96,8 +96,6 @@ main {
   content: '\1F4BB'; }
 .item--podcast:before {
   content: '\1F50A'; }
-.item__original {
-  display: inline-block; }
 .item__date:before {
   display: inline-block;
   margin-right: .25em;
