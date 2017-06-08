@@ -84,7 +84,6 @@ main {
   max-width: 50em; }
 
 .item:before {
-  display: inline-block;
   margin-left: .25em;
   width: 2em;
   text-align: center; }
