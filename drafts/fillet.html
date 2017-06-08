@@ -759,13 +759,6 @@ L x<sub>n-1</sub>, y<sub>n-1</sub></pre>
 		
 		<p>If we also take into account their signs (one goes clockwise, so its sign is <code>+</code>, the other one goes in the opposite direction, so its sign is <code>-</code>), we see that they are <code>180°</code> apart. Subtracting <code>180°</code> from the positive one gives us the negative one, while adding <code>180°</code> to the negative one gives us the positive one.</p>
 		
-		<!--<p>If we draw another horizontal line through the middle of our <var>A<sub>i</sub>A<sub>i+1</sub></var></code> segment, we create <a href='https://en.wikipedia.org/wiki/Transversal_(geometry)#Corresponding_angles'>corresponding angles</a>:</p>
-		
-		<figure>
-			<img src='' alt=''/>
-			<figcaption>ILLUSTRATIONNNNNNNNNNNNN</figcaption>
-		</figure>-->
-		
 		<p>The interactive demo below illustrates this. Drag the <var>A<sub>i</sub>A<sub>i+1</sub></var> segment to see how its angle with respect the horizontal (<code>γ<sub>i</sub></code>, marked with pink) changes and how that influences the angle of <var>A<sub>i+1</sub>A<sub>i</sub></var> with respect to the horizontal (<code>δ<sub>i</sub></code>, marked with green).</p>
 		
 		<p data-height="630" data-theme-id="0" data-slug-hash="eBaRVV" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="angles of a segment w.r.t. the horizontal (SVG + JS)" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/eBaRVV/">angles of a segment w.r.t. the horizontal (SVG + JS)</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
@@ -1207,18 +1200,43 @@ for(let i = 0; i &lt; s0.length; i++) {
 		<p data-height="365" data-theme-id="0" data-slug-hash="3f1604df26977f99e1f3f93e9b1b8ff8" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="[NMAR] round poly(gon|line) corners - fillet step #22" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/3f1604df26977f99e1f3f93e9b1b8ff8/">[NMAR] round poly(gon|line) corners - fillet step #22</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
 		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
 
-        <p>There's still another CSS related problem, which remains a limitation of the polyfill (unless you have a simple and bulletproof solution for it, in which case, please share it): styles set via sibling combinators, <code>:nth-child()</code>, <code>:nth-last-child()</code>, <code>:only-child</code>, <code>:last-child</code>, <code>:nth-of-type()</code> might get broken. For example, a selector like <code>polygon[r] + circle</code> won't match anything anymore after inserting the equivalent path in between.</p>
+        <p>There's still another CSS related problem, which remains a limitation of the polyfill (unless you have a simple and bulletproof solution for it, in which case, please share it): styles set on other elements via sibling combinators, <code>:nth-child()</code>, <code>:nth-last-child()</code>, <code>:only-child</code>, <code>:last-child</code>, <code>:nth-of-type()</code> might get broken. For example, a selector like <code>polygon[r] + circle</code> won't match anything anymore after inserting the equivalent path in between. Also, hover styles set using selectors like <code>polygon:hover</code> will fail.</p>
+
+		<h2>hiding original polygonal chains</h2>
+
+		<p>What we want is to hide the original <code>&lt;polygon&gt;</code> and <code>&lt;polyline&gt;</code> elements and let pointer events pass through the path equivalents.</p>
+
+		<p>The second part is the easier one, all we need to do is force <code>pointer-events</code> to <code>none</code> on our equivalent paths.</p>
+
+		<p>But how do we hide the original polygonal chains? Setting <code>display: none</code> is out of the question because we want them to still be able to respond to clicks.</p>
+		
+		<p>Forcing <code>opacity</code> to <code>0</code> is the better option in this case, but what if toggling a <code>class</code>, hovering or having an <code>animation</code> run changes it? <code>!important</code> would override any value set via a <code>class</code>, and we can check for and revert <code>opacity</code> changes on <code>hover</code>. However, values set via keyframe animations override <code>!important</code> values, so what can we do in that case? Well, while this may at first seem like it's inconvenient, it's actually really useful!</p>
+
+		<p>What we can do is force <code>opacity: 0</code> from within an animation we add at the end and then no <code>!important</code> styles, no class change, no hover and no other previous animation can override this.</p>
+
+		<p>So we create a <code>force-transparent</code> animation:</p>
+
+		<pre>@keyframes force-transparent { 0%, 100% { opacity: 0 } }</pre>
+
+		<p>We put it in a style we add at the end of our document:</p>
+
+		<pre>const _S = document.createElement('style')
+
+_S.textContent = '@keyframes force-transparent{0%,to{opacity:0}}';
+document.documentElement.appendChild(_S);</pre>
+		
+		<p>Finally, within the <code>fillet()</code> function we add this animation to every polygonal chain we hide:</p>
+
+		<pre>_poly.style.animation = 
+	((s0.animationName !== 'none') ? `${s0.animation},` : '') + 
+	'force-transparent 1s infinite';</pre>
+
+		<p>Now we've successfully hidden our original polygonal chains in a way that shouldn't cause too much trouble in the future.</p>
+
+		<p data-height="450" data-theme-id="0" data-slug-hash="b8bdf5f9c321b14e835af60b165d26c9" data-default-tab="result" data-user="thebabydino" data-embed-version="2" data-pen-title="[NMAR] round poly(gon|line) corners - fillet step #23" class="codepen">See the Pen <a href="https://codepen.io/thebabydino/pen/b8bdf5f9c321b14e835af60b165d26c9/">[NMAR] round poly(gon|line) corners - fillet step #23</a> by Ana Tudor (<a href="http://codepen.io/thebabydino">@thebabydino</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+		<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
 
         <h2>handling potential changes</h2>
-
-		<p>Before that, we have one more thing to do: hide the original polygonal chain and make pointer events pass through the path equivalent:</p>
-
-		<pre>_poly.dataset.falpha = s0['fill-opacity'];
-_poly.dataset.salpha = s0['stroke-opacity'];
-_poly.style['fill-opacity'] = _poly.style['stroke-opacity'] = 0;
-_path.style['pointer-events'] = 'none';</pre>
-
-		<p>I chose to hide the <code>_poly</code> element using <code>fill-opacity</code> and <code>stroke-opacity</code> because they seem to be less used in animations than <code>opacity</code> is.</p>
 
 		<p>Now let's see in what ways our document might change and how we handle these changes. We're going to use a <a href='https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver'>mutation observer</a> for this.</p>
 
@@ -1361,16 +1379,25 @@ let observer = new MutationObserver(records => {
 		<p>This <code>r</code> attribute could also get removed altogether from our initial polygonal chain, in which case we remove the equivalent path and we make the original <code>&lt;polygon&gt;</code> or <code>&lt;polygon&gt;</code> visible again.</p>
 
 		<pre>if(r.attributeName === 'r') {
-	/* get current attribute value (after it changed) */
-	let curr = target.getAttribute(r.attributeName);
-
-	if(!curr) {
-		
-	}
-
 	for(let i = 0; i < np; i++) {
 		if(_P[i].ini === r.target) {
-			_P[i].fin = fillet(_P[i].ini, _P[i].fin);
+			if(!r.target.getAttribute(r.attributeName)) {
+				_P[i].fin.parentNode.removeChild(_P[i].fin);
+
+				if(_P[i].ini.dataset.falpha < 1)
+					_P[i].ini.style['fill-opacity'] = _P[i].ini.dataset.falpha;
+				else _P[i].ini.style.removeProperty('fill-opacity');
+				if(_P[i].ini.dataset.salpha < 1)
+					_P[i].ini.style['stroke-opacity'] = _P[i].ini.dataset.salpha;
+				else _P[i].ini.style.removeProperty('stroke-opacity');
+				_P[i].ini.removeAttribute('data-falpha');
+				_P[i].ini.removeAttribute('data-salpha');
+
+				_P.splice(i, 1);
+				np--;
+			}
+			else _P[i].fin = fillet(_P[i].ini, _P[i].fin);
+
 			break;
 		}
 	}
@@ -1378,13 +1405,48 @@ let observer = new MutationObserver(records => {
 		
 		<p>It could also be added to a <code>&lt;polygon&gt;</code> or <code>&lt;polygon&gt;</code> that didn't previously have it, in which case we try to get its rounded version using the <code>fillet()</code> function.</p>
 
+		<pre>if(r.attributeName === 'r') {
+	if(!r.oldValue) {
+		_P.push({ ini: r.target, fin: fillet(r.target) });
+		np++;
+	}
+	else {
+		for(let i = 0; i < np; i++) {
+			/* same code as before */
+		}
+	}
+}</pre>
+
 		<p>Another attribute change that requires recomputing the equivalent path data is that concerning <code>points</code>.</p>
+
+		<pre>if(r.type === 'attributes') {
+	if(r.target.matches('polygon, polyline')) {
+		if(r.attributeName === 'r') {
+			/* same code as before */
+		}
+		else if(r.target.matches(SEL)) {
+			for(let i = 0; i < np; i++) {
+				if(_P[i].ini === r.target) {
+					switch(r.attributeName) {
+						case 'points':
+							_P[i].fin = fillet(_P[i].ini, _P[i].fin);
+							break;
+						default:
+							_P[i].fin.setAttribute(r.attributeName, r.target.getAttribute(r.attributeName))
+					}
+				}
+			}
+		}
+	}
+}</pre>
 
 		<p>The final attribute that requires a bit more work is <code>style</code> because we need to check whether a few particular properties (<code>fill-opacity</code>, <code>stroke-opacity</code>, <code>pointer-events</code>) have been changed and act accordingly. As far as <code>fill-opacity</code> and <code>stroke-opacity</code> are concerned, we copy their values onto the equivalent path, but reset them to <code>0</code> on the original polygonal chain. However, for <code>pointer-events</code>, we do nothing because that style value has to stay <code>none</code> on the equivalent path, regardless of what value it has on the original <code>&lt;polygon&gt;</code> or <code>&lt;polygon&gt;</code>.</p>
 
+
+
 		<p>On the other hand, we don't do anything if the <code>pointer-events</code> attribute changes, not even copy it onto the equivalent path. We could copy it and it wouldn't have any effect since we're setting <code>pointer-events: none</code> as an inline style, but there's no point in bloating the markup and making it more confusing.</p>
 
-		<p>We do all of this by using a mutation observer.</p>
+		<p>For the <code>fill-opacity</code> or the <code>stroke-opacity</code> attributes, we copy their values onto the equivalent path.</p>
 
 		<h2>final words</h2>
 	</body>
