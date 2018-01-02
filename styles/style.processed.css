@@ -1,0 +1,372 @@
+@import url("https://fonts.googleapis.com/css?family=Dancing+Script");
+* {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+}
+
+article,
+section {
+  display: block;
+  width: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow-x: hidden;
+  min-width: 10rem;
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+  font: 1em/ 1.375 trebuchet ms, verdana, sans-serif;
+}
+
+header {
+  --head-off: 50vw;
+  --head-fs0: 2em;
+  --head-fs1: 3.5vw;
+  overflow: hidden;
+  text-align: center;
+}
+
+h1 {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  position: relative;
+  box-shadow: inset 0 0 2px 1px #000;
+  background: linear-gradient(90deg, #000, transparent 15%, transparent 85%, #000) 50%/1500px 100%, url(https://pbs.twimg.com/profile_banners/90221168/1447165525/1500x500) 50% no-repeat;
+  font: 700 calc(var(--head-fs0) + var(--head-fs1))/1.5 dancing script, trebuchet ms;
+}
+
+h1:before,
+h1:after {
+  --i: 1;
+  position: absolute;
+  left: -100%;
+  top: 0;
+  width: 300%;
+  height: 100%;
+  transform: skewx(15deg);
+  background: linear-gradient(90deg, #000 3.5rem, transparent 0) calc(50vw + var(--i)*1.53125rem) 0/6.125rem;
+  --m: linear-gradient(calc(90deg*(1 - var(--i))), transparent 33.333%, #000 66.667%) 50% calc(50%*(1 - var(--i)))/100% 300% no-repeat;
+  -webkit-mask: var(--m);
+  mask: var(--m);
+  filter: blur(1px);
+  transition: all .7s linear, opacity .7s ease-out;
+  content: '';
+}
+
+h1:after {
+  --i: -1;
+}
+
+h1 a {
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  padding: 0 .5em;
+  color: #fff;
+  transition: 0.7s ease-out;
+  transition-property: transform, color, filter;
+}
+
+h1 a:hover,
+h1 a:focus {
+  outline: none;
+  color: #f4bf81;
+  filter: blur(1px);
+}
+
+a {
+  color: #e97f02;
+  text-decoration: none;
+}
+
+nav {
+  border: solid 0 #e97f02;
+  border-width: .25em 0;
+  border-image: linear-gradient(90deg, #f8ca00, #490a3d, #8a9b0f, #bd1550) 100 100;
+  padding: .25em 0 .125em;
+  font-size: 1.5em;
+  color: #e97f02;
+}
+
+nav a {
+  display: block;
+  --pos: calc(var(--i, 1)*100%);
+  background: linear-gradient(var(--a, 45deg), #fff 50%, #e97f02 0) var(--pos) var(--pos)/300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 2;
+  transition: background-position 0.35s ease-out;
+}
+
+nav a:focus,
+nav a:hover {
+  --i: 0;
+}
+
+main {
+  margin: 1em auto;
+  padding: 0 5vw;
+  max-width: 60rem;
+  font-size: 1.25em;
+}
+
+h2 {
+  padding: .5em 0 .125em;
+  font-size: 2em;
+  line-height: 1.5;
+}
+
+h3 {
+  font-size: 1.5em;
+}
+
+:not(h2)+h3 {
+  padding-top: 1em;
+}
+
+p {
+  padding: .75em 0;
+}
+
+p a {
+  transition: 0.7s ease-out;
+  transition-property: background, color;
+}
+
+p a:focus,
+p a:hover {
+  background: #754001;
+  color: #fff;
+}
+
+em {
+  font-style: italic;
+}
+
+code {
+  font-family: courier new, monospace;
+  font-weight: 900;
+}
+
+.bulleted {
+  padding-left: 1em;
+}
+
+li {
+  line-height: 2;
+}
+
+.item {
+  padding: .25em 0;
+  list-style: none;
+  line-height: 1.375;
+}
+
+.item a {
+  display: block;
+  margin-bottom: .5em;
+}
+
+.item__date {
+  white-space: nowrap;
+}
+
+.item__date:before {
+  display: inline-block;
+  margin: 0 .25em 0 .75em;
+  content: '\1F4C5';
+}
+
+.item__tags span {
+  display: inline-block;
+  margin: 0 .5em;
+  padding: 0 .5em;
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px #f4bf81;
+}
+
+.icn {
+  display: inline-block;
+  margin-right: .25em;
+  width: 1.5em;
+  height: 1.5em;
+  vertical-align: middle;
+}
+
+.demos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  list-style: none;
+  width: inherit;
+}
+
+.demo {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  margin: .5em;
+  width: 100%;
+  max-width: 32rem;
+}
+
+.demo h4 {
+  overflow: hidden;
+  padding: 0 .5em;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 1.25em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.demo video,
+.demo img {
+  width: 100%;
+  height: auto;
+  background: #fff;
+}
+
+.demo section {
+  display: flex;
+  align-items: center;
+  padding: 0 .25em;
+  background: rgba(244, 191, 129, 0.2);
+}
+
+.demo__time {
+  flex: 1;
+  align-items: center;
+}
+
+.demo__time:before {
+  margin-right: .25em;
+  content: '\023F1';
+}
+
+.demo a {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  margin-left: .5em;
+  width: 1.5em;
+  height: 1.5em;
+}
+
+.demo a span {
+  width: 0;
+}
+
+.demo .icn {
+  flex: 1;
+}
+
+.demo dl {
+  --def-term: 4.25em;
+  padding: .5em 0;
+  line-height: 1.375;
+}
+
+.demo dt {
+  color: #bfbfbf;
+  font-weight: 900;
+}
+
+.demo dt:after {
+  content: ':';
+}
+
+.demo dd {
+  margin-bottom: .25em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  padding-bottom: .25em;
+}
+
+footer {
+  padding: 1em;
+  background: #e97f02;
+  text-align: center;
+}
+
+@media (min-width: 23.5em) {
+  nav {
+    padding: .625em 0 .5em;
+  }
+  nav a {
+    display: inline-block;
+    padding: .125em 2vw;
+  }
+}
+
+@media (min-width: 32em) {
+  .demo a {
+    overflow: visible;
+    width: auto;
+  }
+  .demo a span {
+    width: auto;
+  }
+  .demo dl {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .demo dt {
+    margin-bottom: .25em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 0 .25em .25em 0;
+    width: var(--def-term);
+    text-align: right;
+  }
+  .demo dd {
+    width: calc(100% - var(--def-term));
+  }
+}
+
+@media (min-width: 50em) and (min-height: 35em) {
+  h1 {
+    height: 32vw;
+    max-height: 29rem;
+  }
+  h1:before,
+  h1:after {
+    opacity: 0;
+    -webkit-mask-position: 50% calc(50%*(1 - 3*var(--i)));
+    mask-position: 50% calc(50%*(1 - 3*var(--i)));
+  }
+  h1 a {
+    transform: translate(calc(50% - var(--head-off) + 1rem), calc(50% + 3rem));
+  }
+  nav {
+    padding-right: calc(50vw - var(--head-off));
+    padding-left: calc(3.9*(var(--head-fs0) + var(--head-fs1)) + 50vw - var(--head-off));
+  }
+}
+
+@media (min-width: 50em) {
+  main {
+    padding: 0 10vw;
+  }
+}
+
+@media (min-width: 65em) {
+  header {
+    --head-off: 32.5rem;
+    --head-fs0: 4.25rem;
+    --head-fs1: 0vw;
+  }
+  .demo {
+    width: 47%;
+  }
+}

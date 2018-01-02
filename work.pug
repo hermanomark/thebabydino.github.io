@@ -1,0 +1,220 @@
+extends structure/_layout.pug
+
+block title
+	title Ana Tudor :: Work
+
+block content
+	svg(width='0' height='0')
+		symbol#icn-cp(viewBox='-100 -100 200 200')
+			path(fill='none' stroke='currentcolor' stroke-width='17' stroke-linejoin='round'
+					 d='M0-91.5l92 61-92 61-92-61 92-61v61l92 61-92 61-92-61 92-61M0 32v60M92-30v60M-92-30v60')
+		symbol#icn-yt(viewBox='0 0 1500 1500' fill='currentcolor')
+			linearGradient#l(x2='0' y2='1')
+				stop(stop-color='#e52d27')
+				stop(offset='1' stop-color='#c1171d')
+			path(d='M 9 750c5-515 0-520 741-515 741-5 736 0 741 515-5 515 0 520-741 515-741 5-736 0-741-515')
+			path(d='M1002 750l-404-200v400' fill='#fff')
+			path(d='M 951 775l51-25-404-200' fill='#e8e0e0')
+
+	main
+  
+		h2 Work Samples
+		
+		p This is a showcase of a few of the things I've coded. For each of them, I've included info about the time it took me to <em>code</em> it, what it uses, browser support and, in most cases, links to the live demo and a video of me coding the thing. You can check out more on my <a href="https://codepen.io/thebabydino/">CodePen</a> and <a href="https://www.youtube.com/anatudor">YouTube</a> profile pages.
+		
+		p If you like these demos and you'd like me to be able to do more in the future, please consider supporting my work with a <a href='https://liberapay.com/anatudor/donate'>donation</a> or by getting me something off my Amazon wishlist (<a href='https://www.amazon.com/gp/registry/wishlist/2Y3C4722GXH0I/'>🇺🇸</a> / <a href='https://www.amazon.co.uk/gp/registry/wishlist/2I25W7U0KADSR/'>🇬🇧</a>). Over 90% of the stuff I do is not paid in any way so anything can help with staying afloat.
+		
+		h3 CSS 3D
+		
+		ul.demos
+			
+			li.demo
+				h4 Mighty octopus
+				img(src='images/work_3d_octo.png')
+				section
+					span.demo__time 35min
+					a(href='https://youtu.be/CyENEWZeFho')
+						svg.icn
+							use(xlink:href='#icn-yt')
+						span video
+					a(href='https://codepen.io/thebabydino/pen/oGPGxw/')
+						svg.icn
+							use(xlink:href='#icn-cp')
+						span code
+				dl
+					dt Using
+					dd Maths, Haml, HTML, Sass, CSS (variables, 3D transforms)
+					dt Support
+					dd Chrome, Firefox 57+
+			
+			li.demo
+				h4 Winter scene
+				img(src='images/work_3d_snow.png')
+				section
+					span.demo__time 1h 10min
+					a(href='https://youtu.be/AeQvfZE33Fw')
+						svg.icn
+							use(xlink:href='#icn-yt')
+						span video
+					a(href='https://codepen.io/thebabydino/pen/vpyPmN/')
+						svg.icn
+							use(xlink:href='#icn-cp')
+						span code
+				dl
+					dt Using
+					dd Maths, Pug, HTML, Sass, CSS (variables, 3D transforms)
+					dt Support
+					dd Chrome (Experiemental Web Platform Features flag)
+		
+		h3 Loaders
+		
+		ul.demos
+			
+			li.demo
+				h4 Infinite twisting strip
+				img(src='images/work_load_strip.png')
+				section
+					span.demo__time 19min
+					a(href='https://youtu.be/eKkxfngCg0U')
+						svg.icn
+							use(xlink:href='#icn-yt')
+						span video
+					a(href='https://codepen.io/thebabydino/pen/NXqpez/')
+						svg.icn
+							use(xlink:href='#icn-cp')
+						span code
+				dl
+					dt Using
+					dd Maths, Pug, HTML, Sass, CSS (variables, 3D transforms)
+					dt Support
+					dd Chrome, Firefox 57+
+			
+			li.demo
+				h4 Rainbow tiles
+				img(src='images/work_load_tiles.png')
+				section
+					span.demo__time 25min
+					a(href='https://codepen.io/thebabydino/pen/mOJvyB/')
+						svg.icn
+							use(xlink:href='#icn-cp')
+						span code
+				dl
+					dt Using
+					dd Maths, Haml, HTML, Sass, CSS (transforms)
+					dt Support
+					dd cross-browser
+		
+		h3 Controls
+		
+		ul.demos
+			
+			li.demo
+				h4 Thermostat
+				img(src='images/work_ctrl_therm.png')
+				section
+					span.demo__time 55min
+					a(href='https://youtu.be/yhwGL1I9LP0')
+						svg.icn
+							use(xlink:href='#icn-yt')
+						span video
+					a(href='https://codepen.io/thebabydino/pen/eGvNjr/')
+						svg.icn
+							use(xlink:href='#icn-cp')
+						span code
+				dl
+					dt Using
+					dd HTML, Sass, CSS (variables, conic gradients), JavaScript
+					dt Support
+					dd Chrome (Experiemental Web Platform Features flag)
+			
+			li.demo
+				h4 Fruit toggle
+				img(src='images/work_ctrl_fruit.png')
+				section
+					span.demo__time 1h 10min
+					//a(href='https://youtu.be/yhwGL1I9LP0')
+						svg.icn
+							use(xlink:href='#icn-yt')
+						span video
+					a(href='https://codepen.io/thebabydino/pen/XVgmdR/')
+						svg.icn
+							use(xlink:href='#icn-cp')
+						span code
+				dl
+					dt Using
+					dd Pug, HTML, SVG, Sass, CSS (variables)
+					dt Support
+					dd Chrome, Firefox 59+
+		
+		h3 Logos
+		
+		ul.demos
+			
+			li.demo
+				h4 Chrome
+				img(src='images/work_logo_chrome.svg')
+				section
+					span.demo__time 35min
+					a(href='https://youtu.be/xR1Nexgdrog')
+						svg.icn
+							use(xlink:href='#icn-yt')
+						span video
+					a(href='https://codepen.io/thebabydino/pen/eewbOJ/')
+						svg.icn
+							use(xlink:href='#icn-cp')
+						span code
+				
+				dl
+					dt Using
+					dd Pug, SVG (1.55KB)
+					dt Support
+					dd cross-browser
+			
+			li.demo
+				h4 Rainbow
+				img(src='images/work_logo_rainbow.png')
+				section
+					span.demo__time 9min
+					a(href='https://youtu.be/3m1fOiIY7JY')
+						svg.icn
+							use(xlink:href='#icn-yt')
+						span video
+					a(href='https://codepen.io/thebabydino/pen/OpzdRq/')
+						svg.icn
+							use(xlink:href='#icn-cp')
+						span code
+				dl
+					dt Using
+					dd CSS (<code>conic-gradient</code> with .js polyfill if no native support, <code>mix-blend-mode</code>, <code>filter</code>)
+					dt Support
+					dd Chrome, Firefox
+			
+			li.demo
+				h4 Twitter
+				img(src='images/work_logo_twitter.svg')
+				section
+					span.demo__time 35min
+					a(href='https://codepen.io/thebabydino/pen/bqwYYW/')
+						svg.icn
+							use(xlink:href='#icn-cp')
+						span code
+				dl
+					dt Using
+					dd Pug, SVG (306 bytes)
+					dt Support
+					dd cross-browser
+			
+			li.demo
+				h4 Stack Overflow
+				img(src='images/work_logo_so.svg')
+				section
+					span.demo__time 20min
+					a(href='https://codepen.io/thebabydino/pen/bqwYYW/')
+						svg.icn
+							use(xlink:href='#icn-cp')
+						span code
+				dl
+					dt Using
+					dd Pug, SVG (252 bytes)
+					dt Support
+					dd cross-browser
